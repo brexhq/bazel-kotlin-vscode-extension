@@ -11,13 +11,29 @@
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
+  "extensionDependencies": [
+    "fwcd.kotlin"
+  ],
   "contributes": {
     "commands": [
       {
-        "command": "bazel-kotlin-vscode-extension.helloWorld",
-        "title": "Hello World"
+        "command": "bazel-kotlin-vscode-extension.bazelSync",
+        "title": "Bazel Sync",
+        "icon": {
+          "light": "./resources/brex_16x16.svg",
+          "dark": "./resources/brex_16x16.svg"
+        }
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "bazel-kotlin-vscode-extension.bazelSync",
+          "group": "inline",
+          "when": "true"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
