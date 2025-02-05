@@ -52,6 +52,11 @@ export function activate(context: vscode.ExtensionContext) {
 		try {
 			const relativePath = path.relative(currentDir, uri.fsPath);
 			
+			// Check if RBE should be used
+			const useRBE = process.env.BREX_BAZEL_USE_RBE_WITH_INTELLIJ_ON_MAC === 'true';
+			const configFlag = useRBE ? '--config=remote' : '';
+			outputChannel.appendLine(`Using RBE: ${useRBE}`);
+
 			// First, query for kt_jvm_library targets
 			const queryCmd = `bazel query 'kind("kt_jvm_library", //${relativePath}/...)'`;
 			outputChannel.appendLine(`Finding Kotlin targets: ${queryCmd}`);
@@ -72,24 +77,24 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 
 			// Then build those targets with the aspect
-			const buildCmd = `bazel build --config=remote ${targets.join(' ')} --aspects=//bazel:kotlin_lsp_info.bzl%kotlin_lsp_aspect --output_groups=+lsp_infos`;
+			const buildCmd = `bazel build ${configFlag} ${targets.join(' ')} --aspects=//bazel:kotlin_lsp_info.bzl%kotlin_lsp_aspect --output_groups=+lsp_infos`;
 			outputChannel.appendLine(`Building targets: ${buildCmd}`);
 			
-			const process = cp.exec(buildCmd, { cwd: currentDir });
+			const bazelProcess = cp.exec(buildCmd, { cwd: currentDir });
 			
 			// Stream output in real-time
-			process.stdout?.on('data', (data) => {
+			bazelProcess.stdout?.on('data', (data) => {
 				outputChannel.append(data.toString());
 			});
 
-			process.stderr?.on('data', (data) => {
+			bazelProcess.stderr?.on('data', (data) => {
 				outputChannel.append(data.toString());
 			});
 
 			// Wait for process to complete
 			const exitCode = await new Promise<number>((resolve, reject) => {
-				process.on('exit', resolve);
-				process.on('error', reject);
+				bazelProcess.on('exit', resolve);
+				bazelProcess.on('error', reject);
 			});
 
 			if (exitCode === 0) {
@@ -99,19 +104,30 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 				const api = kotlinExt.exports;
 				if (api && api.kotlinApi) {
-                    outputChannel.appendLine(`Not a Kotlin file, refreshing without content`);
-
-                    // Force reanalysis of all open Kotlin files
-                    for (const editor of vscode.window.visibleTextEditors) {
-                        if (editor.document.fileName.endsWith('.kt')) {
-                            outputChannel.appendLine(`Analyzing Kotlin file: ${path.basename(editor.document.uri.fsPath)}`);
-                            const document = editor.document;
-                            const content = document.getText();
-                            outputChannel.appendLine(`File content length: ${content.length}`);
-                            await api.kotlinApi.refreshBazelClassPath(document.uri, content);
-                        }
-                    }
-                }
+					// Force reanalysis of all open Kotlin files
+					let refreshedClassPath = false;
+					await vscode.window.withProgress({
+						location: vscode.ProgressLocation.Window,
+						title: 'Refreshing Kotlin classpath',
+						cancellable: false
+					}, async (progress) => {
+						for (const editor of vscode.window.visibleTextEditors) {
+							if (editor.document.fileName.endsWith('.kt')) {
+								outputChannel.appendLine(`Analyzing Kotlin file: ${path.basename(editor.document.uri.fsPath)}`);
+								progress.report({ message: `Analyzing ${path.basename(editor.document.uri.fsPath)}` });
+								const document = editor.document;
+								const content = document.getText();
+								const started = Date.now();
+								if(!refreshedClassPath) {
+									await api.kotlinApi.refreshBazelClassPath(document.uri, content);
+									refreshedClassPath = true;
+								}
+								const duration = Date.now() - started;
+								outputChannel.appendLine(`File analyzed in ${duration}ms`);
+							}
+						}
+					});
+				}
 				vscode.window.showInformationMessage('Bazel sync completed');
 			} else {
 				throw new Error(`Bazel exited with code ${exitCode}`);
