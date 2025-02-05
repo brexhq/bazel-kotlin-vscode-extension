@@ -7,7 +7,7 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 - Sync the Bazel project with the Kotlin language server. Builds the code and makes the metadata about the code available to the language server.
 - Refresh the Kotlin classpath. Required to trigger changes in the classpath when the code is built.
 
-# Dependencies
+## Dependencies
 
 Currently it relies on a few changes to the vscode-kotlin extension seen here https://github.com/fwcd/vscode-kotlin/compare/main...smocherla-brex:vscode-kotlin:main
 
@@ -16,7 +16,7 @@ This adds support for:
 
 Going forward, the functionality from the Kotlin extension will be moved into this extension as it's mostly a lightweight wrapper around the Kotlin LSP.
 
-# TODO
+## TODO
 
 - [ ] Move the Kotlin extension functionality into this extension.
 - [ ] Add hover support to show docstrings.
