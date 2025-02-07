@@ -18,6 +18,8 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 
 ## Usage
 
+Make sure you have your Github PAT configured at `~/.config/hub`. This will be used to automatically the language server from the Github repo.
+
 Right-click on a directory and select "Brex: Bazel Sync (Kotlin)". This will trigger a bazel build and activate the language server.
 
 ![image](./resources/usage.png)
@@ -29,3 +31,9 @@ Right-click on a directory and select "Brex: Bazel Sync (Kotlin)". This will tri
 - [ ] Some more performance improvements to the completions.
 - [ ] Release pipeline and version the extension.
 
+
+## Configuration options
+
+- `brex.kotlinLanguageServer.enabled`: Whether to enable the language server.
+- `brex.kotlinLanguageServer.languageServerVersion`: The version of the language server to use. Defaults to `v0.0.1-rc` for now.
+- `brex.kotlinLanguageServer.jvmOpts`: The JVM options to use when starting the language server.
