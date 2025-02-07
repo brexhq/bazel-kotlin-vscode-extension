@@ -16,7 +16,11 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 - Partially sync Bazel packages on demand, build and notify the language server.
 - Support for Goto-Definition for firsty-party (brex) and third-party libraries through source jars.
 
-Going forward, the functionality from the Kotlin extension will be moved into this extension as it's mostly a lightweight wrapper around the Kotlin LSP.
+## Usage
+
+Right-click on a directory and select "Brex: Bazel Sync (Kotlin)". This will trigger a bazel build and activate the language server.
+
+![image](./images/image.png)
 
 ## TODO
 
