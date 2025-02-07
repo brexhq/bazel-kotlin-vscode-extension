@@ -20,7 +20,7 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 
 Right-click on a directory and select "Brex: Bazel Sync (Kotlin)". This will trigger a bazel build and activate the language server.
 
-![image](./images/image.png)
+![image](./resources/usage.png)
 
 ## TODO
 
