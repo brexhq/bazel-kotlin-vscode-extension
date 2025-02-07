@@ -37,7 +37,7 @@
     "commands": [
       {
         "command": "bazel-kotlin-vscode-extension.bazelSync",
-        "title": "Bazel Sync",
+        "title": "Brex: Bazel Sync (Kotlin)",
         "icon": {
           "light": "./resources/brex_16x16.svg",
           "dark": "./resources/brex_16x16.svg"

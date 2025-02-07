@@ -1,27 +1,26 @@
 # bazel-kotlin-vscode-extension README
-:bazel: :kotlin: :vscode:
+[![Bazel][bazel-img]][bazel-url] [![Kotlin][kotlin-img]][kotlin-url] [![VSCode][vscode-img]][vscode-url]
+
+[bazel-img]: https://img.shields.io/badge/build%20with-Bazel-43A047.svg
+[bazel-url]: https://bazel.build
+[kotlin-img]: https://img.shields.io/badge/kotlin-%237F52FF.svg?style=flat&logo=kotlin&logoColor=white
+[kotlin-url]: https://kotlinlang.org
+[vscode-img]: https://img.shields.io/badge/VSCode-0078D4?style=flat&logo=visual%20studio%20code&logoColor=white
+[vscode-url]: https://code.visualstudio.com
 
 This lightweight extension is used to "sync" the Bazel project with the Kotlin language server. 
 
 ## Features
 
-- Sync the Bazel project with the Kotlin language server. Builds the code and makes the metadata about the code available to the language server.
-- Refresh the Kotlin classpath. Required to trigger changes in the classpath when the code is built.
-
-## Dependencies
-
-Currently it relies on a few changes to the vscode-kotlin extension seen here https://github.com/fwcd/vscode-kotlin/compare/main...smocherla-brex:vscode-kotlin:main
-
-This adds support for:
-- Refresh the bazel classpath through the Kotlin extension API. 
+- Automatically download the language server and keep it up to date.
+- Partially sync Bazel packages on demand, build and notify the language server.
+- Support for Goto-Definition for firsty-party (brex) and third-party libraries through source jars.
 
 Going forward, the functionality from the Kotlin extension will be moved into this extension as it's mostly a lightweight wrapper around the Kotlin LSP.
 
 ## TODO
 
-- [ ] Move the Kotlin extension functionality into this extension.
 - [ ] Add hover support to show docstrings.
-- [ ] Complete Goto-Definition support for third-party libraries through source jars rather than decompiling the class jars.
 - [ ] Single-test support to run tests.
 - [ ] Some more performance improvements to the completions.
 - [ ] Release pipeline and version the extension.
