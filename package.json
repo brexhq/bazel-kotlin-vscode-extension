@@ -9,12 +9,31 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
-  "main": "./dist/extension.js",
-  "extensionDependencies": [
-    "fwcd.kotlin"
+  "activationEvents": [
+    "onLanguage:kotlin"
   ],
+  "main": "./dist/extension.js",
   "contributes": {
+    "languages": [
+      {
+        "id": "kotlin",
+        "extensions": [
+          ".kt"
+        ],
+        "aliases": [
+          "Kotlin",
+          "kotlin"
+        ],
+        "configuration": "./languageConfiguration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "kotlin",
+        "scopeName": "source.kotlin",
+        "path": "./syntaxes/kotlin.tmLanguage.json"
+      }
+    ],
     "commands": [
       {
         "command": "bazel-kotlin-vscode-extension.bazelSync",
@@ -33,6 +52,177 @@
           "when": "true"
         }
       ]
+    },
+    "configuration": {
+      "title": "Brex Kotlin Bazel Sync",
+      "properties": {
+        "brex.kotlinLanguageServer.enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "brex.kotlinLanguageServer.languageServerVersion": {
+          "type": "string",
+          "default": "v0.0.1-rc"
+        },
+        "brex.kotlinLanguageServer.jvmOpts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "brex.kotlinLanguageServer.path": {
+          "type": "string",
+          "default": "",
+          "description": "Optionally a custom path to the language server executable."
+        },
+        "brex.kotlinLanguageServer.transport": {
+          "type": "string",
+          "enum": [
+            "stdio",
+            "tcp"
+          ],
+          "description": "The transport layer beneath the language server protocol. Note that the extension will launch the server even if a TCP socket is used.",
+          "default": "stdio"
+        },
+        "brex.kotlinLanguageServer.port": {
+          "type": "integer",
+          "description": "The port to which the client will attempt to connect to. A random port is used if zero. Only used if the transport layer is TCP.",
+          "default": 0
+        },
+        "brex.kotlinLanguageServer.debugAttach.enabled": {
+          "type": "boolean",
+          "description": "[DEBUG] Whether the language server should listen for debuggers, i.e. be debuggable while running in VSCode. This is ONLY useful if you need to debug the language server ITSELF.",
+          "default": false
+        },
+        "brex.kotlinLanguageServer.debugAttach.port": {
+          "type": "integer",
+          "description": "[DEBUG] If transport is stdio this enables you to attach to the running language server with a debugger. This is ONLY useful if you need to debug the language server ITSELF.",
+          "default": 5005
+        },
+        "brex.kotlinLanguageServer.debugAttach.autoSuspend": {
+          "type": "boolean",
+          "description": "[DEBUG] If enabled (together with debugAttach.enabled), the language server will not immediately launch but instead listen on the specified attach port and wait for a debugger. This is ONLY useful if you need to debug the language server ITSELF.",
+          "default": false
+        },
+        "brex.kotlinLanguageServer.watchFiles": {
+          "type": "array",
+          "default": [
+            "**/*.kt",
+            "**/*.kts",
+            "**/*.java",
+            "**/pom.xml",
+            "**/build.gradle",
+            "**/settings.gradle"
+          ],
+          "description": "Specifies glob patterns of files, which would be watched by LSP client. The LSP client doesn't support watching files outside a workspace folder."
+        },
+        "brex.kotlinLanguageServer.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VSCode and the Kotlin language server.",
+          "scope": "window"
+        },
+        "brex.kotlinLanguageServer.compiler.jvm.target": {
+          "type": "string",
+          "default": "default",
+          "description": "Specifies the JVM target, e.g. \"1.6\" or \"1.8\""
+        },
+        "brex.kotlinLanguageServer.diagnostics.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether diagnostics (e.g. errors or warnings from the Kotlin compiler) should be emitted."
+        },
+        "brex.kotlinLanguageServer.diagnostics.level": {
+          "type": "string",
+          "default": "hint",
+          "enum": [
+            "error",
+            "warning",
+            "information",
+            "hint"
+          ],
+          "description": "The minimum severity of diagnostics to emit."
+        },
+        "brex.kotlinLanguageServer.diagnostics.debounceTime": {
+          "type": "integer",
+          "default": 250,
+          "description": "[DEBUG] Specifies the debounce time limit. Lower to increase responsiveness at the cost of possible stability issues."
+        },
+        "brex.kotlinLanguageServer.linting.debounceTime": {
+          "type": "integer",
+          "default": 250,
+          "deprecationMessage": "The option has been renamed to `brex.kotlinLanguageServer.diagnostics.debounceTime`",
+          "description": "[DEBUG] Specifies the debounce time limit. Lower to increase responsiveness at the cost of possible stability issues."
+        },
+        "brex.kotlinLanguageServer.scripts.buildScriptsEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether language features are provided for .gradle.kts scripts. Experimental and may not work properly."
+        },
+        "brex.kotlinLanguageServer.indexing.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether global symbols in the project should be indexed automatically in the background. This enables e.g. code completion for unimported classes and functions."
+        },
+        "brex.kotlinLanguageServer.completion.snippets.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Specifies whether code completion should provide snippets (true) or plain-text items (false)."
+        },
+        "brex.kotlinLanguageServer.debugAdapter.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "[Recommended] Specifies whether the debug adapter should be used. When enabled a debugger for Kotlin will be available."
+        },
+        "brex.kotlinLanguageServer.debugAdapter.path": {
+          "type": "string",
+          "default": "",
+          "description": "Optionally a custom path to the debug adapter executable."
+        },
+        "brex.kotlinLanguageServer.debounceTime": {
+          "type": "integer",
+          "default": 250,
+          "description": "[DEPRECATED] Specifies the debounce time limit. Lower to increase responsiveness at the cost of possible stability issues.",
+          "deprecationMessage": "Use 'brex.kotlinLanguageServer.linting.debounceTime' instead"
+        },
+        "brex.kotlinLanguageServer.externalSources.useKlsScheme": {
+          "type": "boolean",
+          "default": true,
+          "description": "[Recommended] Specifies whether URIs inside JARs should be represented using the 'kls'-scheme."
+        },
+        "brex.kotlinLanguageServer.externalSources.autoConvertToKotlin": {
+          "type": "boolean",
+          "default": false,
+          "description": "Specifies whether decompiled/external classes should be auto-converted to Kotlin."
+        },
+        "brex.kotlinLanguageServer.snippetsEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "[DEPRECATED] Specifies whether code completion should provide snippets (true) or plain-text items (false).",
+          "deprecationMessage": "Use 'brex.kotlinLanguageServer.completion.snippets.enabled'"
+        },
+        "brex.kotlinLanguageServer.inlayHints.typeHints": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to provide inlay hints for types on declaration sites or not."
+        },
+        "brex.kotlinLanguageServer.inlayHints.parameterHints": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to provide inlay hints for parameters on call sites or not."
+        },
+        "brex.kotlinLanguageServer.inlayHints.chainedHints": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to provide inlay hints on chained function calls or not."
+        }
+      }
     }
   },
   "scripts": {
@@ -47,17 +237,25 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.96.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
+    "@types/vscode": "^1.96.0",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
-    "eslint": "^9.16.0",
-    "typescript": "^5.7.2",
-    "ts-loader": "^9.5.1",
-    "webpack": "^5.95.0",
-    "webpack-cli": "^5.1.4",
     "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1"
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.16.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.7.2",
+    "vscode-languageclient": "^8.1.0",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@types/yauzl": "^2.10.3",
+    "find-process": "1.4.1",
+    "vscode-languageclient": "^8.1.0",
+    "yauzl": "^3.2.0",
+    "node-fetch": "^2.6.7"
   }
 }

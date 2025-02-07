@@ -1,4 +1,5 @@
 # bazel-kotlin-vscode-extension README
+:bazel: :kotlin: :vscode:
 
 This lightweight extension is used to "sync" the Bazel project with the Kotlin language server. 
 

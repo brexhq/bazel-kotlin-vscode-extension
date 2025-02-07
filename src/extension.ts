@@ -4,11 +4,29 @@ import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
+import { ConfigurationManager } from './config';
+import { KotlinLanguageClient, configureLanguage } from './languageClient';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	const outputChannel = vscode.window.createOutputChannel('Brex Bazel Sync');
+
+	configureLanguage();
+	context.subscriptions.push(outputChannel);
+
+	const globalStoragePath = context.globalStorageUri.fsPath;
+    if (!(await fs.existsSync(globalStoragePath))) {
+        await fs.promises.mkdir(globalStoragePath);
+    }
+
+	const configManager = new ConfigurationManager(globalStoragePath);
+	const config = configManager.getConfig()
+
+	const kotlinClient = new KotlinLanguageClient(context);
+	if(config.kotlinLanguageServer.enabled) {
+		await kotlinClient.start(config.kotlinLanguageServer, { outputChannel });
+	}
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
@@ -53,7 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const relativePath = path.relative(currentDir, uri.fsPath);
 			
 			// Check if RBE should be used
-			const useRBE = process.env.BREX_BAZEL_USE_RBE_WITH_INTELLIJ_ON_MAC === 'true';
+			const useRBE = process.env.BREX_BAZEL_USE_RBE_WITH_INTELLIJ_ON_MAC === '1' || process.env.BREX_BAZEL_USE_RBE_WITH_INTELLIJ_ON_MAC === 'true';
 			const configFlag = useRBE ? '--config=remote' : '';
 			outputChannel.appendLine(`Using RBE: ${useRBE}`);
 
@@ -98,12 +116,7 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 
 			if (exitCode === 0) {
-				const kotlinExt = vscode.extensions.getExtension('fwcd.kotlin');
-				if (kotlinExt && !kotlinExt.isActive) {
-					await kotlinExt.activate();
-				}
-				const api = kotlinExt.exports;
-				if (api && api.kotlinApi) {
+				if (config.kotlinLanguageServer.enabled) {
 					// Force reanalysis of all open Kotlin files
 					let refreshedClassPath = false;
 					await vscode.window.withProgress({
@@ -119,7 +132,7 @@ export function activate(context: vscode.ExtensionContext) {
 								const content = document.getText();
 								const started = Date.now();
 								if(!refreshedClassPath) {
-									await api.kotlinApi.refreshBazelClassPath(document.uri, content);
+									await kotlinClient.refreshBazelClassPath(document.uri, content);
 									refreshedClassPath = true;
 								}
 								const duration = Date.now() - started;
@@ -139,7 +152,16 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(bazelSync);
+
+	// Don't forget to stop the client when deactivating
+	context.subscriptions.push({
+		dispose: async () => {
+			await kotlinClient.stop();
+		}
+	});
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+
+}
