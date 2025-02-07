@@ -70,7 +70,7 @@ export class KotlinLanguageClient {
         env.JAVA_OPTS = config.jvmOpts;
         if (config.debugAttachEnabled) {
             options.outputChannel.appendLine(`Attaching debugger to language server on port ${config.debugAttachPort}`);
-            env.KOTLIN_LANGUAGE_SERVER_OPTS = `-Xdebug -agentlib:jdwp=transport=dt_socket,address=${config.debugAttachPort},server=y,quiet=y,suspend=n`;
+            env.KOTLIN_LANGUAGE_SERVER_OPTS = `-Xdebug -agentlib:jdwp=transport=dt_socket,address=${config.debugAttachPort},server=y,quiet=y,suspend=y`;
         }
 
         // Server options - configure the Kotlin Language Server executable
@@ -82,6 +82,11 @@ export class KotlinLanguageClient {
                 cwd: vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath,
             },
         };
+
+        const storagePath = this.context.storageUri?.fsPath;
+        if (storagePath) {
+            await fs.mkdirSync(storagePath, { recursive: true });
+        }
 
         // Client options - define the languages and workspace settings
         const clientOptions: LanguageClientOptions = {
