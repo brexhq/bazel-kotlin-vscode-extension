@@ -22,10 +22,15 @@ export interface ItInfo {
 
 export class KotestTestController {
     private testController: vscode.TestController;
+    private kotlinClient: any;
 
-    constructor(private kotlinClient: any) {
+    constructor() {
         this.testController = vscode.tests.createTestController('kotestTests', 'Kotest Tests');
         this.testController.createRunProfile('Run', vscode.TestRunProfileKind.Run, this.runTests.bind(this));
+    }
+
+    setClient(client: any) {
+        this.kotlinClient = client;
     }
 
     dispose() {
@@ -46,7 +51,7 @@ export class KotestTestController {
         const fileTestItem = this.testController.createTestItem(fileId, relativePath, document.uri);
         this.testController.items.add(fileTestItem);
 
-        testClasses.forEach(testClass => {
+        testClasses.forEach((testClass: KotestTestClass) => {
             const classItem = this.testController.createTestItem(
                 `${fileId}:${testClass.className}`,
                 testClass.className,
@@ -57,7 +62,7 @@ export class KotestTestController {
             }
             fileTestItem.children.add(classItem);
 
-            testClass.describes.forEach(describe => {
+            testClass.describes.forEach((describe: DescribeInfo) => {
                 this.addDescribeTestItem(describe, classItem, document.uri, fileId);
             });
         });
@@ -79,7 +84,7 @@ export class KotestTestController {
         }
         parent.children.add(describeItem);
 
-        describe.its.forEach(it => {
+        describe.its.forEach((it: ItInfo) => {
             const itItem = this.testController.createTestItem(
                 `${fileId}:${it.it}`,
                 it.it,

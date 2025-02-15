@@ -29,13 +29,17 @@ export async function activate(context: vscode.ExtensionContext) {
 	const configManager = new ConfigurationManager(globalStoragePath);
 	const config = configManager.getConfig()
 
-	kotlinClient = new KotlinLanguageClient(context);
+	// First create the language client
+	kotlinClient = new KotlinLanguageClient(context, async (doc) => kotestController?.refreshTests(doc));
+
+	// Then create the test controller
+	kotestController = new KotestTestController();
+	kotestController.setClient(kotlinClient);
+	context.subscriptions.push(kotestController);
+
 	if(config.kotlinLanguageServer.enabled) {
 		await kotlinClient.start(config.kotlinLanguageServer, { outputChannel });
 	}
-
-	kotestController = new KotestTestController(kotlinClient);
-	context.subscriptions.push(kotestController);
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
