@@ -6,6 +6,12 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { ConfigurationManager } from './config';
 import { KotlinLanguageClient, configureLanguage } from './languageClient';
+import { DescribeInfo } from './kotest';
+import { KotestTestController } from './kotest';
+
+// Add these fields to your extension class/module
+let kotlinClient: KotlinLanguageClient;
+let kotestController: KotestTestController;
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -23,10 +29,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	const configManager = new ConfigurationManager(globalStoragePath);
 	const config = configManager.getConfig()
 
-	const kotlinClient = new KotlinLanguageClient(context);
+	kotlinClient = new KotlinLanguageClient(context);
 	if(config.kotlinLanguageServer.enabled) {
 		await kotlinClient.start(config.kotlinLanguageServer, { outputChannel });
 	}
+
+	kotestController = new KotestTestController(kotlinClient);
+	context.subscriptions.push(kotestController);
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
@@ -138,6 +147,9 @@ export async function activate(context: vscode.ExtensionContext) {
 								const duration = Date.now() - started;
 								outputChannel.appendLine(`File analyzed in ${duration}ms`);
 							}
+							if(editor.document.fileName.endsWith('.kt') && editor.document.uri.fsPath.includes('Test')) {
+								await kotestController.refreshTests(editor.document);
+							}
 						}
 					});
 				}
@@ -159,6 +171,15 @@ export async function activate(context: vscode.ExtensionContext) {
 			await kotlinClient.stop();
 		}
 	});
+
+	// Register document change handler
+	context.subscriptions.push(
+		vscode.workspace.onDidChangeTextDocument(async e => {
+			if (e.document.languageId === 'kotlin' && e.document.uri.fsPath.includes('Test')) {
+				await kotestController.refreshTests(e.document);
+			}
+		})
+	);
 }
 
 // This method is called when your extension is deactivated

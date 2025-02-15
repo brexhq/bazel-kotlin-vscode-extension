@@ -229,6 +229,14 @@
           "description": "Whether to provide inlay hints on chained function calls or not."
         }
       }
+    },
+    "views": {
+      "test": [
+        {
+          "id": "kotestTests",
+          "name": "Kotest Tests"
+        }
+      ]
     }
   },
   "scripts": {

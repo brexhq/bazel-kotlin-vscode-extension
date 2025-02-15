@@ -2,7 +2,11 @@ import {
     LanguageClient,
     LanguageClientOptions,
     ServerOptions,
-    RevealOutputChannelOn
+    RevealOutputChannelOn,
+    ProgressType,
+    WorkDoneProgressBegin,
+    WorkDoneProgressReport,
+    WorkDoneProgressEnd
 } from 'vscode-languageclient/node';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -12,13 +16,18 @@ import { downloadLanguageServer } from './githubUtils';
 import { findProcessesByName, killProcess } from './processUtils';
 import { Uri } from 'vscode';
 import { findJavaHome } from './processUtils';
+import {KotestTestClass} from "./kotest";
 
 export class KotlinLanguageClient {
     private client: LanguageClient | undefined;
     private openedFiles: Set<string> = new Set();
     private documentVersions: Map<string, number> = new Map();
 
-    constructor(private context: vscode.ExtensionContext) {}
+    constructor(
+        private context: vscode.ExtensionContext,
+        private onTestsFound: (document: vscode.TextDocument) => Promise<void>
+    ) {}
+
 
     private async maybeDownloadLanguageServer(config: BrexKotlinLanguageServerConfig): Promise<void> {
         const installPath = config.languageServerInstallPath;
@@ -70,7 +79,7 @@ export class KotlinLanguageClient {
         env.JAVA_OPTS = config.jvmOpts;
         if (config.debugAttachEnabled) {
             options.outputChannel.appendLine(`Attaching debugger to language server on port ${config.debugAttachPort}`);
-            env.KOTLIN_LANGUAGE_SERVER_OPTS = `-Xdebug -agentlib:jdwp=transport=dt_socket,address=${config.debugAttachPort},server=y,quiet=y,suspend=y`;
+            env.KOTLIN_LANGUAGE_SERVER_OPTS = `-Xdebug -agentlib:jdwp=transport=dt_socket,address=${config.debugAttachPort},server=y,quiet=y,suspend=n`;
         }
 
         // Server options - configure the Kotlin Language Server executable
@@ -113,6 +122,20 @@ export class KotlinLanguageClient {
         );
 
         await this.client.start();
+
+        // Listen for progress notifications
+        this.client.onProgress(
+            new ProgressType<{ uri: string, kind: string }>(),
+            'brex/kotlinAnalysis',
+            async (params: { uri: string, kind: string }) => {
+                if (params.kind === 'end') {
+                    const document = vscode.workspace.textDocuments.find(doc => doc.uri.toString() === params.uri);
+                    if (document?.fileName.endsWith('.kt') && document.uri.fsPath.includes('Test')) {
+                        await this.onTestsFound(document);
+                    }
+                }
+            }
+        );
     }
 
     public async stop(): Promise<void> {
@@ -150,6 +173,19 @@ export class KotlinLanguageClient {
         if (documentUri && content) {
             await this.forceDocumentReload(documentUri, content);
         }
+    }
+
+    public async getKotestTestClasses(documentUri: string): Promise<KotestTestClass[]> {
+        const response = await this.client?.sendRequest("workspace/executeCommand", {
+            command: "kotestTestsInfo",
+            arguments: [documentUri]
+        });
+
+        if (typeof response === 'string') {
+            return JSON.parse(response) as KotestTestClass[];
+        }
+        
+        return [];
     }
 
     async notifyFileOpened(uri: Uri | string, content: string): Promise<void> {
