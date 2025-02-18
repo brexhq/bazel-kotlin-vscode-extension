@@ -73,7 +73,7 @@ export class KotlinLanguageClient {
             throw new Error(`Could not find Java ${config.jvmTarget} installation. Please set brex.kotlinLanguageServer.javaHome in your settings to the path of the Java installation to proceed.`);
         }
         env.JAVA_HOME = javaHome;
-        env.JAVA_OPTS = config.jvmOpts;
+        env.JAVA_OPTS = config.jvmOpts.join(' ');
         if (config.debugAttachEnabled) {
             options.outputChannel.appendLine(`Attaching debugger to language server on port ${config.debugAttachPort}`);
             env.KOTLIN_LANGUAGE_SERVER_OPTS = `-Xdebug -agentlib:jdwp=transport=dt_socket,address=${config.debugAttachPort},server=y,quiet=y,suspend=n`;
