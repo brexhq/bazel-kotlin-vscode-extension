@@ -14,7 +14,9 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 
 - Automatically download the language server and keep it up to date.
 - Partially sync Bazel packages on demand, build and notify the language server.
-- Support for Goto-Definition for firsty-party (brex) and third-party libraries through source jars.
+- Support for Goto-Definition for firsty-party (brex) and third-party libraries through source jars. Currently classes are supported, but not methods and extension functions.
+- Hover support to show docstrings in some cases.
+Ability to run single test for Kotest `DescribeSpec` suites.
 
 ## Usage
 
@@ -26,14 +28,13 @@ Right-click on a directory and select "Brex: Bazel Sync (Kotlin)". This will tri
 
 ## TODO
 
-- [ ] Add hover support to show docstrings.
-- [ ] Single-test support to run tests.
 - [ ] Some more performance improvements to the completions.
+- [ ] Improve performance with large files and especially with growing symbol index.
 - [ ] Release pipeline and version the extension.
 
 
 ## Configuration options
 
 - `brex.kotlinLanguageServer.enabled`: Whether to enable the language server.
-- `brex.kotlinLanguageServer.languageServerVersion`: The version of the language server to use. Defaults to `v0.0.1-rc` for now.
+- `brex.kotlinLanguageServer.languageServerVersion`: The version of the language server to use. Defaults to `v1.3.14-bazel` for now.
 - `brex.kotlinLanguageServer.jvmOpts`: The JVM options to use when starting the language server.

@@ -4,9 +4,6 @@ import {
     ServerOptions,
     RevealOutputChannelOn,
     ProgressType,
-    WorkDoneProgressBegin,
-    WorkDoneProgressReport,
-    WorkDoneProgressEnd
 } from 'vscode-languageclient/node';
 import * as path from 'path';
 import * as vscode from 'vscode';

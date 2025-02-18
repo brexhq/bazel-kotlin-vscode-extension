@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as path from 'path';
 import { Range } from 'vscode';
+import * as pty from 'node-pty';
 
 export interface KotestTestClass {
     className: string;
@@ -63,7 +64,7 @@ export class KotestTestController {
             fileTestItem.children.add(classItem);
 
             testClass.describes.forEach((describe: DescribeInfo) => {
-                this.addDescribeTestItem(describe, classItem, document.uri, fileId);
+                this.addDescribeTestItem(describe, classItem, testClass.className, document.uri, fileId);
             });
         });
     }
@@ -71,12 +72,13 @@ export class KotestTestController {
     private addDescribeTestItem(
         describe: DescribeInfo, 
         parent: vscode.TestItem, 
+        className: string,
         uri: vscode.Uri,
         fileId: string
     ) {
         const describeItem = this.testController.createTestItem(
-            `${fileId}:${describe.describe}`,
-            describe.describe,
+            `${fileId}:${className}:${describe.describe}`,
+            `${className}#${describe.describe}`,
             uri
         );
         if (describe.range) {
@@ -86,8 +88,8 @@ export class KotestTestController {
 
         describe.its.forEach((it: ItInfo) => {
             const itItem = this.testController.createTestItem(
-                `${fileId}:${it.it}`,
-                it.it,
+                `${fileId}:${className}:${describe.describe}:${it.it}`,
+                `${className}#${describe.describe} -- ${it.it}`,
                 uri
             );
             if (it.range) {
@@ -114,14 +116,10 @@ export class KotestTestController {
                 const configFlag = useRBE ? '--config=remote' : '';
 
                 const relativePath = path.relative(workspaceFolder.uri.fsPath, uri.fsPath);
-                const testFilter = test.parent?.parent 
-                    ? `--test_filter="${test.parent.parent.label}#${test.label}"`
-                    : test.parent 
-                        ? `--test_filter="${test.parent.label}#${test.label}.*"`
-                        : `--test_filter="${test.label}#.*"`;
+                const testFilter = `--test_filter="${test.label}"`;
 
                 // First query for test targets
-                const queryCommand = `bazel query 'kind(kt_jvm_test, //${path.dirname(relativePath)}/...)'`;
+                const queryCommand = `bazel query 'kind(kt_jvm_test, //${path.dirname(relativePath)}:all)'`;
                 const targets = await new Promise<string>((resolve, reject) => {
                     cp.exec(queryCommand, { cwd: workspaceFolder.uri.fsPath }, (error, stdout) => {
                         if (error) reject(error);
@@ -134,27 +132,30 @@ export class KotestTestController {
                     continue;
                 }
 
-                run.appendOutput(`\n--- Running test: ${test.label} ---\n`);
-                const command = `bazel test ${configFlag} --test_output=all --color=yes --curses=no --show_progress_rate_limit=5 ${targets} ${testFilter}`;
+                run.appendOutput(`\n--- Running test: ${test.label} ---\n\n`);
+                const command = `bazel test ${configFlag} --test_output=all --color=yes --terminal_columns=120 ${targets} ${testFilter}`;
                 run.appendOutput(`Command: ${command}\n\n`);
 
-                const bazelProcess = cp.exec(command, { 
-                    cwd: workspaceFolder.uri.fsPath 
+                const bazelProcess = cp.spawn('bash', ['-c', command], { 
+                    cwd: workspaceFolder.uri.fsPath,
+                    stdio: ['pipe', 'pipe', 'pipe']
                 });
 
-                bazelProcess.stdout?.on('data', (data) => {
-                    run.appendOutput(data.toString());
+                bazelProcess.stdout?.on('data', (data: Buffer) => {
+                    run.appendOutput(data.toString().replace(/\n/g, '\r\n'));
                 });
 
-                bazelProcess.stderr?.on('data', (data) => {
-                    run.appendOutput(data.toString());
+                bazelProcess.stderr?.on('data', (data: Buffer) => {
+                    run.appendOutput(data.toString().replace(/\n/g, '\r\n'));
                 });
 
                 const exitCode = await new Promise<number>((resolve) => {
-                    bazelProcess.on('exit', resolve);
+                    bazelProcess.on('exit', (code) => {
+                        resolve(code ?? 1);
+                    });
                 });
 
-                run.appendOutput(`\n--- Test ${test.label} ${exitCode === 0 ? 'passed' : 'failed'} ---\n`);
+                run.appendOutput(`\n--- Test ${test.label} ${exitCode === 0 ? 'passed' : 'failed'} ---\n\n`);
 
                 if (exitCode === 0) {
                     run.passed(test);

@@ -2,7 +2,7 @@
   "name": "bazel-kotlin-vscode-extension",
   "displayName": "bazel-kotlin-vscode-extension",
   "description": "Extension to support Bazel with Kotlin Language Server",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1",
   "publisher": "Brex",
   "icon": "resources/brex_icon.png",
   "repository": {
@@ -48,6 +48,11 @@
           "light": "./resources/brex_16x16.svg",
           "dark": "./resources/brex_16x16.svg"
         }
+      },
+      {
+        "command": "bazel-kotlin-vscode-extension.clearCaches",
+        "title": "Kotlin: Clear Language Server Caches",
+        "category": "Kotlin"
       }
     ],
     "menus": {
@@ -272,6 +277,7 @@
     "find-process": "1.4.1",
     "vscode-languageclient": "^8.1.0",
     "yauzl": "^3.2.0",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "node-pty": "^0.10.1"
   }
 }

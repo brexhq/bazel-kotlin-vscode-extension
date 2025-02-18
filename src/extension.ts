@@ -41,6 +41,39 @@ export async function activate(context: vscode.ExtensionContext) {
 		await kotlinClient.start(config.kotlinLanguageServer, { outputChannel });
 	}
 
+	// Add new command for clearing caches
+	const clearCaches = vscode.commands.registerCommand('bazel-kotlin-vscode-extension.clearCaches', async () => {
+		if(!context.storageUri) {
+			return;
+		}
+		
+		const dbPath = path.join(context.storageUri.fsPath, 'kls_database.db');
+		
+		try {
+			// Delete the database file if it exists
+			if (await fs.existsSync(dbPath)) {
+				await fs.promises.unlink(dbPath);
+				outputChannel.appendLine('Successfully deleted language server cache database');
+			}
+			
+			// Stop the language server
+			await kotlinClient.stop();
+			
+			// Restart the server if it was enabled
+			if (config.kotlinLanguageServer.enabled) {
+				await kotlinClient.start(config.kotlinLanguageServer, { outputChannel });
+				outputChannel.appendLine('Successfully restarted language server');
+			}
+			
+			vscode.window.showInformationMessage('Successfully cleared all caches');
+		} catch (error) {
+			outputChannel.appendLine(`Error clearing caches: ${error}`);
+			vscode.window.showErrorMessage(`Failed to clear caches: ${error}`);
+		}
+	});
+
+	context.subscriptions.push(clearCaches);
+
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
@@ -175,15 +208,6 @@ export async function activate(context: vscode.ExtensionContext) {
 			await kotlinClient.stop();
 		}
 	});
-
-	// Register document change handler
-	context.subscriptions.push(
-		vscode.workspace.onDidChangeTextDocument(async e => {
-			if (e.document.languageId === 'kotlin' && e.document.uri.fsPath.includes('Test')) {
-				await kotestController.refreshTests(e.document);
-			}
-		})
-	);
 }
 
 // This method is called when your extension is deactivated
