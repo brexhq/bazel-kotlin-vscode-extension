@@ -115,7 +115,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 		try {
 			let relativePath = path.relative(currentDir, uri.fsPath);
-			if (!fs.lstatSync(relativePath).isDirectory()) {
+			if (!fs.lstatSync(uri.fsPath).isDirectory()) {
 				relativePath = path.dirname(relativePath);
 			}
 			
