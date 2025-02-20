@@ -114,7 +114,10 @@ export async function activate(context: vscode.ExtensionContext) {
 		outputChannel.appendLine(`Using Bazel workspace: ${currentDir}`);
 
 		try {
-			const relativePath = path.relative(currentDir, uri.fsPath);
+			let relativePath = path.relative(currentDir, uri.fsPath);
+			if (!fs.lstatSync(relativePath).isDirectory()) {
+				relativePath = path.dirname(relativePath);
+			}
 			
 			// Check if RBE should be used
 			const useRBE = process.env.BREX_BAZEL_USE_RBE_WITH_INTELLIJ_ON_MAC === '1' || process.env.BREX_BAZEL_USE_RBE_WITH_INTELLIJ_ON_MAC === 'true';
