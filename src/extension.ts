@@ -114,11 +114,29 @@ export async function activate(context: vscode.ExtensionContext) {
 		outputChannel.appendLine(`Using Bazel workspace: ${currentDir}`);
 
 		try {
+			// Set the relative path to the nearest directory if its not a directory
 			let relativePath = path.relative(currentDir, uri.fsPath);
 			if (!fs.lstatSync(uri.fsPath).isDirectory()) {
 				relativePath = path.dirname(relativePath);
 			}
-			
+
+			// Find the nearest BUILD or BUILD.bazel file by traversing up
+			let buildDir = path.join(currentDir, relativePath);
+			while (buildDir !== currentDir) {
+
+				// Check for BUILD file existence
+				if (fs.existsSync(path.join(buildDir, 'BUILD')) ||
+					fs.existsSync(path.join(buildDir, 'BUILD.bazel'))) {
+					break;
+				}
+
+				buildDir = path.dirname(buildDir);
+			}
+
+			// Update relative path to use the directory containing the BUILD file
+			relativePath = path.relative(currentDir, buildDir);
+
+			outputChannel.appendLine(`Using BUILD file directory: ${buildDir}`);
 			// Check if RBE should be used
 			const useRBE = process.env.BREX_BAZEL_USE_RBE_WITH_INTELLIJ_ON_MAC === '1' || process.env.BREX_BAZEL_USE_RBE_WITH_INTELLIJ_ON_MAC === 'true';
 			const configFlag = useRBE ? '--config=remote' : '';
