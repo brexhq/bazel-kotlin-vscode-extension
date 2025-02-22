@@ -10,7 +10,7 @@
     "url": "https://github.com/brexhq/bazel-kotlin-vscode-extension.git"
   },
   "engines": {
-    "vscode": "^1.96.0"
+    "vscode": "^1.94.0"
   },
   "categories": [
     "Other"
