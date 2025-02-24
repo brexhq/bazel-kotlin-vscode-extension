@@ -2,7 +2,7 @@
   "name": "bazel-kotlin-vscode-extension",
   "displayName": "bazel-kotlin-vscode-extension",
   "description": "Extension to support Bazel with Kotlin Language Server",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "Brex",
   "icon": "resources/brex_icon.png",
   "repository": {
@@ -10,7 +10,7 @@
     "url": "https://github.com/brexhq/bazel-kotlin-vscode-extension.git"
   },
   "engines": {
-    "vscode": "^1.96.0"
+    "vscode": "^1.94.0"
   },
   "categories": [
     "Other"
@@ -259,7 +259,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
-    "@types/vscode": "^1.96.0",
+    "@types/vscode": "^1.94.0",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
     "@vscode/test-cli": "^0.0.10",
