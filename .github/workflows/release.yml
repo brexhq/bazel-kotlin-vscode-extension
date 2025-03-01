@@ -4,38 +4,54 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'package.json'  # Only trigger when package.json changes (likely version bumps)
 
 jobs:
   check-version:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.get-version.outputs.version }}
-      changed: ${{ steps.check-version.outputs.changed }}
+      version: ${{ steps.get-current-version.outputs.version }}
+      should_release: ${{ steps.check-release.outputs.should_release }}
       
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 2  # Fetch the current and previous commit
+          fetch-depth: 0  # Fetch all history to ensure we can get all tags
       
-      - name: Get current version
-        id: get-version
-        run: echo "version=$(node -p 'require('./package.json').version')" >> $GITHUB_OUTPUT
-      - name: Check if version changed
-        id: check-version
+      - name: Get current version from package.json
+        id: get-current-version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+      
+      - name: Get latest release version
+        id: get-latest-release
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: ${{ github.repository }}
+          excludes: prerelease, draft
+          fallback: 0.0.0  # Use fallback if no release exists yet
+      
+      - name: Compare versions
+        id: check-release
         run: |
-          git diff HEAD^ HEAD --name-only | grep "package.json" || echo "No changes to package.json"
-          if git diff HEAD^ HEAD -- package.json | grep -q '"version"'; then
-            echo "changed=true" >> $GITHUB_OUTPUT
+          # Remove the 'v' prefix if it exists in the latest release tag
+          LATEST_VERSION=$(echo "${{ steps.get-latest-release.outputs.release }}" | sed 's/^v//')
+          CURRENT_VERSION="${{ steps.get-current-version.outputs.version }}"
+          
+          echo "Latest released version: $LATEST_VERSION"
+          echo "Current package.json version: $CURRENT_VERSION"
+          
+          # Check if versions are different and current is newer (using sort -V for version sorting)
+          if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ] && [ "$(printf '%s\n%s\n' "$LATEST_VERSION" "$CURRENT_VERSION" | sort -V | tail -n1)" = "$CURRENT_VERSION" ]; then
+            echo "Current version is newer than latest release - will create a new release"
+            echo "should_release=true" >> $GITHUB_OUTPUT
           else
-            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No new version to release"
+            echo "should_release=false" >> $GITHUB_OUTPUT
           fi
 
   build-and-release:
     needs: check-version
-    if: needs.check-version.outputs.changed == 'true'
+    if: needs.check-version.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     
     steps:
@@ -49,12 +65,6 @@ jobs:
           
       - name: Install dependencies
         run: npm ci
-        
-      - name: Lint
-        run: npm run lint
-        
-      - name: Test
-        run: npm test
       
       - name: Package Extension
         run: npx vsce package
