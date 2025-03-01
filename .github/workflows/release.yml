@@ -1,0 +1,82 @@
+name: Create GitHub Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'package.json'  # Only trigger when package.json changes (likely version bumps)
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+      changed: ${{ steps.check-version.outputs.changed }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # Fetch the current and previous commit
+      
+      - name: Get current version
+        id: get-version
+        run: echo "version=$(node -p 'require('./package.json').version')" >> $GITHUB_OUTPUT
+      - name: Check if version changed
+        id: check-version
+        run: |
+          git diff HEAD^ HEAD --name-only | grep "package.json" || echo "No changes to package.json"
+          if git diff HEAD^ HEAD -- package.json | grep -q '"version"'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-and-release:
+    needs: check-version
+    if: needs.check-version.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Lint
+        run: npm run lint
+        
+      - name: Test
+        run: npm test
+      
+      - name: Package Extension
+        run: npx vsce package
+        
+      - name: Get VSIX path
+        id: get-vsix-path
+        run: echo "vsix_path=$(find . -maxdepth 1 -name "*.vsix" | head -n 1)" >> $GITHUB_OUTPUT
+          
+      - name: Create tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a v${{ needs.check-version.outputs.version }} -m "Release v${{ needs.check-version.outputs.version }}"
+          git push origin v${{ needs.check-version.outputs.version }}
+          
+      - name: Create GitHub Release with auto-generated notes
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.check-version.outputs.version }}
+          name: Release v${{ needs.check-version.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: ${{ steps.get-vsix-path.outputs.vsix_path }}
