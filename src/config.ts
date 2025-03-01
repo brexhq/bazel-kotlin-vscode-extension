@@ -14,17 +14,20 @@ export interface BrexKotlinLanguageServerConfig {
 }
 
 
-interface BrexConfig {
+export interface BrexConfig {
     kotlinLanguageServer: BrexKotlinLanguageServerConfig;
+    extensionSourcesPath: string;
 }
 
 export class ConfigurationManager {
     private static readonly SECTION = 'brex';
     private languageServerInstallPath: string;
     private config: vscode.WorkspaceConfiguration;
+    private extensionSourcesPath: string;
 
     constructor(storagePath: string) {
         this.languageServerInstallPath = path.join(storagePath, 'languageServer');
+        this.extensionSourcesPath = path.join(storagePath, 'extensionSources');
         this.config = vscode.workspace.getConfiguration(ConfigurationManager.SECTION);
     }
 
@@ -40,7 +43,8 @@ export class ConfigurationManager {
                 languageServerLocalPath: this.config.get('kotlinLanguageServer.path', null),
                 debugAttachEnabled: this.config.get('kotlinLanguageServer.debugAttach.enabled', false),
                 debugAttachPort: this.config.get('kotlinLanguageServer.debugAttach.port', 5005)
-            }
+            },
+            extensionSourcesPath: this.extensionSourcesPath
         };
     }
 
