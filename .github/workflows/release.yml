@@ -28,7 +28,7 @@ jobs:
         with:
           repository: ${{ github.repository }}
           excludes: prerelease, draft
-          fallback: 0.0.0  # Use fallback if no release exists yet
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Compare versions
         id: check-release
@@ -61,7 +61,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '18'
           
       - name: Install dependencies
         run: npm ci
@@ -89,4 +89,5 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
           files: ${{ steps.get-vsix-path.outputs.vsix_path }}
