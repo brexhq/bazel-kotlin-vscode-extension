@@ -16,13 +16,13 @@ def _get_toolchain_jars(ctx):
 
 def _collect_jars(target, jar_type):
     if jar_type == "compile":
-        jars = [t.compile_jar for t in target[JavaInfo].java_outputs if t and t.compile_jar]
-        jars += [t for t in target[JavaInfo].transitive_compile_time_jars.to_list() if t]
-        return jars
+        direct_jars = [t.compile_jar for t in target[JavaInfo].java_outputs if t and t.compile_jar]
+        transitive_jars = [t for t in target[JavaInfo].transitive_compile_time_jars.to_list() if t]
+        return direct_jars, transitive_jars
     elif jar_type == "source":
-        jars = [s for s in target[JavaInfo].source_jars if s]
-        jars += [t for t in target[JavaInfo].transitive_source_jars.to_list() if t]
-        return jars
+        direct_jars = [s for s in target[JavaInfo].source_jars if s]
+        transitive_jars = [t for t in target[JavaInfo].transitive_source_jars.to_list() if t]
+        return direct_jars, transitive_jars
     else:
         fail("invalid jar type: {}".format(jar_type))
 
@@ -30,11 +30,10 @@ def _is_maven_shim(target):
     return "_maven_shim_DO_NOT_DEPEND" in target.label.name
 
 def _generate_source_metadata(ctx, target, compile_jars):
-    if ctx.rule.kind != "kt_jvm_library":
+    if ctx.rule.kind != "kt_jvm_library" and ctx.rule.kind != "jvm_import" and ctx.rule.kind != "kt_jvm_proto_library":
         return None
 
     source_metadata_json = ctx.actions.declare_file("{}-klsp-metadata.json".format(target.label.name))
-
     ctx.actions.run(
         executable = ctx.executable._source_metadata_extractor,
         inputs = compile_jars,
@@ -43,25 +42,24 @@ def _generate_source_metadata(ctx, target, compile_jars):
         ] + [jar.path for jar in compile_jars],
         outputs = [source_metadata_json],
         progress_message = "Analyzing jars for %s" % target.label,
+        mnemonic = "KotlinLSPAnalyzeJars",
     )
 
     return source_metadata_json
 
 def _kotlin_lsp_aspect_impl(target, ctx):
-    compile_jars = []
-    source_jars = []
 
     # this is a JVM-like target
     # and also not a "maven shim" we use for edge support
     # including that leads to bazel complaining about conflicting outputs
     if JavaInfo in target and not _is_maven_shim(target):
-        compile_jars = _collect_jars(target, "compile")
-        source_jars = _collect_jars(target, "source")
+        direct_compile_jars, transitive_compile_jars = _collect_jars(target, "compile")
+        direct_source_jars, transitive_source_jars = _collect_jars(target, "source")
 
         if KtJvmInfo in target:
             stdlib_compile_jars, stdlib_source_jars = _get_toolchain_jars(ctx)
-            compile_jars += stdlib_compile_jars
-            source_jars += stdlib_source_jars
+            transitive_compile_jars += stdlib_compile_jars
+            transitive_source_jars += stdlib_source_jars
 
         # the source files referenced directly by this target
         lsp_srcs_info = None
@@ -74,13 +72,14 @@ def _kotlin_lsp_aspect_impl(target, ctx):
             lsp_srcs_info = ctx.actions.declare_file("{}-klsp-srcs.txt".format(target.label.name))
             ctx.actions.write(lsp_srcs_info, "\n".join(srcs))
 
-        source_metadata_json = _generate_source_metadata(ctx, target, compile_jars)
+        source_metadata_json = _generate_source_metadata(ctx, target, direct_compile_jars)
         lsp_compile_info = ctx.actions.declare_file("{}-klsp-compile.txt".format(target.label.name))
         lsp_sources_info = ctx.actions.declare_file("{}-klsp-sources.txt".format(target.label.name))
 
         outputs = [lsp_sources_info, lsp_compile_info]
         if source_metadata_json:
             outputs.append(source_metadata_json)
+
         if lsp_srcs_info:
             outputs.append(lsp_srcs_info)
         transitive_infos = depset(direct = outputs)
@@ -89,24 +88,28 @@ def _kotlin_lsp_aspect_impl(target, ctx):
             for dep in ctx.rule.attr.deps:
                 if KotlinLspInfo in dep:
                     transitive_infos = depset(transitive = [dep[KotlinLspInfo].info, transitive_infos])
-                elif JavaInfo in dep:
-                    source_jars += _collect_jars(dep, "source")
-                    compile_jars += _collect_jars(dep, "compile")
+                if JavaInfo in dep:
+                    s1, s2 = _collect_jars(dep, "source")
+                    transitive_source_jars.extend(s1 + s2)
+                    j1, j2 = _collect_jars(dep, "compile")
+                    transitive_compile_jars.extend(j1 + j2)
 
         # source and output jars for classpath entries
-        ctx.actions.write(lsp_sources_info, "\n".join([jar.path for jar in source_jars]))
-        ctx.actions.write(lsp_compile_info, "\n".join([jar.path for jar in compile_jars]))
+        ctx.actions.write(lsp_sources_info, "\n".join([jar.path for jar in direct_source_jars]))
+        ctx.actions.write(lsp_compile_info, "\n".join([jar.path for jar in direct_compile_jars]))
 
         # source jars are not default outputs, so need to include them explicitly
-        outputs.extend(source_jars)
+        outputs.extend(direct_source_jars)
+        outputs.extend(transitive_source_jars)
 
+        outputs.extend([t for t in transitive_infos.to_list()])
         return [
             KotlinLspInfo(
                 info = depset(outputs),
                 transitive_infos = transitive_infos,
             ),
             OutputGroupInfo(
-                lsp_infos = depset(direct = outputs),
+                lsp_infos = depset(direct = outputs, transitive = [transitive_infos]),
             ),
         ]
 
