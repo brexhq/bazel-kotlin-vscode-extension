@@ -44,6 +44,9 @@ def _generate_source_metadata(ctx, target, compile_jars):
 
     return source_metadata_json
 
+def _filter_transitives_without_srcs(transitive_artifacts):
+    return [t for t in transitive_artifacts if not t.path.endswith("klsp-srcs.txt")]
+
 def _kotlin_lsp_aspect_impl(target, ctx):
 
     all_outputs = []
@@ -81,7 +84,6 @@ def _kotlin_lsp_aspect_impl(target, ctx):
             all_outputs.append(source_metadata_json)
 
         if lsp_srcs_info:
-            direct_metadata_files.append(lsp_srcs_info)
             all_outputs.append(lsp_srcs_info)
         
         transitive_infos = depset(direct = direct_metadata_files)
@@ -105,6 +107,24 @@ def _kotlin_lsp_aspect_impl(target, ctx):
                     j1, j2 = _collect_jars(dep, "compile")
                     transitive_compile_jars.extend(j1 + j2)
 
+        if hasattr(ctx.rule.attr, "exports"):
+            for dep in ctx.rule.attr.exports:
+                if KotlinLspInfo in dep:
+                    all_transitives = dep[KotlinLspInfo].transitive_infos
+                    if type(all_transitives) == "list":
+                        all_transitives = depset(all_transitives)
+                    transitive_infos = depset(
+                        transitive = [dep[KotlinLspInfo].info, transitive_infos, all_transitives],
+                    )
+                    # Collect artifacts from transitive dependencies
+                    transitive_dep_artifacts.extend(dep[KotlinLspInfo].info.to_list())
+                    transitive_dep_artifacts.extend(all_transitives.to_list())
+                if JavaInfo in dep:
+                    s1, s2 = _collect_jars(dep, "source")
+                    transitive_source_jars.extend(s1 + s2)
+                    j1, j2 = _collect_jars(dep, "compile")
+                    transitive_compile_jars.extend(j1 + j2)
+
         # source and output jars for classpath entries
         ctx.actions.write(lsp_sources_info, "\n".join([jar.path for jar in direct_source_jars]))
         ctx.actions.write(lsp_compile_info, "\n".join([jar.path for jar in direct_compile_jars]))
@@ -112,7 +132,7 @@ def _kotlin_lsp_aspect_impl(target, ctx):
         # source jars are not default outputs, so need to include them explicitly
         all_outputs.extend(direct_source_jars)
         all_outputs.extend(transitive_source_jars)
-        all_outputs.extend(transitive_dep_artifacts)
+        all_outputs.extend(_filter_transitives_without_srcs(transitive_dep_artifacts))
 
         return [
             KotlinLspInfo(
