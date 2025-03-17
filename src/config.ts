@@ -42,7 +42,7 @@ export class ConfigurationManager {
                 javaHome: this.config.get('kotlinLanguageServer.javaHome', ''),
                 languageServerLocalPath: this.config.get('kotlinLanguageServer.path', null),
                 debugAttachEnabled: this.config.get('kotlinLanguageServer.debugAttach.enabled', false),
-                debugAttachPort: this.config.get('kotlinLanguageServer.debugAttach.port', 5005)
+                debugAttachPort: this.config.get('kotlinLanguageServer.debugAttach.port', 5009)
             },
             extensionSourcesPath: this.extensionSourcesPath
         };

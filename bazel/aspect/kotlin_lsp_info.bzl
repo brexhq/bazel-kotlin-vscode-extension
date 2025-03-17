@@ -28,6 +28,8 @@ def _collect_jars(target, jar_type, rule_kind):
         return direct_jars, transitive_jars
     elif jar_type == "source":
         direct_jars = [s for s in target[JavaInfo].source_jars if s]
+        if rule_kind == "java_proto_library":
+            direct_jars += _get_proto_transitive_jars(target[JavaInfo].transitive_source_jars.to_list())
         transitive_jars = [t for t in target[JavaInfo].transitive_source_jars.to_list() if t]
         return direct_jars, transitive_jars
     else:

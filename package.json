@@ -109,7 +109,7 @@
         "brex.kotlinLanguageServer.debugAttach.port": {
           "type": "integer",
           "description": "[DEBUG] If transport is stdio this enables you to attach to the running language server with a debugger. This is ONLY useful if you need to debug the language server ITSELF.",
-          "default": 5005
+          "default": 5009
         },
         "brex.kotlinLanguageServer.debugAttach.autoSuspend": {
           "type": "boolean",
