@@ -14,10 +14,16 @@ def _get_toolchain_jars(ctx):
     source_jars = [s for s in jvm_stdlibs.source_jars if s]
     return compile_jars, source_jars
 
+
+def _get_proto_transitive_jars(transitive_jars):
+    return [t for t in transitive_jars if "protos/" in t.path]
+
 def _collect_jars(target, jar_type, rule_kind):
     if jar_type == "compile":
         direct_jars = [t.compile_jar for t in target[JavaInfo].java_outputs if t and t.compile_jar]
         transitive_jars = [t for t in target[JavaInfo].transitive_compile_time_jars.to_list() if t]
+        if rule_kind == "java_proto_library":
+            direct_jars += _get_proto_transitive_jars(target[JavaInfo].transitive_compile_time_jars.to_list())
         transitive_jars += [t for t in target[JavaInfo].transitive_runtime_jars.to_list() if t]
         return direct_jars, transitive_jars
     elif jar_type == "source":
