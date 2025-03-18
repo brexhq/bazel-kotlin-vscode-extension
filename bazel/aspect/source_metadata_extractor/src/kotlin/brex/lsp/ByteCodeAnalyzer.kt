@@ -58,7 +58,7 @@ fun analyzeJars(jarFiles: List<String>): Analysis {
 
                         // Dedupe class info across all the jars
                         analyzer.getClassInfo()?.let { classInfo ->
-                            val fqName = "${classInfo.packageName}.${classInfo.name}"
+                            val fqName = "${classInfo.packageName}.${classInfo.name}".split("$").first()
                             classMap.merge(fqName, classInfo.copy(sourceJars = listOf(jarPath))) { existing, new ->
                                     existing.copy(sourceJars = existing.sourceJars + new.sourceJars)
                             }
