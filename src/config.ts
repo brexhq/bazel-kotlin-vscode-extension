@@ -38,7 +38,7 @@ export class ConfigurationManager {
                 jvmTarget: this.config.get('kotlinLanguageServer.compiler.jvmTarget', '11'),
                 jvmOpts: this.config.get('kotlinLanguageServer.jvmOpts', []),
                 languageServerInstallPath: this.languageServerInstallPath,
-                languageServerVersion: this.config.get('kotlinLanguageServer.languageServerVersion', 'v1.3.14-bazel'),
+                languageServerVersion: this.config.get('kotlinLanguageServer.languageServerVersion', 'v1.3.16-bazel'),
                 javaHome: this.config.get('kotlinLanguageServer.javaHome', ''),
                 languageServerLocalPath: this.config.get('kotlinLanguageServer.path', null),
                 debugAttachEnabled: this.config.get('kotlinLanguageServer.debugAttach.enabled', false),
