@@ -14,9 +14,9 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 
 - Automatically download the language server and keep it up to date.
 - Partially sync Bazel packages on demand, build and notify the language server.
-- Support for Goto-Definition for firsty-party (brex) and third-party libraries through source jars. Currently classes are supported, but not methods and extension functions.
+- Support for Goto-Definition for firsty-party (brex) and third-party libraries through source jars. Currently classes are supported, but not protobufs (Java/Kotlin).
 - Hover support to show docstrings in some cases.
-Ability to run single test for Kotest `DescribeSpec` suites.
+- Ability to run single test for Kotest `DescribeSpec` suites.
 
 ## Usage
 
@@ -30,7 +30,6 @@ Right-click on a directory and select "Brex: Bazel Sync (Kotlin)". This will tri
 
 - [ ] Some more performance improvements to the completions.
 - [ ] Improve performance with large files and especially with growing symbol index.
-- [ ] Release pipeline and version the extension.
 
 
 ## Configuration options
