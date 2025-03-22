@@ -8,99 +8,121 @@ KotlinLspInfo = provider(
     },
 )
 
-def _get_toolchain_jars(ctx):
+_SUPPORTED_RULE_KINDS = [
+    "kt_jvm_library",
+    "java_library",
+    "java_proto_library",
+    "java_grpc_library",
+    "kt_jvm_proto_library",
+    "kt_jvm_grpc_library",
+    "jvm_import",
+]
+
+def _get_toolchain_info(ctx):
     jvm_stdlibs = ctx.toolchains["@io_bazel_rules_kotlin//kotlin/internal:kt_toolchain_type"].jvm_stdlibs
     compile_jars = [t.compile_jar for t in jvm_stdlibs.java_outputs if t.compile_jar]
     source_jars = [s for s in jvm_stdlibs.source_jars if s]
-    return compile_jars, source_jars
-
-
-def _get_proto_transitive_jars(transitive_jars):
-    return [t for t in transitive_jars if "protos/" in t.path]
-
-def _collect_jars(target, jar_type, rule_kind):
-    if jar_type == "compile":
-        direct_jars = [t.compile_jar for t in target[JavaInfo].java_outputs if t and t.compile_jar]
-        transitive_jars = [t for t in target[JavaInfo].transitive_compile_time_jars.to_list() if t]
-        if rule_kind == "java_proto_library":
-            direct_jars += _get_proto_transitive_jars(target[JavaInfo].transitive_compile_time_jars.to_list())
-        transitive_jars += [t for t in target[JavaInfo].transitive_runtime_jars.to_list() if t]
-        return direct_jars, transitive_jars
-    elif jar_type == "source":
-        direct_jars = [s for s in target[JavaInfo].source_jars if s]
-        if rule_kind == "java_proto_library":
-            direct_jars += _get_proto_transitive_jars(target[JavaInfo].transitive_source_jars.to_list())
-        transitive_jars = [t for t in target[JavaInfo].transitive_source_jars.to_list() if t]
-        return direct_jars, transitive_jars
-    else:
-        fail("invalid jar type: {}".format(jar_type))
-
-def _generate_source_metadata(ctx, target, compile_jars):
-    if ctx.rule.kind != "kt_jvm_library" and ctx.rule.kind != "jvm_import" and ctx.rule.kind != "kt_jvm_proto_library" and ctx.rule.kind != "java_library" and ctx.rule.kind != "kt_jvm_grpc_library" and ctx.rule.kind != "java_grpc_library" and ctx.rule.kind != "java_proto_library" and ctx.rule.kind != "proto_library":
-        return None
-
-    if len(compile_jars) == 0:
-        return None
-
-    source_metadata_json = ctx.actions.declare_file("{}-klsp-metadata.json".format(target.label.name))
-    ctx.actions.run(
-        executable = ctx.executable._source_metadata_extractor,
-        inputs = compile_jars,
-        arguments = [
-            source_metadata_json.path,
-        ] + [jar.path for jar in compile_jars],
-        outputs = [source_metadata_json],
-        progress_message = "Analyzing jars for %s" % target.label,
-        mnemonic = "KotlinLSPAnalyzeJars",
+    return struct(
+        compile_jars = compile_jars,
+        source_jars = source_jars,
     )
 
-    return source_metadata_json
+def _collect_target_info(ctx, target):
+    classpath_entries = []
+    direct_compile_jars = []
+    direct_source_jars = []
+    for java_output in target[JavaInfo].java_outputs:
+        classpath_entries.append(struct(
+            compile_jar = java_output.class_jar.path,
+            source_jar = java_output.source_jars.to_list()[0].path if java_output.source_jars else None,
+        ))
+        direct_compile_jars.append(java_output.class_jar)
+        if java_output.source_jars:
+            direct_source_jars.append(java_output.source_jars.to_list()[0])
 
-def _filter_transitives_without_srcs(transitive_artifacts):
-    return [t for t in transitive_artifacts if not t.path.endswith("klsp-srcs.txt")]
+    transitive_compile_jars = [t for t in target[JavaInfo].transitive_compile_time_jars.to_list() if t]
+    transitive_source_jars = [t for t in target[JavaInfo].transitive_source_jars.to_list() if t]
+    if ctx.rule.kind == "java_proto_library":
+        transitive_proto_compile_jars = target[JavaInfo].transitive_compile_time_jars.to_list()
+        transitive_proto_source_jars = target[JavaInfo].transitive_source_jars.to_list()
+
+        for jar in transitive_proto_compile_jars:
+            classpath_entries.append(struct(
+                compile_jar = jar.path,
+                source_jar = None,
+            ))
+        for jar in transitive_proto_source_jars:
+            classpath_entries.append(struct(
+                compile_jar = None,
+                source_jar = jar.path,
+            ))
+
+        transitive_compile_jars += transitive_proto_compile_jars
+        transitive_source_jars += transitive_proto_source_jars
+
+    srcs = []
+    if hasattr(ctx.rule.attr, "srcs"):
+        for s in ctx.rule.attr.srcs:
+            for f in s.files.to_list():
+                if f.path.endswith(".kt") or f.path.endswith(".java"):
+                    srcs.append(f.path)
+    return struct(
+        direct_compile_jars = direct_compile_jars,
+        transitive_compile_jars = transitive_compile_jars,
+        direct_source_jars = direct_source_jars,
+        transitive_source_jars = transitive_source_jars,
+        source_files = srcs,
+        classpath_entries = classpath_entries,
+    )
+
+def _generate_lsp_info(ctx, target, target_info):
+    if ctx.rule.kind not in _SUPPORTED_RULE_KINDS:
+        return None
+
+    target_info_file = ctx.actions.declare_file("{}-kotlin-lsp.txt".format(target.label.name))
+    args = ctx.actions.args()
+    args.add("--target", str(target.label))
+    args.add("--source-files", ",".join(target_info.source_files))
+    args.add("--classpath", json.encode(target_info.classpath_entries))
+    args.add("--target-info", target_info_file.path)
+
+    inputs = []
+
+    ctx.actions.run(
+        executable = ctx.executable._lsp_info_extractor,
+        inputs = inputs,
+        arguments = [args],
+        outputs = [target_info_file],
+        mnemonic = "KotlinLspInfo",
+    )
+
+    return target_info_file
 
 def _kotlin_lsp_aspect_impl(target, ctx):
-
     all_outputs = []
-    direct_metadata_files = []
+    direct_infos = []
 
     # this is a JVM-like target
+    target_lsp_info = None
     if JavaInfo in target:
-        direct_compile_jars, transitive_compile_jars = _collect_jars(target, "compile", ctx.rule.kind)
-        direct_source_jars, transitive_source_jars = _collect_jars(target, "source", ctx.rule.kind)
+        target_info = _collect_target_info(ctx, target)
+        target_lsp_info = _generate_lsp_info(ctx, target, target_info)
 
+        if target_lsp_info:
+            all_outputs.append(target_lsp_info)
+            direct_infos.append(target_lsp_info)
+
+        all_outputs.extend(target_info.direct_compile_jars)
+        all_outputs.extend(target_info.transitive_compile_jars)
+        all_outputs.extend(target_info.transitive_source_jars)
+        all_outputs.extend(target_info.direct_source_jars)
+
+        toolchain_info = None
         if KtJvmInfo in target:
-            stdlib_compile_jars, stdlib_source_jars = _get_toolchain_jars(ctx)
-            transitive_compile_jars += stdlib_compile_jars
-            transitive_source_jars += stdlib_source_jars
+            toolchain_info = _get_toolchain_info(ctx)
 
-        # the source files referenced directly by this target
-        lsp_srcs_info = None
-        if hasattr(ctx.rule.attr, "srcs"):
-            srcs = []
-            for s in ctx.rule.attr.srcs:
-                for f in s.files.to_list():
-                    if f.path.endswith(".kt") or f.path.endswith(".java"):
-                        srcs.append(f.path)
-            lsp_srcs_info = ctx.actions.declare_file("{}-klsp-srcs.txt".format(target.label.name))
-            ctx.actions.write(lsp_srcs_info, "\n".join(srcs))
-
-        source_metadata_json = _generate_source_metadata(ctx, target, direct_compile_jars)
-        lsp_compile_info = ctx.actions.declare_file("{}-klsp-compile.txt".format(target.label.name))
-        lsp_sources_info = ctx.actions.declare_file("{}-klsp-sources.txt".format(target.label.name))
-
-        direct_metadata_files = [lsp_sources_info, lsp_compile_info]
-        all_outputs.extend(direct_metadata_files)
-        if source_metadata_json:
-            direct_metadata_files.append(source_metadata_json)
-            all_outputs.append(source_metadata_json)
-
-        if lsp_srcs_info:
-            all_outputs.append(lsp_srcs_info)
-        
-        transitive_infos = depset(direct = direct_metadata_files)
+        transitive_infos = depset(direct = [])
         transitive_dep_artifacts = []
-
         if hasattr(ctx.rule.attr, "deps"):
             for dep in ctx.rule.attr.deps:
                 if KotlinLspInfo in dep:
@@ -110,14 +132,10 @@ def _kotlin_lsp_aspect_impl(target, ctx):
                     transitive_infos = depset(
                         transitive = [dep[KotlinLspInfo].info, transitive_infos, all_transitives],
                     )
+
                     # Collect artifacts from transitive dependencies
                     transitive_dep_artifacts.extend(dep[KotlinLspInfo].info.to_list())
                     transitive_dep_artifacts.extend(all_transitives.to_list())
-                if JavaInfo in dep:
-                    s1, s2 = _collect_jars(dep, "source", ctx.rule.kind)
-                    transitive_source_jars.extend(s1 + s2)
-                    j1, j2 = _collect_jars(dep, "compile", ctx.rule.kind)
-                    transitive_compile_jars.extend(j1 + j2)
 
         if hasattr(ctx.rule.attr, "exports"):
             for dep in ctx.rule.attr.exports:
@@ -125,49 +143,16 @@ def _kotlin_lsp_aspect_impl(target, ctx):
                     all_transitives = dep[KotlinLspInfo].transitive_infos
                     if type(all_transitives) == "list":
                         all_transitives = depset(all_transitives)
-                    transitive_infos = depset(
-                        transitive = [dep[KotlinLspInfo].info, transitive_infos, all_transitives],
-                    )
-                    # Collect artifacts from transitive dependencies
+                        transitive_infos = depset(
+                            transitive = [dep[KotlinLspInfo].info, transitive_infos, all_transitives],
+                        )
+
                     transitive_dep_artifacts.extend(dep[KotlinLspInfo].info.to_list())
                     transitive_dep_artifacts.extend(all_transitives.to_list())
-                if JavaInfo in dep:
-                    s1, s2 = _collect_jars(dep, "source", ctx.rule.kind)
-                    transitive_source_jars.extend(s1 + s2)
-                    j1, j2 = _collect_jars(dep, "compile", ctx.rule.kind)
-                    transitive_compile_jars.extend(j1 + j2)
-
-        if hasattr(ctx.rule.attr, "runtime_deps"):
-            for dep in ctx.rule.attr.runtime_deps:
-                if KotlinLspInfo in dep:
-                    all_transitives = dep[KotlinLspInfo].transitive_infos
-                    if type(all_transitives) == "list":
-                        all_transitives = depset(all_transitives)
-                    transitive_infos = depset(
-                        transitive = [dep[KotlinLspInfo].info, transitive_infos, all_transitives],
-                    )
-                    # Collect artifacts from transitive dependencies
-                    transitive_dep_artifacts.extend(dep[KotlinLspInfo].info.to_list())
-                    transitive_dep_artifacts.extend(all_transitives.to_list())
-                if JavaInfo in dep:
-                    s1, s2 = _collect_jars(dep, "source", ctx.rule.kind)
-                    transitive_source_jars.extend(s1 + s2)
-                    j1, j2 = _collect_jars(dep, "compile", ctx.rule.kind)
-                    transitive_compile_jars.extend(j1 + j2)
-
-        # source and output jars for classpath entries
-        ctx.actions.write(lsp_sources_info, "\n".join([jar.path for jar in direct_source_jars]))
-        ctx.actions.write(lsp_compile_info, "\n".join([jar.path for jar in direct_compile_jars]))
-
-        # source jars are not default outputs, so need to include them explicitly
-        all_outputs.extend(direct_source_jars)
-        all_outputs.extend(transitive_source_jars)
-        all_outputs.extend(_filter_transitives_without_srcs(transitive_dep_artifacts))
-        all_outputs.extend(transitive_compile_jars)
 
         return [
             KotlinLspInfo(
-                info = depset(direct_metadata_files),
+                info = depset(direct_infos),
                 transitive_infos = transitive_infos,
             ),
             OutputGroupInfo(
@@ -195,8 +180,8 @@ kotlin_lsp_aspect = aspect(
         "@io_bazel_rules_kotlin//kotlin/internal:kt_toolchain_type",
     ],
     attrs = {
-        "_source_metadata_extractor": attr.label(
-            default = Label("//source_metadata_extractor"),
+        "_lsp_info_extractor": attr.label(
+            default = Label("//lsp_info_extractor"),
             executable = True,
             cfg = "exec",
         ),
