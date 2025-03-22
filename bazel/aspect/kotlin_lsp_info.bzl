@@ -79,7 +79,7 @@ def _generate_lsp_info(ctx, target, target_info):
     if ctx.rule.kind not in _SUPPORTED_RULE_KINDS:
         return None
 
-    target_info_file = ctx.actions.declare_file("{}-kotlin-lsp.txt".format(target.label.name))
+    target_info_file = ctx.actions.declare_file("{}-kotlin-lsp.json".format(target.label.name))
     args = ctx.actions.args()
     args.add("--target", str(target.label))
     args.add("--source-files", ",".join(target_info.source_files))
