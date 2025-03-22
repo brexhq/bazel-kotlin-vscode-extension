@@ -1,1 +1,18 @@
 
+proto_library(
+    name = "kotlin_lsp_proto",
+    srcs = ["kotlin_lsp.proto"],
+    visibility = ["//visibility:public"],
+)
+
+java_proto_library(
+    name = "kotlin_lsp_java_proto",
+    deps = [":kotlin_lsp_proto"],
+    visibility = ["//visibility:public"],
+)
+
+java_library(
+    name = "lib",
+    runtime_deps = [":kotlin_lsp_java_proto"],
+    visibility = ["//visibility:public"],
+)
