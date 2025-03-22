@@ -4,10 +4,10 @@ import com.google.gson.Gson
 import java.io.File
 
 /**
- * SourceMetadataExtractor analyzes the compiled jars to produce metadata about the classes, functions
+ * LspExtractor analyzes the compiled jars to produce metadata about the classes, functions
  * it contains
  */
-class SourceMetadataExtractor {
+class LspInfoExtractor {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {

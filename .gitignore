@@ -3,3 +3,5 @@ dist
 node_modules
 .vscode-test/
 *.vsix
+bazel/aspect/.ijwb
+bazel/aspect/bazel-*/

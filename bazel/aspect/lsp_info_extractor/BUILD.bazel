@@ -1,0 +1,19 @@
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+
+kt_jvm_library(
+    name = "lsp-info-extractor-lib",
+    srcs = glob(["src/kotlin/brex/lsp/*.kt"]),
+    deps = [
+        "//:kotlin_lsp_java_proto",
+        "@maven//:com_google_code_gson_gson",
+        "@maven//:org_jetbrains_kotlinx_kotlinx_metadata_jvm",
+        "@maven//:org_ow2_asm_asm",
+    ],
+)
+
+java_binary(
+    name = "lsp_info_extractor",
+    main_class = "brex.lsp.LspInfoExtractor",
+    visibility = ["//visibility:public"],
+    runtime_deps = [":lsp-info-extractor-lib"],
+)

@@ -1,6 +1,5 @@
 package brex.lsp
 
-import kotlinx.metadata.KmClass
 import kotlinx.metadata.KmFunction
 import kotlinx.metadata.jvm.KotlinClassMetadata
 import org.objectweb.asm.AnnotationVisitor

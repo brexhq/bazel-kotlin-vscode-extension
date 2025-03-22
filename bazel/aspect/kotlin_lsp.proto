@@ -1,6 +1,8 @@
 syntax="proto3";
 
-// Encapsultes the information about the artifacts required by the Kotlin LSP from a bazel build
+option java_package = "brex.lsp.proto";
+
+// Encapsulates the information about the artifacts required by the Kotlin LSP from a bazel build
 message BazelKotlinLspInfo {
     // The root of the workspace
     string workspace_root = 1;
@@ -9,13 +11,13 @@ message BazelKotlinLspInfo {
     string bzlmod_enabled = 2;
 
     // One or more classpath entries
-    repeated ClassPathEntry classpath = 2;
+    repeated ClassPathEntry classpath = 3;
 
     // One or more compile jar bytecode information
-    repeated CompileJarBytecodeInfo bytecode_info = 3;
+    repeated CompileJarBytecodeInfo bytecode_info = 4;
 
     // A list of source files that the LSP will track for compilation
-    repeated SourceFile source_files = 4;
+    repeated SourceFile source_files = 5;
 }
 
 message SourceFile {
