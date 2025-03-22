@@ -143,9 +143,9 @@ def _kotlin_lsp_aspect_impl(target, ctx):
                     all_transitives = dep[KotlinLspInfo].transitive_infos
                     if type(all_transitives) == "list":
                         all_transitives = depset(all_transitives)
-                        transitive_infos = depset(
-                            transitive = [dep[KotlinLspInfo].info, transitive_infos, all_transitives],
-                        )
+                    transitive_infos = depset(
+                        transitive = [dep[KotlinLspInfo].info, transitive_infos, all_transitives],
+                    )
 
                     transitive_dep_artifacts.extend(dep[KotlinLspInfo].info.to_list())
                     transitive_dep_artifacts.extend(all_transitives.to_list())
