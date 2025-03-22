@@ -1,5 +1,6 @@
 package brex.lsp
 
+import brex.lsp.proto.KotlinLsp
 import brex.lsp.proto.KotlinLsp.KotlinLspBazelTargetInfo
 import brex.lsp.proto.KotlinLsp.SourceFile
 import brex.lsp.proto.KotlinLsp.ClassPathEntry as ClassPathEntryProto
@@ -24,6 +25,8 @@ class ExtractLspInfo : CliktCommand() {
     private val classPathEntryType = object : TypeToken<List<brex.lsp.ClassPathEntry>>() {}.type
 
     val bazelTarget by option( "--target", help="The bazel target")
+
+    val bazelTargetKind by option("--kind", help = "The bazel target kind").required()
     val sourceFiles by option( "--source-files", help="The direct source files for this target")
         .split(",")
 
@@ -35,6 +38,10 @@ class ExtractLspInfo : CliktCommand() {
     private val bzlModEnabled by option("--bzlmod-enabled", help = "If bzlmod is enabled or not.").boolean().default(false)
 
     private val outputFile by option("--target-info", help = "The output file containing the target info in proto format")
+
+    private val classJars by option("--class-jars", help = "Comma-separated list of class jars to analyze")
+        .split(",")
+        .default(emptyList())
 
     override fun run() {
 
@@ -51,11 +58,22 @@ class ExtractLspInfo : CliktCommand() {
                 .build()
         }
 
+        val packageMappings = generatePackageMappings()
+
+        val packageMappingProtos = packageMappings.map { mapping ->
+            KotlinLsp.PackageSourceMapping.newBuilder()
+                .setPackageName(mapping.packageName)
+                .setSourceJarPath(mapping.sourceJarPath)
+                .build()
+        }
+
+
         val targetInfo = KotlinLspBazelTargetInfo.newBuilder()
             .setBazelTarget(bazelTarget)
             .setBzlmodEnabled(bzlModEnabled)
             .addAllClasspath(classPathEntriesProtos)
             .addAllSourceFiles(sourceFilesProtos)
+            .addAllPackageSourceMappings(packageMappingProtos)
             .build()
 
 
@@ -65,6 +83,105 @@ class ExtractLspInfo : CliktCommand() {
             }
         }
 
+    }
+
+
+    /**
+     * Generate package to source jar mappings
+     */
+    private fun generatePackageMappings(): List<PackageInfoExtractor.PackageSourceMapping> {
+        val packageMappings = mutableListOf<PackageInfoExtractor.PackageSourceMapping>()
+
+        val jarToSourceMap = classPathEntries?.associate {
+            (it.compile_jar ?: "") to (it.source_jar ?: "")
+        } ?: mapOf()
+
+        classJars.filter { it.isNotBlank() }.forEach { jar ->
+            val sourceJarPath = jarToSourceMap[jar]
+            val jarFile = File(jar)
+            if (jarFile.exists() && !sourceJarPath.isNullOrBlank()) {
+                val mappings = PackageInfoExtractor.extractPackageMappings(jarFile, sourceJarPath)
+                packageMappings.addAll(mappings)
+            }
+        }
+
+        if(!bazelTargetKind.contains("proto_") && !bazelTargetKind.contains("grpc_") ) {
+            return packageMappings
+        }
+
+        // for protos, it's not trivial to get the source/compile jar mapping
+        // so we go through all possible compile jars and generate this
+
+        // Collect all unmapped source jars
+        val unmappedSourceJars = classPathEntries
+            ?.filter { it.compile_jar.isNullOrBlank() && !it.source_jar.isNullOrEmpty() }
+            ?.mapNotNull { it.source_jar }
+            ?.filter { it.isNotEmpty()}
+            ?: emptyList()
+
+        // Get all available compile jars
+        val availableCompileJars = classPathEntries
+            ?.mapNotNull { it.compile_jar }
+            ?.filter { it.isNotEmpty() }
+            ?: emptyList()
+
+        // Create a mapping from normalized names to compile jars
+        val normalizedCompileJarMap = mutableMapOf<String, String>()
+        availableCompileJars.forEach { compileJarPath ->
+            val normalizedName = normalizeProtoPath(compileJarPath)
+            normalizedCompileJarMap[normalizedName] = compileJarPath
+        }
+
+
+        // Match unmapped source jars to compile jars using normalized names
+        unmappedSourceJars.forEach { sourceJarPath ->
+            val normalizedSourceName = normalizeProtoPath(sourceJarPath)
+            val matchingCompileJar = normalizedCompileJarMap[normalizedSourceName]
+
+            if (matchingCompileJar != null) {
+                val compileJarFile = File(matchingCompileJar)
+                if (compileJarFile.exists()) {
+                    val mappings = PackageInfoExtractor.extractPackageMappings(compileJarFile, sourceJarPath)
+                    packageMappings.addAll(mappings)
+                }
+            } else {
+                print("Didnt find matching compile jar for ${sourceJarPath}")
+            }
+        }
+
+        return packageMappings
+    }
+
+    /**
+     * Normalize a proto jar path to a canonical form for matching
+     */
+    private fun normalizeProtoPath(path: String): String {
+        // Extract the base path and filename
+        val basePath = path.substringBeforeLast("/")
+        val fileName = path.substringAfterLast("/")
+
+        // Handle various patterns to extract the core proto name
+        val protoName = when {
+            // Compile jar patterns
+            fileName.startsWith("lib") && fileName.contains("-speed-hjar") ->
+                fileName.removePrefix("lib").substringBefore("-speed-hjar")
+            fileName.startsWith("lib") && fileName.contains("-hjar") ->
+                fileName.removePrefix("lib").substringBefore("-hjar")
+            fileName.startsWith("lib") && fileName.contains("-speed") ->
+                fileName.removePrefix("lib").substringBefore("-speed")
+
+            // Source jar patterns
+            fileName.contains("-speed-src") ->
+                fileName.substringBefore("-speed-src")
+            fileName.contains("-src") ->
+                fileName.substringBefore("-src")
+
+            // Default case
+            else -> fileName.substringBefore(".jar")
+        }
+
+        // Return normalized path
+        return "$basePath/$protoName"
     }
 }
 

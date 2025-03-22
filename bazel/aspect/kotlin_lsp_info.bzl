@@ -57,6 +57,8 @@ def _collect_target_info(ctx, target):
                 source_jar = jar.path,
             ))
 
+        direct_compile_jars += transitive_proto_compile_jars
+        direct_source_jars += transitive_proto_source_jars
         transitive_compile_jars += transitive_proto_compile_jars
         transitive_source_jars += transitive_proto_source_jars
 
@@ -85,8 +87,13 @@ def _generate_lsp_info(ctx, target, target_info):
     args.add("--source-files", ",".join(target_info.source_files))
     args.add("--classpath", json.encode(target_info.classpath_entries))
     args.add("--target-info", target_info_file.path)
+    args.add("--kind", ctx.rule.kind)
 
     inputs = []
+    if target_info.direct_compile_jars:
+        args.add("--class-jars", ",".join([p.path for p in target_info.direct_compile_jars]))
+        inputs.extend(target_info.direct_compile_jars)
+        inputs.extend(target_info.direct_source_jars)
 
     ctx.actions.run(
         executable = ctx.executable._lsp_info_extractor,
