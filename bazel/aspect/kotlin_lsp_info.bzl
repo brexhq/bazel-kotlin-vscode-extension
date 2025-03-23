@@ -181,7 +181,7 @@ kotlin_lsp_aspect = aspect(
     fragments = ["java"],
     provides = [KotlinLspInfo],
     doc = """
-    This aspect collects classpath entries for all dependencies of JVM targets as text files (one for sources, another for compile jars) which can be consumed by downstream systems after a build"
+    This aspect collects classpath entries for all dependencies of JVM targets as a proto json file which can be consumed by downstream systems like a language server after a build"
     """,
     toolchains = [
         "@io_bazel_rules_kotlin//kotlin/internal:kt_toolchain_type",
