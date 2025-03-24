@@ -1,0 +1,56 @@
+name: Create aspect archive release
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on tags with version format v1.0.0, v2.1.0, etc.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Bazel
+        uses: bazelbuild/setup-bazelisk@v2
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        
+      - name: Build with Bazel
+        run: |
+          # cd to the aspect workspace and build a binary
+          cd bazel/aspect
+          bazel build //lsp_info_extractor_deploy.jar
+          
+      
+      - name: Prepare release files
+        run: |
+          # Create release directory
+          mkdir -p release
+          
+          # Copy Bazel build artifacts to release directory
+          # Example: Copy JAR files from bazel-bin
+          cp bazel-bin/lsp_info_extractor/lsp_info_extractor_deploy.jar release/
+          
+          cp BUILD.release.bzl release/
+          cp WORKSPACE release/
+          cp kotlin_lsp_info.bzl release/
+          
+          # Create a zip archive
+          cd release
+          zip -r ../bazel-kls-aspect-${{ env.VERSION }}.zip *
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ env.VERSION }}
+          draft: false
+          prerelease: false
+          files: |
+            bazel-kls-aspect-${{ env.VERSION }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -188,7 +188,7 @@ kotlin_lsp_aspect = aspect(
     ],
     attrs = {
         "_lsp_info_extractor": attr.label(
-            default = Label("//lsp_info_extractor"),
+            default = Label("//:lsp_info_extractor"),
             executable = True,
             cfg = "exec",
         ),

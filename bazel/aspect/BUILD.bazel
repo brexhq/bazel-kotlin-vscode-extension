@@ -9,3 +9,9 @@ java_proto_library(
     visibility = ["//visibility:public"],
     deps = [":kotlin_lsp_proto"],
 )
+
+alias(
+    name = "lsp_info_extractor",
+    actual = "//lsp_info_extractor:lsp_info_extractor",
+    visibility = ["//visibility:public"],
+)
