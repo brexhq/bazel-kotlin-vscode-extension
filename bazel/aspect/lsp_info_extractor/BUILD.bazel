@@ -2,7 +2,7 @@ load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 
 kt_jvm_library(
     name = "lsp-info-extractor-lib",
-    srcs = glob(["src/kotlin/brex/lsp/*.kt"]),
+    srcs = glob(["src/kotlin/org/bazelkls/*.kt"]),
     deps = [
         "//:kotlin_lsp_java_proto",
         "@maven//:com_github_ajalt_clikt_clikt_jvm",
@@ -16,7 +16,7 @@ kt_jvm_library(
 
 java_binary(
     name = "lsp_info_extractor",
-    main_class = "brex.lsp.LspInfoExtractor",
+    main_class = "org.bazelkls.LspInfoExtractor",
     visibility = ["//visibility:public"],
     runtime_deps = [":lsp-info-extractor-lib"],
 )

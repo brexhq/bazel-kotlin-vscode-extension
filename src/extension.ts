@@ -5,7 +5,7 @@ import * as cp from "child_process";
 import * as path from "path";
 import * as fs from "fs";
 import { downloadSourceArchive } from "./githubUtils";
-import { ConfigurationManager, BrexConfig } from "./config";
+import { ConfigurationManager, BazelKLSConfig } from "./config";
 import { KotlinLanguageClient, configureLanguage } from "./languageClient";
 import { KotestTestController } from "./kotest";
 import { getBazelAspectArgs } from "./bazelUtils";
@@ -17,7 +17,7 @@ let kotestController: KotestTestController;
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
-  const outputChannel = vscode.window.createOutputChannel("Brex Bazel Sync");
+  const outputChannel = vscode.window.createOutputChannel("Bazel KLS Sync");
   configureLanguage();
   context.subscriptions.push(outputChannel);
 
@@ -153,13 +153,6 @@ export async function activate(context: vscode.ExtensionContext) {
         relativePath = path.relative(currentDir, buildDir);
 
         outputChannel.appendLine(`Using BUILD file directory: ${buildDir}`);
-        // Check if RBE should be used
-        const useRBE =
-          process.env.BREX_BAZEL_USE_RBE_WITH_INTELLIJ_ON_MAC === "1" ||
-          process.env.BREX_BAZEL_USE_RBE_WITH_INTELLIJ_ON_MAC === "true";
-        const configFlag = useRBE ? "--config=remote" : "";
-        outputChannel.appendLine(`Using RBE: ${useRBE}`);
-
         // First, query for kt_jvm_library targets
         const queryCmd = `bazel query 'kind("kt_jvm_library", //${relativePath}/...)'`;
         outputChannel.appendLine(`Finding Kotlin targets: ${queryCmd}`);
@@ -195,7 +188,7 @@ export async function activate(context: vscode.ExtensionContext) {
           extensionSourcesPath,
           context.extensionMode === vscode.ExtensionMode.Development
         );
-        const buildCmd = `bazel build ${configFlag} ${targets.join(
+        const buildCmd = `bazel build ${targets.join(
           " "
         )} ${bazelAspectArgs.join(" ")}`;
         outputChannel.appendLine(`Building targets: ${buildCmd}`);
@@ -288,7 +281,7 @@ export async function activate(context: vscode.ExtensionContext) {
 export function deactivate() {}
 
 async function downloadExtensionSources(
-  config: BrexConfig,
+  config: BazelKLSConfig,
   context: vscode.ExtensionContext
 ) {
   const sourcesPath = config.extensionSourcesPath;

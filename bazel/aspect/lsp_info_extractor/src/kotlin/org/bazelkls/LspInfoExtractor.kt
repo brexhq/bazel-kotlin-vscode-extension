@@ -1,9 +1,9 @@
-package brex.lsp
+package org.bazelkls
 
-import brex.lsp.proto.KotlinLsp
-import brex.lsp.proto.KotlinLsp.KotlinLspBazelTargetInfo
-import brex.lsp.proto.KotlinLsp.SourceFile
-import brex.lsp.proto.KotlinLsp.ClassPathEntry as ClassPathEntryProto
+import org.bazelkls.proto.KotlinLsp
+import org.bazelkls.proto.KotlinLsp.KotlinLspBazelTargetInfo
+import org.bazelkls.proto.KotlinLsp.SourceFile
+import org.bazelkls.proto.KotlinLsp.ClassPathEntry as ClassPathEntryProto
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.boolean

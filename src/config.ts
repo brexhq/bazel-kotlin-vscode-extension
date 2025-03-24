@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-export interface BrexKotlinLanguageServerConfig {
+export interface BazelKotlinLanguageServerConfig {
     enabled: boolean;
     jvmTarget: '11' | '17';
     jvmOpts: string[];
@@ -14,8 +14,8 @@ export interface BrexKotlinLanguageServerConfig {
 }
 
 
-export interface BrexConfig {
-    kotlinLanguageServer: BrexKotlinLanguageServerConfig;
+export interface BazelKLSConfig {
+    kotlinLanguageServer: BazelKotlinLanguageServerConfig;
     extensionSourcesPath: string;
 }
 
@@ -31,7 +31,7 @@ export class ConfigurationManager {
         this.config = vscode.workspace.getConfiguration(ConfigurationManager.SECTION);
     }
 
-    getConfig(): BrexConfig {
+    getConfig(): BazelKLSConfig {
         return {
             kotlinLanguageServer: {
                 enabled: this.config.get('kotlinLanguageServer.enabled', true),
@@ -48,10 +48,10 @@ export class ConfigurationManager {
         };
     }
 
-    public async update(settings: Partial<BrexConfig>): Promise<void> {
+    public async update(settings: Partial<BazelKLSConfig>): Promise<void> {
         for (const [key, value] of Object.entries(settings)) {
             if (key === 'kotlinLanguageServer') {
-                const kotlinSettings = value as BrexKotlinLanguageServerConfig;
+                const kotlinSettings = value as BazelKotlinLanguageServerConfig;
                 for (const [kotlinKey, kotlinValue] of Object.entries(kotlinSettings)) {
                     await this.config.update(`kotlinLanguageServer.${kotlinKey}`, kotlinValue, vscode.ConfigurationTarget.Global);
                 }

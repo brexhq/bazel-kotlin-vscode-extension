@@ -1,4 +1,4 @@
-package brex.lsp
+package org.bazelkls
 
 import java.io.File
 import java.util.jar.JarFile

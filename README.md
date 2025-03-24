@@ -34,6 +34,6 @@ Right-click on a directory and select "Brex: Bazel Sync (Kotlin)". This will tri
 
 ## Configuration options
 
-- `brex.kotlinLanguageServer.enabled`: Whether to enable the language server.
-- `brex.kotlinLanguageServer.languageServerVersion`: The version of the language server to use. Defaults to `v1.3.14-bazel` for now.
-- `brex.kotlinLanguageServer.jvmOpts`: The JVM options to use when starting the language server.
+- `bazelKLS.enabled`: Whether to enable the language server.
+- `bazelKLS.languageServerVersion`: The version of the language server to use. Defaults to `v1.3.14-bazel` for now.
+- `bazelKLS.jvmOpts`: The JVM options to use when starting the language server.

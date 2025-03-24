@@ -7,7 +7,7 @@ import {
 } from "vscode-languageclient/node";
 import * as path from "path";
 import * as vscode from "vscode";
-import { BrexKotlinLanguageServerConfig } from "./config";
+import { BazelKotlinLanguageServerConfig } from "./config";
 import * as fs from "fs";
 import { downloadLanguageServer, downloadSourceArchive } from "./githubUtils";
 import { findProcessesByName, killProcess } from "./processUtils";
@@ -26,7 +26,7 @@ export class KotlinLanguageClient {
   ) {}
 
   private async maybeDownloadLanguageServer(
-    config: BrexKotlinLanguageServerConfig
+    config: BazelKotlinLanguageServerConfig
   ): Promise<void> {
     const installPath = config.languageServerInstallPath;
     const version = config.languageServerVersion;
@@ -63,7 +63,7 @@ export class KotlinLanguageClient {
   }
 
   public async start(
-    config: BrexKotlinLanguageServerConfig,
+    config: BazelKotlinLanguageServerConfig,
     options: { outputChannel: vscode.OutputChannel }
   ): Promise<void> {
     let languageServerPath = config.languageServerLocalPath;
@@ -91,10 +91,10 @@ export class KotlinLanguageClient {
     let javaHome = findJavaHome(config.jvmTarget);
     if (!javaHome) {
       vscode.window.showErrorMessage(
-        `Could not find Java ${config.jvmTarget} installation. Please set brex.kotlinLanguageServer.javaHome in your settings to the path of the Java installation to proceed.`
+        `Could not find Java ${config.jvmTarget} installation. Please set bazelKLS.javaHome in your settings to the path of the Java installation to proceed.`
       );
       throw new Error(
-        `Could not find Java ${config.jvmTarget} installation. Please set brex.kotlinLanguageServer.javaHome in your settings to the path of the Java installation to proceed.`
+        `Could not find Java ${config.jvmTarget} installation. Please set bazelKLS.javaHome in your settings to the path of the Java installation to proceed.`
       );
     }
     env.JAVA_HOME = javaHome;
@@ -148,7 +148,7 @@ export class KotlinLanguageClient {
     // Listen for progress notifications
     this.client.onProgress(
       new ProgressType<{ uri: string; kind: string }>(),
-      "brex/kotlinAnalysis",
+      "bazelKLS/kotlinAnalysis",
       async (params: { uri: string; kind: string }) => {
         if (params.kind === "end") {
           const document = vscode.workspace.textDocuments.find(
