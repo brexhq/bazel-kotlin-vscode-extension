@@ -3,8 +3,8 @@
   "displayName": "bazel-kotlin-vscode-extension",
   "description": "Extension to support Bazel with Kotlin Language Server",
   "version": "0.0.7",
-  "publisher": "Brex",
-  "icon": "resources/brex_icon.png",
+  "publisher": "Sridhar Mocherla",
+  "icon": "resources/kotlin-bazel-logo.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/brexhq/bazel-kotlin-vscode-extension.git"
