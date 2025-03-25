@@ -219,11 +219,6 @@ export async function activate(context: vscode.ExtensionContext) {
           bazelProcess.on("error", reject);
         });
 
-        const index = context.subscriptions.indexOf(disposable);
-        if (index !== -1) {
-          context.subscriptions.splice(index, 1);
-        }
-
         if (exitCode === 0) {
           // if build was successful, notify LSP of change in classpath
           if (config.enabled) {
