@@ -4,11 +4,12 @@ import * as vscode from "vscode";
 import * as cp from "child_process";
 import * as path from "path";
 import * as fs from "fs";
-import { downloadSourceArchive } from "./githubUtils";
+import { downloadAspectReleaseArchive } from "./githubUtils";
 import { ConfigurationManager, BazelKLSConfig } from "./config";
 import { KotlinLanguageClient, configureLanguage } from "./languageClient";
 import { KotestTestController } from "./kotest";
 import { getBazelAspectArgs } from "./bazelUtils";
+import { ASPECT_RELEASE_VERSION } from "./constants";
 
 let kotlinClient: KotlinLanguageClient;
 let kotestController: KotestTestController;
@@ -27,7 +28,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const configManager = new ConfigurationManager(globalStoragePath);
   const config = configManager.getConfig();
 
-  await downloadExtensionSources(config, context);
+  await downloadAspectRelease(config, context);
 
   // First create the language client
   kotlinClient = new KotlinLanguageClient(context, async (doc) =>
@@ -294,7 +295,7 @@ export async function activate(context: vscode.ExtensionContext) {
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
-async function downloadExtensionSources(
+async function downloadAspectRelease(
   config: BazelKLSConfig,
   context: vscode.ExtensionContext
 ) {
@@ -308,13 +309,13 @@ async function downloadExtensionSources(
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Window,
-        title: "Downloading Kotlin Language Server source archive",
+        title: "Downloading kls aspect archive",
         cancellable: false,
       },
       async (progress) => {
-        await downloadSourceArchive(
+        await downloadAspectReleaseArchive(
           "bazel-kotlin-vscode-extension",
-          "v" + context.extension.packageJSON.version,
+          ASPECT_RELEASE_VERSION,
           sourcesPath,
           progress
         );
