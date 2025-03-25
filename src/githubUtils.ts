@@ -156,7 +156,7 @@ export async function downloadLanguageServer(
   };
 
   const response = await fetch(
-    "https://api.github.com/repos/smocherla-brex/kotlin-language-server/releases",
+    "https://api.github.com/repos/smocherla-brex/kotlin-language-server-bazel-support/releases",
     options
   );
   if (!response.ok) {
