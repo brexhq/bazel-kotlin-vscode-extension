@@ -195,9 +195,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
         const disposable = {
           dispose: () => {
-            if (bazelProcess && !bazelProcess.killed) {
+            if (bazelProcess) {
               outputChannel.appendLine('VS Code shutting down, terminating bazel process');
-              bazelProcess.kill('SIGTERM');
+              try {
+                bazelProcess.kill('SIGTERM');
+              } catch (error) {
+                outputChannel.appendLine(`Error terminating bazel process: ${error}`);
+              }
             }
           }
         };
