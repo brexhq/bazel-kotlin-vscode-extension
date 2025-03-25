@@ -30,6 +30,9 @@ jobs:
           excludes: prerelease, draft
           token: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: Install semver
+        run: npm install semver
+
       - name: Check version for release
         uses: actions/github-script@v6
         id: check-version
