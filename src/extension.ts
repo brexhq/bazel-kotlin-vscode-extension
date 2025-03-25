@@ -193,6 +193,17 @@ export async function activate(context: vscode.ExtensionContext) {
 
         const bazelProcess = cp.exec(buildCmd, { cwd: currentDir });
 
+        const disposable = {
+          dispose: () => {
+            if (bazelProcess && !bazelProcess.killed) {
+              outputChannel.appendLine('VS Code shutting down, terminating bazel process');
+              bazelProcess.kill('SIGTERM');
+            }
+          }
+        };
+
+        context.subscriptions.push(disposable);
+
         // Stream output in real-time
         bazelProcess.stdout?.on("data", (data) => {
           outputChannel.append(data.toString());
@@ -207,6 +218,11 @@ export async function activate(context: vscode.ExtensionContext) {
           bazelProcess.on("exit", resolve);
           bazelProcess.on("error", reject);
         });
+
+        const index = context.subscriptions.indexOf(disposable);
+        if (index !== -1) {
+          context.subscriptions.splice(index, 1);
+        }
 
         if (exitCode === 0) {
           // if build was successful, notify LSP of change in classpath
