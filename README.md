@@ -21,8 +21,10 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 ## Usage
 
 - Right-click on a directory and select "Bazel KLS Sync". This will trigger a bazel build and activate the language server.
+![Bazel Sync](resources/usage.png)
 - You can follow the output in a `Bazel KLS Sync` output channel.
 - Once the build completes, the classpath in the LSP gets updated and the files are analyzed for syntax highlighting and other features.
+![Completions](resources/completions.png)
 
 ## Example
 You can try the extension out on [this](https://github.com/smocherla-brex/bazel-kls-example) repo to find out how it works.
