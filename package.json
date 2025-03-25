@@ -1,0 +1,278 @@
+{
+  "name": "bazel-kotlin-vscode-extension",
+  "displayName": "bazel-kotlin-vscode-extension",
+  "description": "Extension to support Bazel with Kotlin Language Server",
+  "version": "0.0.1-rc.1",
+  "publisher": "SridharMocherla",
+  "icon": "resources/kotlin-bazel-logo.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smocherla-brex/bazel-kotlin-vscode-extension.git"
+  },
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:kotlin"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "kotlin",
+        "extensions": [
+          ".kt"
+        ],
+        "aliases": [
+          "Kotlin",
+          "kotlin"
+        ],
+        "configuration": "./languageConfiguration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "kotlin",
+        "scopeName": "source.kotlin",
+        "path": "./syntaxes/kotlin.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "bazel-kotlin-vscode-extension.bazelSync",
+        "title": "Bazel KLS sync"
+      },
+      {
+        "command": "bazel-kotlin-vscode-extension.clearCaches",
+        "title": "Kotlin: Clear Language Server Caches",
+        "category": "Kotlin"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "bazel-kotlin-vscode-extension.bazelSync",
+          "group": "inline",
+          "when": "true"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Bazel KLS Sync",
+      "properties": {
+        "bazelKLS.enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "bazelKLS.languageServerVersion": {
+          "type": "string",
+          "default": "v1.3.14-bazel"
+        },
+        "bazelKLS.jvmOpts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "bazelKLS.path": {
+          "type": "string",
+          "default": "",
+          "description": "Optionally a custom path to the language server executable."
+        },
+        "bazelKLS.transport": {
+          "type": "string",
+          "enum": [
+            "stdio",
+            "tcp"
+          ],
+          "description": "The transport layer beneath the language server protocol. Note that the extension will launch the server even if a TCP socket is used.",
+          "default": "stdio"
+        },
+        "bazelKLS.port": {
+          "type": "integer",
+          "description": "The port to which the client will attempt to connect to. A random port is used if zero. Only used if the transport layer is TCP.",
+          "default": 0
+        },
+        "bazelKLS.debugAttach.enabled": {
+          "type": "boolean",
+          "description": "[DEBUG] Whether the language server should listen for debuggers, i.e. be debuggable while running in VSCode. This is ONLY useful if you need to debug the language server ITSELF.",
+          "default": false
+        },
+        "bazelKLS.debugAttach.port": {
+          "type": "integer",
+          "description": "[DEBUG] If transport is stdio this enables you to attach to the running language server with a debugger. This is ONLY useful if you need to debug the language server ITSELF.",
+          "default": 5009
+        },
+        "bazelKLS.debugAttach.autoSuspend": {
+          "type": "boolean",
+          "description": "[DEBUG] If enabled (together with debugAttach.enabled), the language server will not immediately launch but instead listen on the specified attach port and wait for a debugger. This is ONLY useful if you need to debug the language server ITSELF.",
+          "default": false
+        },
+        "bazelKLS.watchFiles": {
+          "type": "array",
+          "default": [
+            "**/*.kt",
+            "**/*.kts",
+            "**/*.java",
+            "**/pom.xml",
+            "**/build.gradle",
+            "**/settings.gradle"
+          ],
+          "description": "Specifies glob patterns of files, which would be watched by LSP client. The LSP client doesn't support watching files outside a workspace folder."
+        },
+        "bazelKLS.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VSCode and the Kotlin language server.",
+          "scope": "window"
+        },
+        "bazelKLS.jvmTarget": {
+          "type": "string",
+          "default": "11",
+          "description": "Specifies the JVM target, e.g. '11' or '17'."
+        },
+        "bazelKLS.diagnostics.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether diagnostics (e.g. errors or warnings from the Kotlin compiler) should be emitted."
+        },
+        "bazelKLS.diagnostics.level": {
+          "type": "string",
+          "default": "hint",
+          "enum": [
+            "error",
+            "warning",
+            "information",
+            "hint"
+          ],
+          "description": "The minimum severity of diagnostics to emit."
+        },
+        "bazelKLS.diagnostics.debounceTime": {
+          "type": "integer",
+          "default": 250,
+          "description": "[DEBUG] Specifies the debounce time limit. Lower to increase responsiveness at the cost of possible stability issues."
+        },
+        "bazelKLS.linting.debounceTime": {
+          "type": "integer",
+          "default": 250,
+          "deprecationMessage": "The option has been renamed to `bazelKLS.diagnostics.debounceTime`",
+          "description": "[DEBUG] Specifies the debounce time limit. Lower to increase responsiveness at the cost of possible stability issues."
+        },
+        "bazelKLS.scripts.buildScriptsEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether language features are provided for .gradle.kts scripts. Experimental and may not work properly."
+        },
+        "bazelKLS.indexing.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether global symbols in the project should be indexed automatically in the background. This enables e.g. code completion for unimported classes and functions."
+        },
+        "bazelKLS.completion.snippets.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Specifies whether code completion should provide snippets (true) or plain-text items (false)."
+        },
+        "bazelKLS.debugAdapter.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "[Recommended] Specifies whether the debug adapter should be used. When enabled a debugger for Kotlin will be available."
+        },
+        "bazelKLS.debugAdapter.path": {
+          "type": "string",
+          "description": "Optionally a custom path to the debug adapter executable."
+        },
+        "bazelKLS.debounceTime": {
+          "type": "integer",
+          "default": 250,
+          "description": "[DEPRECATED] Specifies the debounce time limit. Lower to increase responsiveness at the cost of possible stability issues.",
+          "deprecationMessage": "Use 'bazelKLS.linting.debounceTime' instead"
+        },
+        "bazelKLS.externalSources.useKlsScheme": {
+          "type": "boolean",
+          "default": true,
+          "description": "[Recommended] Specifies whether URIs inside JARs should be represented using the 'kls'-scheme."
+        },
+        "bazelKLS.externalSources.autoConvertToKotlin": {
+          "type": "boolean",
+          "default": false,
+          "description": "Specifies whether decompiled/external classes should be auto-converted to Kotlin."
+        },
+        "bazelKLS.snippetsEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "[DEPRECATED] Specifies whether code completion should provide snippets (true) or plain-text items (false).",
+          "deprecationMessage": "Use 'bazelKLS.completion.snippets.enabled'"
+        },
+        "bazelKLS.inlayHints.typeHints": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to provide inlay hints for types on declaration sites or not."
+        },
+        "bazelKLS.inlayHints.parameterHints": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to provide inlay hints for parameters on call sites or not."
+        },
+        "bazelKLS.inlayHints.chainedHints": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to provide inlay hints on chained function calls or not."
+        }
+      }
+    },
+    "views": {
+      "test": [
+        {
+          "id": "kotestTests",
+          "name": "Kotest Tests"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "package-extension": "vsce package"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.94.0",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^2.24.0",
+    "eslint": "^9.16.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.7.2",
+    "vscode-languageclient": "^8.1.0",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@types/yauzl": "^2.10.3",
+    "find-process": "1.4.1",
+    "node-fetch": "^2.6.7",
+    "node-pty": "^0.10.1",
+    "vscode-languageclient": "^8.1.0",
+    "yauzl": "^3.2.0"
+  }
+}

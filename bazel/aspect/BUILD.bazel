@@ -1,0 +1,17 @@
+proto_library(
+    name = "kotlin_lsp_proto",
+    srcs = ["kotlin_lsp.proto"],
+    visibility = ["//visibility:public"],
+)
+
+java_proto_library(
+    name = "kotlin_lsp_java_proto",
+    visibility = ["//visibility:public"],
+    deps = [":kotlin_lsp_proto"],
+)
+
+alias(
+    name = "lsp_info_extractor",
+    actual = "//lsp_info_extractor:lsp_info_extractor",
+    visibility = ["//visibility:public"],
+)
