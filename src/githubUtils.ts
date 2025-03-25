@@ -193,7 +193,7 @@ export async function downloadLanguageServer(
   );
 }
 
-export async function downloadSourceArchive(
+export async function downloadAspectReleaseArchive(
   repo: string,
   version: string,
   destPath: string,
