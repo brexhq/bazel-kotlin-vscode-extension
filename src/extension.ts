@@ -193,6 +193,21 @@ export async function activate(context: vscode.ExtensionContext) {
 
         const bazelProcess = cp.exec(buildCmd, { cwd: currentDir });
 
+        const disposable = {
+          dispose: () => {
+            if (bazelProcess) {
+              outputChannel.appendLine('VS Code shutting down, terminating bazel process');
+              try {
+                bazelProcess.kill('SIGTERM');
+              } catch (error) {
+                outputChannel.appendLine(`Error terminating bazel process: ${error}`);
+              }
+            }
+          }
+        };
+
+        context.subscriptions.push(disposable);
+
         // Stream output in real-time
         bazelProcess.stdout?.on("data", (data) => {
           outputChannel.append(data.toString());
