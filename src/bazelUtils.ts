@@ -50,7 +50,7 @@ export async function getBazelAspectArgs(
     "bazel",
     "aspect"
   );
-  if (isDevelopmentMode) {
+  if (!isDevelopmentMode) {
     aspectWorkspacePath = path.join(extensionSourcesPath, "bazel", "aspect");
   }
   if (!checkDirectoryExists(aspectWorkspacePath)) {

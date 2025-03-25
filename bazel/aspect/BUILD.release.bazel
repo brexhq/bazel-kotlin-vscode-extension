@@ -1,7 +1,7 @@
 java_import(
     name = "lsp_info_extractor_lib",
     jars = [
-        "lsp_info_extractor.jar",
+        "lsp_info_extractor_deploy.jar",
     ],
     visibility = ["//visibility:public"],
 )
