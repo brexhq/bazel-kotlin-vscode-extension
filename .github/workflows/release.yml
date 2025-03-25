@@ -41,7 +41,7 @@ jobs:
             const semver = require('semver');
             
             // Remove 'v' prefix if present for proper semver comparison
-            const latestVersion = '${{ steps.get-latest-release.outputs.tag_name }}'.replace(/^v/, '');
+            const latestVersion = '${{ steps.get-latest-release.outputs.release }}'.replace(/^v/, '');
             const currentVersion = '${{ steps.get-current-version.outputs.version }}';
             
             console.log(`Comparing versions - Current: ${currentVersion}, Latest: ${latestVersion}`);
