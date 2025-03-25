@@ -2,6 +2,7 @@ import * as path from "path";
 import * as fs from "fs";
 import * as yauzl from "yauzl";
 import { Progress } from "vscode";
+import { ASPECT_RELEASE_ARCHIVE_SHA256, KLS_RELEASE_ARCHIVE_SHA256 } from "./constants";
 
 interface GithubRelease {
   tag_name: string;
@@ -26,7 +27,8 @@ export function getLanguageServerVersion(
 
 async function downloadFile(
   url: string,
-  additionalHeaders: Record<string, string>
+  additionalHeaders: Record<string, string>,
+  expectedSha256?: string,
 ): Promise<Buffer> {
   const options = {
     headers: {
@@ -51,7 +53,21 @@ async function downloadFile(
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
 
-  return Buffer.from(await response.arrayBuffer());
+  const fileBuffer = Buffer.from(await response.arrayBuffer());
+  
+  // Validate SHA256 if an expected hash was provided
+  if (expectedSha256) {
+    const crypto = require('crypto');
+    const hash = crypto.createHash('sha256');
+    hash.update(fileBuffer);
+    const actualSha256 = hash.digest('hex');
+    
+    if (actualSha256 !== expectedSha256) {
+      throw new Error(`SHA256 validation failed for ${url}. Expected: ${expectedSha256}, Actual: ${actualSha256}`);
+    }
+  }
+
+  return fileBuffer;
 }
 
 async function extractZip(zipBuffer: Buffer, destPath: string): Promise<void> {
@@ -165,7 +181,7 @@ export async function downloadLanguageServer(
   progress.report({ message: "Downloading language server..." });
   const zipBuffer = await downloadFile(asset.url, {
     Accept: "application/octet-stream",
-  });
+  }, KLS_RELEASE_ARCHIVE_SHA256[version]);
 
   progress.report({ message: "Extracting language server..." });
   await extractZip(zipBuffer, installPath);
@@ -213,7 +229,7 @@ export async function downloadSourceArchive(
 
   const zipBuffer = await downloadFile(asset.url, {
     Accept: "application/octet-stream",
-  });
+  }, ASPECT_RELEASE_ARCHIVE_SHA256[version]);
 
   // Extract archive
   progress.report({ message: "Extracting aspect..." });
