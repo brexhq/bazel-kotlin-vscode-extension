@@ -21,6 +21,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
         await vscode.workspace.getConfiguration('bazelKLS').update('enabled', undefined, vscode.ConfigurationTarget.Global);
         await vscode.workspace.getConfiguration('bazelKLS').update('jvmTarget', undefined, vscode.ConfigurationTarget.Global);
         await vscode.workspace.getConfiguration('bazelKLS').update('jvmOpts', undefined, vscode.ConfigurationTarget.Global);
+        await vscode.workspace.getConfiguration('bazelKLS').update('buildFlags', undefined, vscode.ConfigurationTarget.Global);
     });
 
     test('getConfig should return default configuration', () => {
@@ -67,6 +68,6 @@ suite('ConfigurationManager Integration Test Suite', () => {
         assert.strictEqual(updatedConfig.jvmTarget, '17');
         assert.deepStrictEqual(updatedConfig.jvmOpts, ['-Xmx2g']);
         assert.strictEqual(updatedConfig.buildFlags.length, 1);
-        assert.equal(updatedConfig.buildFlags, ["--config=remote"])
+        assert.deepEqual(updatedConfig.buildFlags, ["--config=remote"])
     });
 });
