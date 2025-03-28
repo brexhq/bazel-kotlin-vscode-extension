@@ -12,6 +12,7 @@ export interface BazelKLSConfig {
     debugAttachEnabled: boolean;
     debugAttachPort: number;
     extensionSourcesPath: string;
+    buildFlags: string[];
 }
 
 export class ConfigurationManager {
@@ -37,7 +38,8 @@ export class ConfigurationManager {
                 languageServerLocalPath: this.config.get('path', null),
                 debugAttachEnabled: this.config.get('debugAttach.enabled', false),
                 debugAttachPort: this.config.get('debugAttach.port', 5009),
-                extensionSourcesPath: this.extensionSourcesPath
+                extensionSourcesPath: this.extensionSourcesPath,
+                buildFlags: this.config.get("buildFlags", []),
         };
     }
 

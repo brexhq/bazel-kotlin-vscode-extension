@@ -227,6 +227,11 @@
           "type": "boolean",
           "default": false,
           "description": "Whether to provide inlay hints on chained function calls or not."
+        },
+        "bazelKLS.buildFlags" : {
+          "type": "array",
+          "default": [],
+          "description": "A list of build flags to be passed to the bazel build command during a sync."
         }
       }
     },

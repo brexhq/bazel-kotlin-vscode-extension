@@ -187,7 +187,7 @@ export async function activate(context: vscode.ExtensionContext) {
           extensionSourcesPath,
           context.extensionMode === vscode.ExtensionMode.Development
         );
-        const buildCmd = `bazel build ${targets.join(
+        const buildCmd = `bazel build ${config.buildFlags.join(" ")} ${targets.join(
           " "
         )} ${bazelAspectArgs.join(" ")}`;
         outputChannel.appendLine(`Building targets: ${buildCmd}`);
