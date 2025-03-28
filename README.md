@@ -29,10 +29,19 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 ## Example
 You can try the extension out on [this](https://github.com/smocherla-brex/bazel-kls-example) repo to find out how it works.
 
+## Contributing
+Please check existing [Github issues](https://github.com/smocherla-brex/bazel-kotlin-vscode-extension/issues) if you have a feature request or a bug.
+
+### Development
+Working on changes scoped to just the extension should be fairly straightforward following the VSCode [guides](https://code.visualstudio.com/api/extension-guides/overview).
+
+If you're trying to integrate changes to the language server into the extension and test it end-to-end, please follow instructions [here](https://github.com/smocherla-brex/kotlin-language-server-bazel-support/blob/main/DEVELOPMENT.md).
+
 ## TODO
 
 - [ ] Some more performance improvements to the completions.
 - [ ] Improve performance with large files and especially with growing symbol index.
+- [ ] Debugger support
 
 
 ## Configuration options
@@ -40,3 +49,4 @@ You can try the extension out on [this](https://github.com/smocherla-brex/bazel-
 - `bazelKLS.enabled`: Whether to enable the language server.
 - `bazelKLS.languageServerVersion`: The version of the language server to use. Defaults to `v1.3.14-bazel` for now.
 - `bazelKLS.jvmOpts`: The JVM options to use when starting the language server.
+- `bazelKLS.buildFlags`: The bazel flags to be passed to the `bazel build` command during a sync.
