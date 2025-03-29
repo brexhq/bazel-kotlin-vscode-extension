@@ -1,6 +1,6 @@
-export const ASPECT_RELEASE_VERSION = "v0.0.1-rc.5"
+export const ASPECT_RELEASE_VERSION = "v0.0.1"
 export const ASPECT_RELEASE_ARCHIVE_SHA256: Record<string, string> ={
-    "v0.0.1-rc.3": "d67de29d94a487e6120ab97d287d99bdf422eede096e5c0929a63768e6e7d741"
+    "v0.0.1": "40f033c7861c728aa7f04119becab3565942e455cbed195c89b6b791b3401122"
 }
 
 export const KLS_RELEASE_ARCHIVE_SHA256: Record<string, string> ={

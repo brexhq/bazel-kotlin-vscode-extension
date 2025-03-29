@@ -101,7 +101,7 @@ jobs:
           
           cp BUILD.release.bazel release/bazel/aspect/BUILD.bazel
           cp WORKSPACE release/bazel/aspect
-          cp kotlin_lsp_info.bzl release/bazel/aspect
+          cp *.bzl release/bazel/aspect 
           
           # Create a zip archive
           cd release
@@ -126,7 +126,7 @@ jobs:
           tag_name: v${{ needs.check-version.outputs.version }}
           name: Release v${{ needs.check-version.outputs.version }}
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(steps.get-current-version.outputs.version, '-rc') || contains(steps.get-current-version.outputs.version, 'alpha') || contains(steps.get-current-version.outputs.version, 'beta') }}
           generate_release_notes: true
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
