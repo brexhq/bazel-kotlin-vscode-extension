@@ -23,7 +23,6 @@ export class KotlinLanguageClient {
 
   constructor(
     private context: vscode.ExtensionContext,
-    private onTestsFound: (document: vscode.TextDocument) => Promise<void>
   ) {}
 
   private async maybeDownloadLanguageServer(
@@ -147,25 +146,6 @@ export class KotlinLanguageClient {
     );
 
     await this.client.start();
-
-    // Listen for progress notifications
-    this.client.onProgress(
-      new ProgressType<{ uri: string; kind: string }>(),
-      "bazelKLS/kotlinAnalysis",
-      async (params: { uri: string; kind: string }) => {
-        if (params.kind === "end") {
-          const document = vscode.workspace.textDocuments.find(
-            (doc) => doc.uri.toString() === params.uri
-          );
-          if (
-            document?.fileName.endsWith(".kt") &&
-            document.uri.fsPath.includes("Test")
-          ) {
-            await this.onTestsFound(document);
-          }
-        }
-      }
-    );
   }
 
   public async stop(): Promise<void> {

@@ -31,9 +31,7 @@ export async function activate(context: vscode.ExtensionContext) {
   await downloadAspectRelease(config, context);
 
   // First create the language client
-  kotlinClient = new KotlinLanguageClient(context, async (doc) =>
-    kotestController?.refreshTests(doc)
-  );
+  kotlinClient = new KotlinLanguageClient(context);
 
   // Then create the test controller
   kotestController = new KotestTestController();
