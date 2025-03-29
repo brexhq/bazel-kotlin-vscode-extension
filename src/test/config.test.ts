@@ -45,7 +45,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
         );
         assert.strictEqual(
             config.aspectSourcesPath, 
-            path.join(testContext.storagePath, 'extensionSources')
+            path.join(testContext.storagePath, 'aspectSources')
         );
     });
 
