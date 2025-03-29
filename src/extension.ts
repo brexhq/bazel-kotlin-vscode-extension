@@ -177,15 +177,14 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
         // Then build those targets with the aspect
-        let extensionSourcesPath = config.extensionSourcesPath;
+        let aspectSourcesPath = config.aspectSourcesPath;
 
         if (context.extensionMode === vscode.ExtensionMode.Development) {
-          extensionSourcesPath = context.extensionUri.fsPath;
+          aspectSourcesPath = context.extensionUri.fsPath;
         }
 
         const bazelAspectArgs = await getBazelAspectArgs(
-          extensionSourcesPath,
-          context.extensionMode === vscode.ExtensionMode.Development
+          aspectSourcesPath,
         );
         const buildCmd = `bazel build ${config.buildFlags.join(" ")} ${targets.join(
           " "
@@ -299,7 +298,7 @@ async function downloadAspectRelease(
   config: BazelKLSConfig,
   context: vscode.ExtensionContext
 ) {
-  const sourcesPath = config.extensionSourcesPath;
+  const sourcesPath = config.aspectSourcesPath;
   const sourcesVersionFile = path.join(sourcesPath, "version");
 
   if (fs.existsSync(sourcesVersionFile)) {
