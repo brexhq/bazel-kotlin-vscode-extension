@@ -126,7 +126,7 @@ jobs:
           tag_name: v${{ needs.check-version.outputs.version }}
           name: Release v${{ needs.check-version.outputs.version }}
           draft: false
-          prerelease: ${{ contains(needs.check-version.outputs.version, '-rc') || containsneeds.check-version.outputs.version, 'alpha') || contains(needs.check-version.outputs.version, 'beta') }}
+          prerelease: ${{ contains(needs.check-version.outputs.version, '-rc') || contains(needs.check-version.outputs.version, 'alpha') || contains(needs.check-version.outputs.version, 'beta') }}
           generate_release_notes: true
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
