@@ -17,14 +17,24 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 - Completions
 - Support for Goto-Definition for most usecases.
 - Hover support to show docstrings in some cases.
+- VSCode test explorer integration for kotest based `DescribeSpec` tests.
 
 ## Usage
 
 - Right-click on a directory and select "Bazel KLS Sync". This will trigger a bazel build and activate the language server.
+
 ![Bazel Sync](resources/usage.png)
 - You can follow the output in a `Bazel KLS Sync` output channel.
 - Once the build completes, the classpath in the LSP gets updated and the files are analyzed for syntax highlighting and other features.
+
 ![Completions](resources/completions.png)
+
+### VSCode Test Explorer Integration
+If you use the popular Kotlin testing framework [Kotest](https://github.com/kotest/kotest), you can leverage the VS Code test explorer integration to view and run tests. You can see how it looks from below.
+![Kotest Explorer](resources/kotest-vscode.png)
+
+Note that your test runner needs to support `--test_filter` to run single tests or suites with Bazel. By default it'll run all tests in the test class with bazel.
+
 
 ## Example
 You can try the extension out on [this](https://github.com/smocherla-brex/bazel-kls-example) repo to find out how it works.
