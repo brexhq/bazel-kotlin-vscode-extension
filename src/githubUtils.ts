@@ -205,6 +205,7 @@ export async function downloadAspectReleaseArchive(
     const currentVersion = fs.readFileSync(path.join(destPath, "version"), "utf-8");
     // if current version is the same, then skip download
     if (currentVersion == version) {
+      progress.report({ message: `aspect archive for ${version} already exists...` });
       return
     }
     await deleteDirectoryContents(destPath);
