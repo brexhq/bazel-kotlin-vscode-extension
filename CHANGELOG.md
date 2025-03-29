@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.0.2 (2025-03-29)
+
+* Release v0.0.2
+* One last RC release for 0.0.2
+* Update changelog
+* Add support to run Kotest based tests in extension (#17)
+* Bump version (#16)
+* Install and update aspect releases by checking versions (#15)
+* Fix release yaml
+* Update extension version
+* Update aspect version
+* Bump extension version (#14)
+* Update release flow and aspect version (#13)
+* Fix stdlib symbols not recognized by default (#12)
+* Add support for passing bazel flags (#10)
+
+# Changelog
+
 ## v0.0.1 (2025-03-25)
 
 * Fix output

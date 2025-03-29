@@ -1,16 +1,30 @@
 #!/bin/bash
 
-NEW_VERSION="$1"  # Take version from command line argument
-PREV_VERSION="$2" # Take previous version from command line argument
+NEW_VERSION="$1"  
+PREV_VERSION="$2"
 
-# Create a temporary file with the new version header
-echo "# Changelog\n\n## $NEW_VERSION ($(date +%Y-%m-%d))\n" > CHANGELOG.tmp
+# If NEW_VERSION is an actual tag, use it; otherwise use HEAD
+if git rev-parse "$NEW_VERSION" >/dev/null 2>&1; then
+  NEW_REF="$NEW_VERSION"
+else
+  NEW_REF="HEAD"
+fi
+
+# Create the changelog header without using echo -e
+cat > CHANGELOG.tmp << EOF
+# Changelog
+
+## $NEW_VERSION ($(date +%Y-%m-%d))
+
+EOF
 
 # Add all commits between previous and new version
-git log --pretty=format:"* %s" $PREV_VERSION..$NEW_VERSION >> CHANGELOG.tmp
+git log --pretty=format:"* %s" $PREV_VERSION..$NEW_REF >> CHANGELOG.tmp
 
-# Add a line break and append existing changelog
-echo "\n" >> CHANGELOG.tmp
+# Add proper spacing using printf
+printf "\n\n" >> CHANGELOG.tmp
+
+# Append existing changelog
 cat CHANGELOG.md >> CHANGELOG.tmp
 
 # Replace the old changelog with the new one
