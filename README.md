@@ -27,6 +27,13 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 - Once the build completes, the classpath in the LSP gets updated and the files are analyzed for syntax highlighting and other features.
 ![Completions](resources/completions.png)
 
+### VSCode Test Explorer Integration
+If you use the popular Kotlin testing framework [Kotest](https://github.com/kotest/kotest), you can leverage the VS Code test explorer integration to view and run tests. You can see how it looks from below.
+![Kotest Explorer](resources/kotest-vscode.png)
+
+Note that your test runner needs to support `--test_filter` to run single tests or suites with Bazel. By default it'll run all tests in the test class with bazel.
+
+
 ## Example
 You can try the extension out on [this](https://github.com/smocherla-brex/bazel-kls-example) repo to find out how it works.
 
