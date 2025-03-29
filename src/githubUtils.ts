@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as yauzl from "yauzl";
 import { Progress } from "vscode";
 import { ASPECT_RELEASE_ARCHIVE_SHA256, KLS_RELEASE_ARCHIVE_SHA256 } from "./constants";
-import { deleteDirectoryContents } from "./dirUtils";
+import { deleteDirectoryContents, touchFileSync } from "./dirUtils";
 
 interface GithubRelease {
   tag_name: string;
@@ -248,23 +248,4 @@ export async function downloadAspectReleaseArchive(
 
   touchFileSync(path.join(destPath, "version"));
   fs.writeFileSync(path.join(destPath, "version"), version);
-}
-
-function touchFileSync(filePath: string): void {
-  try {
-    // Check if file exists
-    fs.accessSync(filePath);
-
-    // File exists, update timestamps
-    const currentTime = new Date();
-    fs.utimesSync(filePath, currentTime, currentTime);
-  } catch (error) {
-    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
-      // File doesn't exist, create it
-      fs.writeFileSync(filePath, "");
-    } else {
-      // Re-throw unexpected errors
-      throw error;
-    }
-  }
 }

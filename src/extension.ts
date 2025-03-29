@@ -299,13 +299,10 @@ async function downloadAspectRelease(
   context: vscode.ExtensionContext
 ) {
   const sourcesPath = config.aspectSourcesPath;
-  const sourcesVersionFile = path.join(sourcesPath, "version");
-
-  if (fs.existsSync(sourcesVersionFile)) {
-    return;
-  } else if (!fs.existsSync(sourcesVersionFile)) {
+  if(!fs.existsSync(sourcesPath)) {
     await fs.mkdirSync(sourcesPath, { recursive: true });
-    await vscode.window.withProgress(
+  }
+  await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Window,
         title: "Downloading kls aspect archive",
@@ -320,5 +317,4 @@ async function downloadAspectRelease(
         );
       }
     );
-  }
 }
