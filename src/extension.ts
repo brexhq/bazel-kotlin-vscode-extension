@@ -287,6 +287,15 @@ export async function activate(context: vscode.ExtensionContext) {
       await kotlinClient.stop();
     },
   });
+
+  // regardless of whether we did bazel sync or not, show any kotest tests for test files
+  const kotestDocumentLister = vscode.workspace.onDidOpenTextDocument(async (document) => {
+    if(document.fileName.endsWith(".kt") && document.uri.fsPath.includes("Test")) {
+      await kotestController.refreshTests(document);
+    }
+  });
+
+  context.subscriptions.push(kotestDocumentLister);
 }
 
 // This method is called when your extension is deactivated

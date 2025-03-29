@@ -17,6 +17,7 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 - Completions
 - Support for Goto-Definition for most usecases.
 - Hover support to show docstrings in some cases.
+- VSCode test explorer integration for kotest based `DescribeSpec` tests.
 
 ## Usage
 
