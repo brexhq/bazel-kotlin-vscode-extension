@@ -1,12 +1,5 @@
 load("@io_bazel_rules_kotlin//kotlin/internal:defs.bzl", "KtJvmInfo")
-
-KotlinLspInfo = provider(
-    doc = "Contains the information leveraged by Kotlin Language Server for a target.",
-    fields = {
-        "info": "Provides info regarding classpath entries for direct deps.",
-        "transitive_infos": "Provides info regarding classpath entries for transitive deps.",
-    },
-)
+load(":providers.bzl", "KotlinLSPStdLibInfo", "KotlinLspInfo")
 
 _SUPPORTED_RULE_KINDS = [
     "kt_jvm_library",
@@ -18,14 +11,8 @@ _SUPPORTED_RULE_KINDS = [
     "jvm_import",
 ]
 
-def _get_toolchain_info(ctx):
-    jvm_stdlibs = ctx.toolchains["@io_bazel_rules_kotlin//kotlin/internal:kt_toolchain_type"].jvm_stdlibs
-    compile_jars = [t.compile_jar for t in jvm_stdlibs.java_outputs if t.compile_jar]
-    source_jars = [s for s in jvm_stdlibs.source_jars if s]
-    return struct(
-        compile_jars = compile_jars,
-        source_jars = source_jars,
-    )
+def _get_stdlib_jar(ctx):
+    return ctx.attr._stdlib_jars[KotlinLSPStdLibInfo].compile_jar
 
 def _collect_target_info(ctx, target):
     classpath_entries = []
@@ -68,6 +55,15 @@ def _collect_target_info(ctx, target):
             for f in s.files.to_list():
                 if f.path.endswith(".kt") or f.path.endswith(".java"):
                     srcs.append(f.path)
+
+    if KtJvmInfo in target:
+        stdlib_jar = _get_stdlib_jar(ctx)
+        transitive_compile_jars.append(stdlib_jar)
+        classpath_entries.append(struct(
+            compile_jar = stdlib_jar.path,
+            source_jar = None,
+        ))
+
     return struct(
         direct_compile_jars = direct_compile_jars,
         transitive_compile_jars = transitive_compile_jars,
@@ -123,10 +119,6 @@ def _kotlin_lsp_aspect_impl(target, ctx):
         all_outputs.extend(target_info.transitive_compile_jars)
         all_outputs.extend(target_info.transitive_source_jars)
         all_outputs.extend(target_info.direct_source_jars)
-
-        toolchain_info = None
-        if KtJvmInfo in target:
-            toolchain_info = _get_toolchain_info(ctx)
 
         transitive_infos = depset(direct = [])
         transitive_dep_artifacts = []
@@ -190,6 +182,10 @@ kotlin_lsp_aspect = aspect(
         "_lsp_info_extractor": attr.label(
             default = Label("//:lsp_info_extractor"),
             executable = True,
+            cfg = "exec",
+        ),
+        "_stdlib_jars": attr.label(
+            default = Label("//:stdlib-jars"),
             cfg = "exec",
         ),
     },

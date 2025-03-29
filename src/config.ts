@@ -11,7 +11,7 @@ export interface BazelKLSConfig {
     languageServerLocalPath: string | null;
     debugAttachEnabled: boolean;
     debugAttachPort: number;
-    extensionSourcesPath: string;
+    aspectSourcesPath: string;
     buildFlags: string[];
 }
 
@@ -19,11 +19,11 @@ export class ConfigurationManager {
     private static readonly SECTION = 'bazelKLS';
     private languageServerInstallPath: string;
     private config: vscode.WorkspaceConfiguration;
-    private extensionSourcesPath: string;
+    private aspectSourcesPath: string;
 
     constructor(storagePath: string) {
         this.languageServerInstallPath = path.join(storagePath, 'languageServer');
-        this.extensionSourcesPath = path.join(storagePath, 'extensionSources');
+        this.aspectSourcesPath = path.join(storagePath, 'aspectSources');
         this.config = vscode.workspace.getConfiguration(ConfigurationManager.SECTION);
     }
 
@@ -38,7 +38,7 @@ export class ConfigurationManager {
                 languageServerLocalPath: this.config.get('path', null),
                 debugAttachEnabled: this.config.get('debugAttach.enabled', false),
                 debugAttachPort: this.config.get('debugAttach.port', 5009),
-                extensionSourcesPath: this.extensionSourcesPath,
+                aspectSourcesPath: this.aspectSourcesPath,
                 buildFlags: this.config.get("buildFlags", []),
         };
     }

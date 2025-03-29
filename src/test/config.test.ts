@@ -44,8 +44,8 @@ suite('ConfigurationManager Integration Test Suite', () => {
             path.join(testContext.storagePath, 'languageServer')
         );
         assert.strictEqual(
-            config.extensionSourcesPath, 
-            path.join(testContext.storagePath, 'extensionSources')
+            config.aspectSourcesPath, 
+            path.join(testContext.storagePath, 'aspectSources')
         );
     });
 

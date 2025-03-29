@@ -25,34 +25,14 @@ async function checkDirectoryExists(path: string) {
 }
 
 export async function getBazelAspectArgs(
-  extensionSourcesPath: string,
-  isDevelopmentMode: boolean
+  aspectSourcesPath: string,
 ): Promise<string[]> {
-  const files = await fs.readdir(extensionSourcesPath);
-  let extensionRepoRoot: string | undefined = extensionSourcesPath;
-  // If we are in development mode, the extension sources are in the repository where the extension is checked out
-  // so use the aspect from there
-  if (!isDevelopmentMode) {
-    extensionRepoRoot = files.find(async (file) => {
-      (await isDirectory(file)) &&
-        file.includes("bazel-kotlin-vscode-extension");
-    });
-  }
-  if (!extensionRepoRoot) {
-    throw new Error(
-      `Extension sources root not found in ${extensionSourcesPath}`
-    );
-  }
 
   let aspectWorkspacePath = path.join(
-    extensionSourcesPath,
-    extensionRepoRoot,
+    aspectSourcesPath,
     "bazel",
     "aspect"
   );
-  if (!isDevelopmentMode) {
-    aspectWorkspacePath = path.join(extensionSourcesPath, "bazel", "aspect");
-  }
   if (!checkDirectoryExists(aspectWorkspacePath)) {
     throw new Error(
       `Bazel Aspect workspace not found at ${aspectWorkspacePath}`
