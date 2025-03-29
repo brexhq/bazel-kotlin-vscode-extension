@@ -14,6 +14,7 @@ import { findProcessesByName, killProcess } from "./processUtils";
 import { Uri } from "vscode";
 import { findJavaHome } from "./processUtils";
 import { KotestTestClass } from "./kotest";
+import { deleteDirectoryContents } from "./dirUtils";
 
 export class KotlinLanguageClient {
   private client: LanguageClient | undefined;
@@ -32,13 +33,15 @@ export class KotlinLanguageClient {
     const version = config.languageServerVersion;
 
     if (fs.existsSync(path.join(installPath, "version"))) {
-      const currentVersion = await fs.readFileSync(
+      const currentVersion = fs.readFileSync(
         path.join(installPath, "version"),
         "utf8"
       );
       if (currentVersion === version) {
         return;
       }
+
+      await deleteDirectoryContents(installPath);
     }
 
     // show progress notification
