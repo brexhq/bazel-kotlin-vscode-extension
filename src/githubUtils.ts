@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as yauzl from "yauzl";
 import { Progress } from "vscode";
 import { ASPECT_RELEASE_ARCHIVE_SHA256, KLS_RELEASE_ARCHIVE_SHA256 } from "./constants";
-import { deleteDirectoryContents, touchFileSync } from "./dirUtils";
+import { deleteDirectoryContents } from "./dirUtils";
 
 interface GithubRelease {
   tag_name: string;
@@ -246,6 +246,5 @@ export async function downloadAspectReleaseArchive(
   progress.report({ message: "Extracting aspect..." });
   await extractZip(zipBuffer, destPath);
 
-  touchFileSync(path.join(destPath, "version"));
   fs.writeFileSync(path.join(destPath, "version"), version);
 }

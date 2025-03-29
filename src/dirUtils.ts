@@ -34,22 +34,3 @@ export async function checkDirectoryExists(path: string) {
     throw error; // Some other error occurred
   }
 }
-
-export function touchFileSync(filePath: string): void {
-  try {
-    // Check if file exists
-    fs.accessSync(filePath);
-
-    // File exists, update timestamps
-    const currentTime = new Date();
-    fs.utimesSync(filePath, currentTime, currentTime);
-  } catch (error) {
-    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
-      // File doesn't exist, create it
-      fs.writeFileSync(filePath, "");
-    } else {
-      // Re-throw unexpected errors
-      throw error;
-    }
-  }
-}
