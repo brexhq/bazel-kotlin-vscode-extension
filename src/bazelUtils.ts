@@ -1,28 +1,5 @@
-import * as fs from "fs/promises";
+import { checkDirectoryExists } from "./dirUtils";{}
 import * as path from "path";
-
-async function isDirectory(path: string) {
-  try {
-    const stats = await fs.stat(path);
-    return stats.isDirectory();
-  } catch (error) {
-    console.error("Error checking if path is directory:", error);
-    return false;
-  }
-}
-
-async function checkDirectoryExists(path: string) {
-  try {
-    const stats = await fs.stat(path);
-    return stats.isDirectory();
-  } catch (error: any) {
-    if (error.code === "ENOENT") {
-      // Directory does not exist
-      return false;
-    }
-    throw error; // Some other error occurred
-  }
-}
 
 export async function getBazelAspectArgs(
   aspectSourcesPath: string,

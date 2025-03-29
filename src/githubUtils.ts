@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as yauzl from "yauzl";
 import { Progress } from "vscode";
 import { ASPECT_RELEASE_ARCHIVE_SHA256, KLS_RELEASE_ARCHIVE_SHA256 } from "./constants";
+import { deleteDirectoryContents } from "./dirUtils";
 
 interface GithubRelease {
   tag_name: string;
@@ -199,6 +200,16 @@ export async function downloadAspectReleaseArchive(
   destPath: string,
   progress: Progress<{ message: string }>
 ): Promise<void> {
+
+  if (fs.existsSync(path.join(destPath, "version"))) {
+    const currentVersion = fs.readFileSync(path.join(destPath, "version"), "utf-8");
+    // if current version is the same, then skip download
+    if (currentVersion == version) {
+      return
+    }
+    await deleteDirectoryContents(destPath);
+  }
+  
   progress.report({ message: `Finding release ${version}...` });
 
   const options = {
@@ -235,24 +246,5 @@ export async function downloadAspectReleaseArchive(
   progress.report({ message: "Extracting aspect..." });
   await extractZip(zipBuffer, destPath);
 
-  touchFileSync(path.join(destPath, "version"));
-}
-
-function touchFileSync(filePath: string): void {
-  try {
-    // Check if file exists
-    fs.accessSync(filePath);
-
-    // File exists, update timestamps
-    const currentTime = new Date();
-    fs.utimesSync(filePath, currentTime, currentTime);
-  } catch (error) {
-    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
-      // File doesn't exist, create it
-      fs.writeFileSync(filePath, "");
-    } else {
-      // Re-throw unexpected errors
-      throw error;
-    }
-  }
+  fs.writeFileSync(path.join(destPath, "version"), version);
 }
