@@ -53,7 +53,6 @@ class ExtractLspInfo : CliktCommand() {
         }
 
         val jvmNameMappings = JvmNameExtractor.extractMappings(classJars)
-        println(jvmNameMappings)
         val filenameToJvmNames = jvmNameMappings.associate {
             it.sourceFile to it.jvmClassNames
         }
@@ -64,7 +63,6 @@ class ExtractLspInfo : CliktCommand() {
             val filename = fullSourcePath.substringAfterLast('/')
 
             // Look up JVM names for this source file
-            println(filenameToJvmNames)
             val jvmNames = filenameToJvmNames[filename] ?: emptySet()
 
             SourceFile.newBuilder()
