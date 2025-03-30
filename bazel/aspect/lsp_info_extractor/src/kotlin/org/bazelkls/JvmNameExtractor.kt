@@ -52,11 +52,9 @@ class JvmNameExtractor {
         private fun processClass(classBytes: ByteArray, sourceToJvmMap: MutableMap<String, MutableSet<String>>) {
             val classReader = ClassReader(classBytes)
             val jvmClassName = classReader.className.replace('/', '.')
-            println(jvmClassName)
 
             classReader.accept(object : ClassVisitor(Opcodes.ASM9) {
                 override fun visitSource(source: String?, debug: String?) {
-                    println(source)
                     if (source != null) {
                         // Add this class to the source file mapping
                         sourceToJvmMap.computeIfAbsent(source) { mutableSetOf() }.add(jvmClassName)
