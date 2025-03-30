@@ -65,7 +65,7 @@
         "label": "Debug Bazel Kotlin/JVM binary",
         "configurationAttributes": {
           "launch": {
-            "required": ["bazelTarget", "mainClass", "workspaceRoot"],
+            "required": ["bazelTarget", "mainClass", "workspaceRoot", "buildFlags"],
             "properties": {
               "bazelTarget": {
                 "type": "string",
@@ -79,6 +79,10 @@
                 "type": "string",
                 "description": "the bazel workspace root",
                 "default": "${workspaceFolder}"
+              },
+              "buildFlags": {
+                "type": "array",
+                "description": "a list of bazel flags to used in the bazel build by the debug adapter before launching the program"
               }
             }
           }
