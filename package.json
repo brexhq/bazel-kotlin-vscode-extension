@@ -69,7 +69,7 @@
             "properties": {
               "bazelTarget": {
                 "type": "string",
-                "description": "the bazel binary/test target to debug",
+                "description": "the bazel binary/test target to debug"
               },
               "mainClass": {
                 "type": "string",
