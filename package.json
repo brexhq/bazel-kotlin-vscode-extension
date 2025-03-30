@@ -13,10 +13,13 @@
     "vscode": "^1.94.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Programming Languages",
+    "Debuggers"
   ],
   "activationEvents": [
-    "onLanguage:kotlin"
+    "onLanguage:kotlin",
+    "onDebug"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -31,6 +34,11 @@
           "kotlin"
         ],
         "configuration": "./languageConfiguration.json"
+      }
+    ],
+    "breakpoints": [
+      {
+        "language": "kotlin"
       }
     ],
     "grammars": [
@@ -49,6 +57,32 @@
         "command": "bazel-kotlin-vscode-extension.clearCaches",
         "title": "Kotlin: Clear Language Server Caches",
         "category": "Kotlin"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "kotlin",
+        "label": "Debug Bazel Kotlin/JVM binary",
+        "configurationAttributes": {
+          "launch": {
+            "required": ["bazelTarget", "mainClass", "workspaceRoot"],
+            "properties": {
+              "bazelTarget": {
+                "type": "string",
+                "description": "the bazel binary/test target to debug",
+              },
+              "mainClass": {
+                "type": "string",
+                "description": "the main class for the binary/test target"
+              },
+              "workspaceRoot": {
+                "type": "string",
+                "description": "the bazel workspace root",
+                "default": "${workspaceFolder}"
+              }
+            }
+          }
+        }
       }
     ],
     "menus": {
