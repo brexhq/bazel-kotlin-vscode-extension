@@ -19,7 +19,8 @@
   ],
   "activationEvents": [
     "onLanguage:kotlin",
-    "onDebug"
+    "onDebug",
+    "onDebugResolve:kotlin"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -62,10 +63,15 @@
     "debuggers": [
       {
         "type": "kotlin",
+        "configurationSnippets": [
+          {
+            "workspaceRoot": "${workspaceFolder}"
+          }
+        ],
         "label": "Debug Bazel Kotlin/JVM binary",
         "configurationAttributes": {
           "launch": {
-            "required": ["bazelTarget", "mainClass", "workspaceRoot", "buildFlags"],
+            "required": ["bazelTarget", "mainClass", "workspaceRoot"],
             "properties": {
               "bazelTarget": {
                 "type": "string",
@@ -83,6 +89,10 @@
               "buildFlags": {
                 "type": "array",
                 "description": "a list of bazel flags to used in the bazel build by the debug adapter before launching the program"
+              },
+              "additionalArgs": {
+                "type": "array",
+                "description": "an optional list of additional args to be passed to the main class"
               }
             }
           }
@@ -224,6 +234,11 @@
           "type": "boolean",
           "default": true,
           "description": "[Recommended] Specifies whether the debug adapter should be used. When enabled a debugger for Kotlin will be available."
+        },
+        "bazelKLS.debugAdapter.version": {
+          "type": "string",
+          "default": "v1.3.15-bazel",
+          "description": "The debug adapter version from Github releases"
         },
         "bazelKLS.debugAdapter.path": {
           "type": "string",

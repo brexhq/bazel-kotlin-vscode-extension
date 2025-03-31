@@ -10,6 +10,7 @@ import { KotlinLanguageClient, configureLanguage } from "./languageClient";
 import { KotestTestController } from "./kotest";
 import { getBazelAspectArgs } from "./bazelUtils";
 import { ASPECT_RELEASE_VERSION } from "./constants";
+import { KotlinBazelDebugConfigurationProvider, KotlinBazelDebugAdapterFactory } from "./debugAdapter";
 
 let kotlinClient: KotlinLanguageClient;
 let kotestController: KotestTestController;
@@ -296,6 +297,21 @@ export async function activate(context: vscode.ExtensionContext) {
   });
 
   context.subscriptions.push(kotestDocumentLister);
+
+  if (config.debugAdapter.enabled) {
+    const outputChannel = vscode.window.createOutputChannel('Kotlin Bazel Debug');
+    const factory = new KotlinBazelDebugAdapterFactory(outputChannel, config.debugAdapter);
+    
+    context.subscriptions.push(
+      vscode.debug.registerDebugAdapterDescriptorFactory('kotlin', factory)
+    );
+    const configProvider = new KotlinBazelDebugConfigurationProvider(config.aspectSourcesPath);
+    context.subscriptions.push(
+      vscode.debug.registerDebugConfigurationProvider('kotlin', configProvider)
+    );
+    context.subscriptions.push(outputChannel);
+    outputChannel.appendLine('Kotlin Bazel Debug extension activated');
+  }
 }
 
 // This method is called when your extension is deactivated
