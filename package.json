@@ -2,7 +2,7 @@
   "name": "bazel-kotlin-vscode-extension",
   "displayName": "bazel-kotlin-vscode-extension",
   "description": "Extension to support Bazel with Kotlin Language Server",
-  "version": "0.0.4.rc-1",
+  "version": "0.0.4-rc.1",
   "publisher": "SridharMocherla",
   "icon": "resources/kotlin-bazel-logo.png",
   "repository": {
@@ -124,7 +124,7 @@
         },
         "bazelKLS.languageServerVersion": {
           "type": "string",
-          "default": "v1.3.15-bazel"
+          "default": "v1.3.16-bazel"
         },
         "bazelKLS.jvmOpts": {
           "type": "array",
