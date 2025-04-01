@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.0.3 (2025-04-01)
+
+* Bump LSP version (#20)
+* Add initial debugger config (#19)
+* Fix grammar in README (#18)
+* Update CHANGELOG
+
+# Changelog
+
 ## v0.0.2 (2025-03-29)
 
 * Release v0.0.2
