@@ -99,7 +99,7 @@ export class KotlinBazelDebugAdapterFactory
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Window,
-        title: "Downloading Kotlin Language Server",
+        title: "Downloading Kotlin Debug Adapter",
         cancellable: false,
       },
       async (progress) => {
