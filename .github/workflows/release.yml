@@ -77,8 +77,9 @@ jobs:
         with:
           node-version: '18'
       
-      - name: Set up Bazel
-        uses: bazelbuild/setup-bazelisk@v2
+      - uses: bazel-contrib/setup-bazel@0.14.0
+        with:
+          bazelisk-cache: true
           
       - name: Install dependencies
         run: npm ci
