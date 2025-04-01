@@ -2,7 +2,10 @@ import * as path from "path";
 import * as fs from "fs";
 import * as yauzl from "yauzl";
 import { Progress } from "vscode";
-import { ASPECT_RELEASE_ARCHIVE_SHA256, KLS_RELEASE_ARCHIVE_SHA256 } from "./constants";
+import {
+  ASPECT_RELEASE_ARCHIVE_SHA256,
+  KLS_RELEASE_ARCHIVE_SHA256,
+} from "./constants";
 import { deleteDirectoryContents } from "./dirUtils";
 
 interface GithubRelease {
@@ -29,7 +32,7 @@ export function getLanguageServerVersion(
 async function downloadFile(
   url: string,
   additionalHeaders: Record<string, string>,
-  expectedSha256?: string,
+  expectedSha256?: string
 ): Promise<Buffer> {
   const options = {
     headers: {
@@ -55,16 +58,18 @@ async function downloadFile(
   }
 
   const fileBuffer = Buffer.from(await response.arrayBuffer());
-  
+
   // Validate SHA256 if an expected hash was provided
   if (expectedSha256) {
-    const crypto = require('crypto');
-    const hash = crypto.createHash('sha256');
+    const crypto = require("crypto");
+    const hash = crypto.createHash("sha256");
     hash.update(fileBuffer);
-    const actualSha256 = hash.digest('hex');
-    
+    const actualSha256 = hash.digest("hex");
+
     if (actualSha256 !== expectedSha256) {
-      throw new Error(`SHA256 validation failed for ${url}. Expected: ${expectedSha256}, Actual: ${actualSha256}`);
+      throw new Error(
+        `SHA256 validation failed for ${url}. Expected: ${expectedSha256}, Actual: ${actualSha256}`
+      );
     }
   }
 
@@ -78,7 +83,7 @@ async function extractZip(zipBuffer: Buffer, destPath: string): Promise<void> {
       { lazyEntries: true },
       async (err: Error | null, zipfile: yauzl.ZipFile) => {
         if (err) {
-            throw err;
+          throw err;
         }
 
         try {
@@ -89,7 +94,7 @@ async function extractZip(zipBuffer: Buffer, destPath: string): Promise<void> {
             await fs.promises.mkdir(entryDir, { recursive: true });
 
             if (entry.fileName.endsWith("/")) {
-                continue;
+              continue;
             }
 
             const readStream = await new Promise<NodeJS.ReadableStream>(
@@ -180,9 +185,13 @@ export async function downloadLanguageServer(
   }
 
   progress.report({ message: "Downloading language server..." });
-  const zipBuffer = await downloadFile(asset.url, {
-    Accept: "application/octet-stream",
-  }, KLS_RELEASE_ARCHIVE_SHA256[version]);
+  const zipBuffer = await downloadFile(
+    asset.url,
+    {
+      Accept: "application/octet-stream",
+    },
+    KLS_RELEASE_ARCHIVE_SHA256[version]
+  );
 
   progress.report({ message: "Extracting language server..." });
   await extractZip(zipBuffer, installPath);
@@ -200,17 +209,21 @@ export async function downloadAspectReleaseArchive(
   destPath: string,
   progress: Progress<{ message: string }>
 ): Promise<void> {
-
   if (fs.existsSync(path.join(destPath, "version"))) {
-    const currentVersion = fs.readFileSync(path.join(destPath, "version"), "utf-8");
+    const currentVersion = fs.readFileSync(
+      path.join(destPath, "version"),
+      "utf-8"
+    );
     // if current version is the same, then skip download
     if (currentVersion == version) {
-      progress.report({ message: `aspect archive for ${version} already exists...` });
-      return
+      progress.report({
+        message: `aspect archive for ${version} already exists...`,
+      });
+      return;
     }
     await deleteDirectoryContents(destPath);
   }
-  
+
   progress.report({ message: `Finding release ${version}...` });
 
   const options = {
@@ -239,12 +252,80 @@ export async function downloadAspectReleaseArchive(
     throw new Error("Could not find kls-aspect.zip in release assets");
   }
 
-  const zipBuffer = await downloadFile(asset.url, {
-    Accept: "application/octet-stream",
-  }, ASPECT_RELEASE_ARCHIVE_SHA256[version]);
+  const zipBuffer = await downloadFile(
+    asset.url,
+    {
+      Accept: "application/octet-stream",
+    },
+    ASPECT_RELEASE_ARCHIVE_SHA256[version]
+  );
 
   // Extract archive
   progress.report({ message: "Extracting aspect..." });
+  await extractZip(zipBuffer, destPath);
+
+  fs.writeFileSync(path.join(destPath, "version"), version);
+}
+
+export async function downloadDebugAdapter(
+  repo: string,
+  version: string,
+  destPath: string,
+  progress: Progress<{ message: string }>
+): Promise<void> {
+  if (fs.existsSync(path.join(destPath, "version"))) {
+    const currentVersion = fs.readFileSync(
+      path.join(destPath, "version"),
+      "utf-8"
+    );
+    // if current version is the same, then skip download
+    if (currentVersion == version) {
+      progress.report({
+        message: `debug adapter for ${version} already exists...`,
+      });
+      return;
+    }
+    await deleteDirectoryContents(destPath);
+  }
+
+  progress.report({ message: `Finding release ${version}...` });
+
+  const options = {
+    headers: {
+      Accept: "application/vnd.github.v3+json",
+    },
+  };
+
+  // Get release info
+  const response = await fetch(
+    `https://api.github.com/repos/smocherla-brex/${repo}/releases`,
+    options
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to fetch releases: ${response.statusText}`);
+  }
+
+  const releases = (await response.json()) as GithubRelease[];
+  const release = releases.find((r) => r.tag_name === version);
+  if (!release) {
+    throw new Error(`Release ${version} not found`);
+  }
+
+  const asset = release.assets.find((a) => a.name === "kotlin-debug-adapter.zip");
+  if (!asset) {
+    throw new Error("Could not find kls-aspect.zip in release assets");
+  }
+
+  const zipBuffer = await downloadFile(
+    asset.url,
+    {
+      Accept: "application/octet-stream",
+    },
+    ASPECT_RELEASE_ARCHIVE_SHA256[version]
+  );
+
+  // Extract archive
+  progress.report({ message: "Extracting debug adapter..." });
   await extractZip(zipBuffer, destPath);
 
   fs.writeFileSync(path.join(destPath, "version"), version);

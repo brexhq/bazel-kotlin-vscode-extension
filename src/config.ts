@@ -13,6 +13,14 @@ export interface BazelKLSConfig {
     debugAttachPort: number;
     aspectSourcesPath: string;
     buildFlags: string[];
+    debugAdapter: BazelKotlinDebugAdapterConfig
+}
+
+export interface BazelKotlinDebugAdapterConfig {
+    enabled: boolean;
+    installPath: string;
+    path: string | undefined;
+    version: string
 }
 
 export class ConfigurationManager {
@@ -20,11 +28,13 @@ export class ConfigurationManager {
     private languageServerInstallPath: string;
     private config: vscode.WorkspaceConfiguration;
     private aspectSourcesPath: string;
+    private debugAdapterInstallPath: string;
 
     constructor(storagePath: string) {
         this.languageServerInstallPath = path.join(storagePath, 'languageServer');
         this.aspectSourcesPath = path.join(storagePath, 'aspectSources');
         this.config = vscode.workspace.getConfiguration(ConfigurationManager.SECTION);
+        this.debugAdapterInstallPath = path.join(storagePath, 'debugAdapter');
     }
 
     getConfig(): BazelKLSConfig {
@@ -40,6 +50,12 @@ export class ConfigurationManager {
                 debugAttachPort: this.config.get('debugAttach.port', 5009),
                 aspectSourcesPath: this.aspectSourcesPath,
                 buildFlags: this.config.get("buildFlags", []),
+                debugAdapter: {
+                    enabled: this.config.get('debugAdapter.enabled', false),
+                    installPath: this.debugAdapterInstallPath,
+                    path: this.config.get('debugAdapter.path', undefined),
+                    version: this.config.get('debugAdapter.version', 'v1.3.15-bazel'),
+                }
         };
     }
 
