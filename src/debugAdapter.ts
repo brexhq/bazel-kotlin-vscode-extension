@@ -3,6 +3,7 @@ import { getBazelAspectArgs } from "./bazelUtils";
 import * as path from "path";
 import { BazelKotlinDebugAdapterConfig } from "./config";
 import { downloadDebugAdapter } from "./githubUtils";
+import { findJavaHome } from "./processUtils";
 
 export class KotlinBazelDebugConfigurationProvider
   implements vscode.DebugConfigurationProvider
@@ -12,11 +13,11 @@ export class KotlinBazelDebugConfigurationProvider
     this.aspectSourcesPath = aspectSourcesPath;
   }
 
-  resolveDebugConfiguration(
+  async resolveDebugConfiguration(
     folder: vscode.WorkspaceFolder | undefined,
     config: vscode.DebugConfiguration,
     token?: vscode.CancellationToken
-  ): vscode.ProviderResult<vscode.DebugConfiguration> {
+  ): Promise<vscode.DebugConfiguration | undefined>  {
     // Make sure the config exists and is for our debug type
     if (!config.type || config.type !== "kotlin") {
       return config;
@@ -24,7 +25,7 @@ export class KotlinBazelDebugConfigurationProvider
 
     // Inject aspect args so that required outputs are generated when LSP builds stuff on its end
     if (!config.buildFlags) {
-      const aspectArgs = getBazelAspectArgs(this.aspectSourcesPath);
+      const aspectArgs = await getBazelAspectArgs(this.aspectSourcesPath, false);
       config.buildFlags = aspectArgs;
     }
 
@@ -65,10 +66,13 @@ export class KotlinBazelDebugAdapterFactory
       `Creating debug adapter for session: ${session.type}`
     );
 
-    // Path to your debug adapter binary
     const debugAdapterPath = await this.maybeDownloadDebugAdapter();
     this.logger.appendLine(`Using debug adapter binary: ${debugAdapterPath}`);
     const debugAdapterArgs: string[] = [];
+    // if(session.configuration.buildFlags) {
+    //     debugAdapterArgs.push("buildFlags");
+    //     debugAdapterArgs.push(session.configuration.buildFlags);
+    // }
 
     const env: { [key: string]: string } = {};
 
@@ -78,8 +82,7 @@ export class KotlinBazelDebugAdapterFactory
         env[key] = process.env[key] as string;
       }
     });
-    env.JAVA_TOOL_OPTIONS = `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5011`;
-
+    //env.JAVA_TOOL_OPTIONS = `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5012`;
     // Return a descriptor that tells VS Code to launch your binary
     return new vscode.DebugAdapterExecutable(
       debugAdapterPath!,
@@ -90,9 +93,6 @@ export class KotlinBazelDebugAdapterFactory
 
   private async maybeDownloadDebugAdapter(): Promise<string | undefined> {
     if (this.config.path) {
-      this.logger.appendLine(
-        `Using debug adapter from local path: ${this.config.path}`
-      );
       return this.config.path;
     }
 

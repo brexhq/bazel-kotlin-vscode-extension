@@ -18,9 +18,7 @@
     "Debuggers"
   ],
   "activationEvents": [
-    "onLanguage:kotlin",
-    "onDebug",
-    "onDebugResolve:kotlin"
+    "onDebug"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -63,12 +61,21 @@
     "debuggers": [
       {
         "type": "kotlin",
+        "label": "Debug Bazel Kotlin/JVM binary",
         "configurationSnippets": [
           {
-            "workspaceRoot": "${workspaceFolder}"
+            "label": "Debug Kotlin with Bazel",
+            "description": "Launch a Kotlin binary using Bazel",
+            "body": {
+              "type": "kotlin",
+              "name": "Launch Kotlin with Bazel",
+              "request": "launch",
+              "bazelTarget": "//my/package:my_binary",
+              "mainClass": "com.example.MainKt",
+              "workspaceRoot": "${workspaceFolder}"
+            }
           }
         ],
-        "label": "Debug Bazel Kotlin/JVM binary",
         "configurationAttributes": {
           "launch": {
             "required": ["bazelTarget", "mainClass", "workspaceRoot"],
