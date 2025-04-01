@@ -43,7 +43,7 @@ export class ConfigurationManager {
                 jvmTarget: this.config.get('jvmTarget', '11'),
                 jvmOpts: this.config.get('jvmOpts', []),
                 languageServerInstallPath: this.languageServerInstallPath,
-                languageServerVersion: this.config.get('languageServerVersion', 'v1.3.15-bazel'),
+                languageServerVersion: this.config.get('languageServerVersion', 'v1.3.16-bazel'),
                 javaHome: this.config.get('javaHome', ''),
                 languageServerLocalPath: this.config.get('path', null),
                 debugAttachEnabled: this.config.get('debugAttach.enabled', false),
