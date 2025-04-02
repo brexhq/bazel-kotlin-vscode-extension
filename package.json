@@ -18,7 +18,8 @@
     "Debuggers"
   ],
   "activationEvents": [
-    "onDebug"
+    "onDebug",
+    "onLanguage:kotlin"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -93,13 +94,29 @@
                 "description": "the bazel workspace root",
                 "default": "${workspaceFolder}"
               },
+              "javaVersion": {
+                "type": "string",
+                "description": "The JVM version to be used with debugger",
+                "default": "11"
+              },
               "buildFlags": {
                 "type": "array",
                 "description": "a list of bazel flags to used in the bazel build by the debug adapter before launching the program"
               },
               "additionalArgs": {
                 "type": "array",
-                "description": "an optional list of additional args to be passed to the main class"
+                "description": "an optional list of additional args to be passed to the JVM process"
+              },
+              "vmArguments": {
+                "type": "string",
+                "description": "Arguments to be passed to the JVM process"
+              },
+              "envVars": {
+                "type": "object",
+                "description": "Env vars to be passed to the test runner under the debugger",
+                "additionalProperties": {
+                  "type": "string"
+                }
               }
             }
           }

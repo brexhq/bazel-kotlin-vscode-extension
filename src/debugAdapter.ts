@@ -4,6 +4,7 @@ import * as path from "path";
 import { BazelKotlinDebugAdapterConfig } from "./config";
 import { downloadDebugAdapter } from "./githubUtils";
 import { findJavaHome } from "./processUtils";
+import * as fs from 'fs';
 
 export class KotlinBazelDebugConfigurationProvider
   implements vscode.DebugConfigurationProvider
@@ -17,7 +18,7 @@ export class KotlinBazelDebugConfigurationProvider
     folder: vscode.WorkspaceFolder | undefined,
     config: vscode.DebugConfiguration,
     token?: vscode.CancellationToken
-  ): Promise<vscode.DebugConfiguration | undefined>  {
+  ): Promise<vscode.DebugConfiguration | undefined> {
     // Make sure the config exists and is for our debug type
     if (!config.type || config.type !== "kotlin") {
       return config;
@@ -25,7 +26,10 @@ export class KotlinBazelDebugConfigurationProvider
 
     // Inject aspect args so that required outputs are generated when LSP builds stuff on its end
     if (!config.buildFlags) {
-      const aspectArgs = await getBazelAspectArgs(this.aspectSourcesPath, false);
+      const aspectArgs = await getBazelAspectArgs(
+        this.aspectSourcesPath,
+        false
+      );
       config.buildFlags = aspectArgs;
     }
 
@@ -45,6 +49,11 @@ export class KotlinBazelDebugConfigurationProvider
     // Set default workspaceRoot if not provided
     if (!config.workspaceRoot) {
       config.workspaceRoot = folder?.uri.fsPath || "${workspaceFolder}";
+    }
+
+    if(config.javaVersion) {
+      const javaHome = await findJavaHome(config.javaVersion);
+      config.javaHome = javaHome;
     }
 
     return config;
@@ -72,17 +81,20 @@ export class KotlinBazelDebugAdapterFactory
 
     const env: { [key: string]: string } = {};
 
-    // Copy only string values from process.env
     Object.keys(process.env).forEach((key) => {
       if (process.env[key] !== undefined) {
         env[key] = process.env[key] as string;
       }
     });
 
+
+    const additionalEnvVars = session.configuration.envVars as { [key: string]: string } 
+    const actualEnv = {...env, ...additionalEnvVars};
+
     return new vscode.DebugAdapterExecutable(
       debugAdapterPath!,
       debugAdapterArgs,
-      { env: env }
+      { env: actualEnv }
     );
   }
 
@@ -99,18 +111,17 @@ export class KotlinBazelDebugAdapterFactory
       },
       async (progress) => {
         await downloadDebugAdapter(
-          "smocherla-brex",
+          "kotlin-language-server-bazel-support",
           this.config.version,
           this.config.installPath,
           progress
         );
-        return path.join(
-          this.config.installPath,
-          "bin",
-          "kotlin-debug-adapter"
-        );
       }
     );
-    return undefined;
+    fs.chmodSync(
+        path.join(this.config.installPath, "adapter", "bin", "kotlin-debug-adapter"),
+        0o755
+    );
+    return path.join(this.config.installPath, "adapter", "bin", "kotlin-debug-adapter");
   }
 }
