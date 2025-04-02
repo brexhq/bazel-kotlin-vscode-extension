@@ -69,10 +69,6 @@ export class KotlinBazelDebugAdapterFactory
     const debugAdapterPath = await this.maybeDownloadDebugAdapter();
     this.logger.appendLine(`Using debug adapter binary: ${debugAdapterPath}`);
     const debugAdapterArgs: string[] = [];
-    // if(session.configuration.buildFlags) {
-    //     debugAdapterArgs.push("buildFlags");
-    //     debugAdapterArgs.push(session.configuration.buildFlags);
-    // }
 
     const env: { [key: string]: string } = {};
 
@@ -82,8 +78,7 @@ export class KotlinBazelDebugAdapterFactory
         env[key] = process.env[key] as string;
       }
     });
-    //env.JAVA_TOOL_OPTIONS = `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5012`;
-    // Return a descriptor that tells VS Code to launch your binary
+
     return new vscode.DebugAdapterExecutable(
       debugAdapterPath!,
       debugAdapterArgs,
