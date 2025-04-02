@@ -178,10 +178,6 @@ export async function activate(context: vscode.ExtensionContext) {
         // Then build those targets with the aspect
         let aspectSourcesPath = config.aspectSourcesPath;
 
-        if (context.extensionMode === vscode.ExtensionMode.Development) {
-          aspectSourcesPath = context.extensionUri.fsPath;
-        }
-
         const bazelAspectArgs = await getBazelAspectArgs(
           aspectSourcesPath,
         );

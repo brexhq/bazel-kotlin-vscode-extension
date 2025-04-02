@@ -2,7 +2,7 @@
   "name": "bazel-kotlin-vscode-extension",
   "displayName": "bazel-kotlin-vscode-extension",
   "description": "Extension to support Bazel with Kotlin Language Server",
-  "version": "0.0.4",
+  "version": "0.1.0-rc.1",
   "publisher": "SridharMocherla",
   "icon": "resources/kotlin-bazel-logo.png",
   "repository": {
@@ -18,7 +18,8 @@
     "Debuggers"
   ],
   "activationEvents": [
-    "onDebug"
+    "onDebug",
+    "onLanguage:kotlin"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -93,13 +94,29 @@
                 "description": "the bazel workspace root",
                 "default": "${workspaceFolder}"
               },
+              "javaVersion": {
+                "type": "string",
+                "description": "The JVM version to be used with debugger",
+                "default": "11"
+              },
               "buildFlags": {
                 "type": "array",
                 "description": "a list of bazel flags to used in the bazel build by the debug adapter before launching the program"
               },
               "additionalArgs": {
                 "type": "array",
-                "description": "an optional list of additional args to be passed to the main class"
+                "description": "an optional list of additional args to be passed to the JVM process"
+              },
+              "vmArguments": {
+                "type": "string",
+                "description": "Arguments to be passed to the JVM process"
+              },
+              "envVars": {
+                "type": "object",
+                "description": "Env vars to be passed to the test runner under the debugger",
+                "additionalProperties": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -124,7 +141,7 @@
         },
         "bazelKLS.languageServerVersion": {
           "type": "string",
-          "default": "v1.3.16-bazel"
+          "default": "v1.3.17-bazel"
         },
         "bazelKLS.jvmOpts": {
           "type": "array",
@@ -244,7 +261,7 @@
         },
         "bazelKLS.debugAdapter.version": {
           "type": "string",
-          "default": "v1.3.15-bazel",
+          "default": "v1.3.17-bazel",
           "description": "The debug adapter version from Github releases"
         },
         "bazelKLS.debugAdapter.path": {
