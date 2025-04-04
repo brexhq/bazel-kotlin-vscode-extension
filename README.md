@@ -10,6 +10,8 @@
 
 This lightweight extension is used to "sync" the Bazel project with the Kotlin language server. This takes inspiration from the [Kotlin](https://github.com/fwcd/vscode-kotlin) extension but is focused on the [fork](https://github.com/smocherla-brex/kotlin-language-server-bazel-support) of the language server with bazel support. A lot of the implementation is based on the [Kotlin extension](https://github.com/fwcd/vscode-kotlin) but customized to support Bazel.
 
+Additionally it also relies on a fork of [Kotlin Debug Adapter](https://github.com/fwcd/kotlin-debug-adapter) customized to support Bazel.
+
 ## Features
 
 - Automatically download the language server and keep it up to date.
@@ -18,6 +20,7 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 - Support for Goto-Definition for most usecases.
 - Hover support to show docstrings in some cases.
 - VSCode test explorer integration for kotest based `DescribeSpec` tests.
+- Experimental Debugging support with launch configuration
 
 ## Usage
 
@@ -36,6 +39,34 @@ If you use the popular Kotlin testing framework [Kotest](https://github.com/kote
 Note that your test runner needs to support `--test_filter` to run single tests or suites with Bazel. By default it'll run all tests in the test class with bazel.
 
 
+### Debugging
+You can now debug using a customized implementation of [Kotlin Debug Adapter](https://github.com/fwcd/kotlin-debug-adapter) using a launch configuration. This is currently experimental.
+
+First enable the debug adapter with
+```
+bazelKLS.debugAdapter.enabled: true
+```
+
+and reload VSCode. It should download the debug adapter and activate it. Then you can create a launch configuration which will be something like
+
+```
+ {
+        "type": "kotlin",
+        "name": "Launch Kotlin with Bazel",
+        "request": "launch",
+        "bazelTarget": "<the binary target - typically java_binary or kt_jvm_test>",
+        "mainClass": "<the main class>",
+        "workspaceRoot": "${workspaceFolder}",
+        "additionalArgs": [<Arguments you want to pass to the main class>],
+        "vmArguments": "<Arguments you want to pass to the JVM>",
+        "envVars": {
+            // Any env vars you need 
+        }
+    }
+```
+
+And then you can use the Debug console to launch and debug the bazel target.
+
 ## Example
 You can try the extension out on [this](https://github.com/smocherla-brex/bazel-kls-example) repo to find out how it works.
 
@@ -51,7 +82,6 @@ If you're trying to integrate changes to the language server into the extension 
 
 - [ ] Some more performance improvements to the completions.
 - [ ] Improve performance with large files and especially with growing symbol index.
-- [ ] Debugger support
 
 
 ## Configuration options
