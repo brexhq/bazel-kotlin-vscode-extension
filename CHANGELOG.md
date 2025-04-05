@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.1.0 (2025-04-05)
+
+* Release: 0.1.0 (#28)
+* Update README with debugger support and adapter version (#27)
+* Bump version (#26)
+* Enable initial debugger support (#25)
+
+# Changelog
+
 ## v0.0.4 (2025-04-04)
 
 * Release: 0.0.4 (#24)
