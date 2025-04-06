@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.2.0 (2025-04-06)
+
+* Fix sha of lsp (#39)
+* Bump LSP version to include bug fix (#38)
+* Propagate lazy initialization config on startup (#36)
+* Update LSP version (#35)
+* Increase stdout/stderr buffer size (#34)
+* Bump version (#33)
+* Support lazy compilation (#31)
+* Update REAMDE and CHANGELOG.md
+
+# Changelog
+
 ## v0.1.0 (2025-04-05)
 
 * Release: 0.1.0 (#28)
