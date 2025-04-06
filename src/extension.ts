@@ -186,7 +186,8 @@ export async function activate(context: vscode.ExtensionContext) {
         )} ${bazelAspectArgs.join(" ")}`;
         outputChannel.appendLine(`Building targets: ${buildCmd}`);
 
-        const bazelProcess = cp.exec(buildCmd, { cwd: currentDir });
+        // Use a buffer of 10 MB since a ton of log output may crash the process
+        const bazelProcess = cp.exec(buildCmd, { cwd: currentDir, maxBuffer: 1024 * 1024 * 10 });
 
         const disposable = {
           dispose: () => {
