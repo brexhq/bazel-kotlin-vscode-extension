@@ -99,4 +99,5 @@ If you're trying to integrate changes to the language server into the extension 
 - `bazelKLS.jvmOpts`: The JVM options to use when starting the language server.
 - `bazelKLS.buildFlags`: The bazel flags to be passed to the `bazel build` command during a sync.
 - `bazelKLS.debugAdapter.enabled`: Whether to enable the debug adapter or not.
+- `bazelKLS.lazyCompilation`: Whether to enable lazy/on-demand compilation.
 
