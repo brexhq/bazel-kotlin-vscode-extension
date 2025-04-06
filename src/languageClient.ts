@@ -131,6 +131,7 @@ export class KotlinLanguageClient {
       },
       initializationOptions: {
         storagePath: this.context.storageUri?.fsPath,
+        lazyCompilation: config.lazyCompilation,
       },
       outputChannel: options.outputChannel,
       revealOutputChannelOn: RevealOutputChannelOn.Never,

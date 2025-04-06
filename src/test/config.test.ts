@@ -31,7 +31,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
         assert.strictEqual(config.enabled, true);
         assert.strictEqual(config.jvmTarget, '11');
         assert.deepStrictEqual(config.jvmOpts, []);
-        assert.strictEqual(config.languageServerVersion, 'v1.5.1-bazel');
+        assert.strictEqual(config.languageServerVersion, 'v1.5.2-bazel');
         assert.strictEqual(config.javaHome, '');
         assert.strictEqual(config.languageServerLocalPath, '');
         assert.strictEqual(config.debugAttachEnabled, false);
