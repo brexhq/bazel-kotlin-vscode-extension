@@ -21,6 +21,7 @@ Additionally it also relies on a fork of [Kotlin Debug Adapter](https://github.c
 - Hover support to show docstrings in some cases.
 - VSCode test explorer integration for kotest based `DescribeSpec` tests.
 - Experimental Debugging support with launch configuration
+- Support for lazy compilation to improve performance
 
 ## Usage
 
@@ -38,6 +39,14 @@ If you use the popular Kotlin testing framework [Kotest](https://github.com/kote
 
 Note that your test runner needs to support `--test_filter` to run single tests or suites with Bazel. By default it'll run all tests in the test class with bazel.
 
+### Lazy Compilation
+
+By default, once you sync a Bazel package, the LSP will try to compile all the source files in the workspace that are in the transitive closure of the targets that were built to compute the module descriptors and the PSI represenation of the source files. In a large repo involving thousands of source files, this may lead to very high resource usage and the initial sync could be significantly slow. To better support this usecase, a lazy/on-demand compilation mode is available as opt-in with
+```
+bazelKLS.lazyCompilation: true
+```
+
+configuration option, which will only compile the files that are open initially. When symbols in other files are referenced through `Go-to-definition`, compilation of those files is triggered so as to support navigation. This may not work 100% though, so it's currently enabled as opt-in. However, this may become the default in the future.
 
 ### Debugging
 You can now debug using a customized implementation of [Kotlin Debug Adapter](https://github.com/fwcd/kotlin-debug-adapter) using a launch configuration. This is currently experimental.
@@ -90,4 +99,5 @@ If you're trying to integrate changes to the language server into the extension 
 - `bazelKLS.jvmOpts`: The JVM options to use when starting the language server.
 - `bazelKLS.buildFlags`: The bazel flags to be passed to the `bazel build` command during a sync.
 - `bazelKLS.debugAdapter.enabled`: Whether to enable the debug adapter or not.
+- `bazelKLS.lazyCompilation`: Whether to enable lazy/on-demand compilation.
 
