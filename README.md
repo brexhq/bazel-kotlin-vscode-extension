@@ -46,7 +46,7 @@ By default, once you sync a Bazel package, the LSP will try to compile all the s
 bazelKLS.lazyCompilation: true
 ```
 
-configuration option, which will only compile the files that are open initially. When symbols in other files are referenced through `Go-to-definition`, cmpilation of those files is triggered so as to support navigation. This may not work 100% though, so it's currently enabled as opt-in. However, this may become the default in the future.
+configuration option, which will only compile the files that are open initially. When symbols in other files are referenced through `Go-to-definition`, compilation of those files is triggered so as to support navigation. This may not work 100% though, so it's currently enabled as opt-in. However, this may become the default in the future.
 
 ### Debugging
 You can now debug using a customized implementation of [Kotlin Debug Adapter](https://github.com/fwcd/kotlin-debug-adapter) using a launch configuration. This is currently experimental.
