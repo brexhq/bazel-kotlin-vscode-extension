@@ -88,7 +88,7 @@ export class KotlinBazelDebugAdapterFactory
     });
 
 
-    const additionalEnvVars = session.configuration.envVars as { [key: string]: string } 
+    const additionalEnvVars = session.configuration.envVars as { [key: string]: string }; 
     const actualEnv = {...env, ...additionalEnvVars};
 
     return new vscode.DebugAdapterExecutable(

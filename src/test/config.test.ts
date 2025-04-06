@@ -31,12 +31,13 @@ suite('ConfigurationManager Integration Test Suite', () => {
         assert.strictEqual(config.enabled, true);
         assert.strictEqual(config.jvmTarget, '11');
         assert.deepStrictEqual(config.jvmOpts, []);
-        assert.strictEqual(config.languageServerVersion, 'v1.4.0-bazel');
+        assert.strictEqual(config.languageServerVersion, 'v1.5.0-bazel');
         assert.strictEqual(config.javaHome, '');
         assert.strictEqual(config.languageServerLocalPath, '');
         assert.strictEqual(config.debugAttachEnabled, false);
         assert.strictEqual(config.debugAttachPort, 5009);
-        assert.strictEqual(config.buildFlags.length, 0)
+        assert.strictEqual(config.buildFlags.length, 0);
+        assert.strictEqual(config.lazyCompilation, false);
         
         // Verify storage paths
         assert.strictEqual(
@@ -56,6 +57,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
                 jvmTarget: '17',
                 jvmOpts: ['-Xmx2g'],
                 buildFlags: ["--config=remote"],
+                lazyCompilation: true,
             } as any
         );
         
@@ -68,6 +70,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
         assert.strictEqual(updatedConfig.jvmTarget, '17');
         assert.deepStrictEqual(updatedConfig.jvmOpts, ['-Xmx2g']);
         assert.strictEqual(updatedConfig.buildFlags.length, 1);
-        assert.deepEqual(updatedConfig.buildFlags, ["--config=remote"])
+        assert.deepEqual(updatedConfig.buildFlags, ["--config=remote"]);
+        assert.strictEqual(updatedConfig.lazyCompilation, true);
     });
 });

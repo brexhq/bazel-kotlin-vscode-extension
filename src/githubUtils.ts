@@ -100,10 +100,10 @@ async function extractZip(zipBuffer: Buffer, destPath: string): Promise<void> {
             const readStream = await new Promise<NodeJS.ReadableStream>(
               (resolve, reject) => {
                 zipfile.openReadStream(entry, (err, stream) => {
-                  if (err) reject(err);
+                  if (err) {reject(err);}
                   else if (!stream)
-                    reject(new Error("No read stream available"));
-                  else resolve(stream);
+                    {reject(new Error("No read stream available"));}
+                  else {resolve(stream);}
                 });
               }
             );
