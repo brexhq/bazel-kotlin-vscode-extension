@@ -105,10 +105,10 @@ export class KotestTestController {
             run.enqueued(test);
             try {
                 const uri = test.uri;
-                if (!uri) continue;
+                if (!uri) {continue;}
 
                 const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-                if (!workspaceFolder) continue;
+                if (!workspaceFolder) {continue;}
 
                 const relativePath = path.relative(workspaceFolder.uri.fsPath, uri.fsPath);
                 const testFilter = `--test_filter="${test.label}"`;
@@ -117,8 +117,8 @@ export class KotestTestController {
                 const queryCommand = `bazel query 'kind(kt_jvm_test, //${path.dirname(relativePath)}:all)'`;
                 const targets = await new Promise<string>((resolve, reject) => {
                     cp.exec(queryCommand, { cwd: workspaceFolder.uri.fsPath }, (error, stdout) => {
-                        if (error) reject(error);
-                        else resolve(stdout.trim());
+                        if (error) {reject(error);}
+                        else {resolve(stdout.trim());}
                     });
                 });
 
