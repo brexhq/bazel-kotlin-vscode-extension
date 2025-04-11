@@ -41,12 +41,12 @@ Note that your test runner needs to support `--test_filter` to run single tests 
 
 ### Lazy Compilation
 
-By default, once you sync a Bazel package, the LSP will try to compile all the source files in the workspace that are in the transitive closure of the targets that were built to compute the module descriptors and the PSI represenation of the source files. In a large repo involving thousands of source files, this may lead to very high resource usage and the initial sync could be significantly slow. To better support this usecase, a lazy/on-demand compilation mode is available as opt-in with
+By default, once you sync a Bazel package, the LSP will try to compile all the source files in the workspace that are in the transitive closure of the targets that were built to compute the module descriptors and the PSI represenation of the source files. In a large repo involving thousands of source files, this may lead to very high resource usage and the initial sync could be significantly slow. To better support this usecase, a lazy/on-demand compilation mode is available by default. It can be disabled with the following configuration option:
 ```
-bazelKLS.lazyCompilation: true
+bazelKLS.lazyCompilation: false
 ```
 
-configuration option, which will only compile the files that are open initially. When symbols in other files are referenced through `Go-to-definition`, compilation of those files is triggered so as to support navigation. This may not work 100% though, so it's currently enabled as opt-in. However, this may become the default in the future.
+When lazy compilation is enabled, the LSP will only compile the files that are open initially. When symbols in other files are referenced through `Go-to-definition`, compilation of those files is triggered so as to support navigation. The LSP will still index all the symbols globally after the first Bazel sync, so you still get the benefits of completions and quick fixes even though we don't compile everything. This is because we pre-compute a lot of things in the `bazel build` through an aspect, so it becomes redundant to do so again in the LSP for all files.
 
 ### Debugging
 You can now debug using a customized implementation of [Kotlin Debug Adapter](https://github.com/fwcd/kotlin-debug-adapter) using a launch configuration. This is currently experimental.
@@ -86,11 +86,6 @@ Please check existing [Github issues](https://github.com/smocherla-brex/bazel-ko
 Working on changes scoped to just the extension should be fairly straightforward following the VSCode [guides](https://code.visualstudio.com/api/extension-guides/overview).
 
 If you're trying to integrate changes to the language server into the extension and test it end-to-end, please follow instructions [here](https://github.com/smocherla-brex/kotlin-language-server-bazel-support/blob/main/DEVELOPMENT.md).
-
-## TODO
-
-- [ ] Some more performance improvements to the completions.
-- [ ] Improve performance with large files and especially with growing symbol index.
 
 
 ## Relevant Configuration options
