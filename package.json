@@ -57,6 +57,11 @@
         "command": "bazel-kotlin-vscode-extension.clearCaches",
         "title": "Kotlin: Clear Language Server Caches",
         "category": "Kotlin"
+      },
+      {
+        "command": "bazel-kotlin-vscode-extension.stopBuild",
+        "title": "Bazel KLS Sync: Stop Running Build",
+        "icon": "$(stop)"
       }
     ],
     "debuggers": [
