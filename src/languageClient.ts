@@ -86,6 +86,9 @@ export class KotlinLanguageClient {
     // kill any existing language server processes
     const processes = await findProcessesByName("kotlin-language-server");
     if (processes.length > 0) {
+      options.outputChannel.appendLine(
+        `Kotlin Language Server is already running with PID ${processes[0].pid}. Killing it.`
+      );
       await killProcess(processes[0].pid);
     }
 
@@ -93,10 +96,10 @@ export class KotlinLanguageClient {
     let javaHome = findJavaHome(config.jvmTarget);
     if (!javaHome) {
       vscode.window.showErrorMessage(
-        `Could not find Java ${config.jvmTarget} installation. Please set bazelKLS.javaHome in your settings to the path of the Java installation to proceed.`
+        `Could not find Java ${config.jvmTarget} installation. Please install the JDK for version ${config.jvmTarget} and verify /usr/libexec/java_home -v ${config.jvmTarget} returns a valid path.`
       );
       throw new Error(
-        `Could not find Java ${config.jvmTarget} installation. Please set bazelKLS.javaHome in your settings to the path of the Java installation to proceed.`
+        `Could not find Java ${config.jvmTarget} installation. Please install the JDK for version ${config.jvmTarget} and verify /usr/libexec/java_home -v ${config.jvmTarget} returns a valid path.`
       );
     }
     env.JAVA_HOME = javaHome;
