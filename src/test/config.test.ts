@@ -31,13 +31,13 @@ suite('ConfigurationManager Integration Test Suite', () => {
         assert.strictEqual(config.enabled, true);
         assert.strictEqual(config.jvmTarget, '11');
         assert.deepStrictEqual(config.jvmOpts, []);
-        assert.strictEqual(config.languageServerVersion, 'v1.5.3-bazel');
+        assert.strictEqual(config.languageServerVersion, 'v1.6.0-bazel');
         assert.strictEqual(config.javaHome, '');
         assert.strictEqual(config.languageServerLocalPath, '');
         assert.strictEqual(config.debugAttachEnabled, false);
         assert.strictEqual(config.debugAttachPort, 5009);
         assert.strictEqual(config.buildFlags.length, 0);
-        assert.strictEqual(config.lazyCompilation, false);
+        assert.strictEqual(config.lazyCompilation, true);
         
         // Verify storage paths
         assert.strictEqual(

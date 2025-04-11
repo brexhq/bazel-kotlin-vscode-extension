@@ -44,7 +44,7 @@ export class ConfigurationManager {
                 jvmTarget: this.config.get('jvmTarget', '11'),
                 jvmOpts: this.config.get('jvmOpts', []),
                 languageServerInstallPath: this.languageServerInstallPath,
-                languageServerVersion: this.config.get('languageServerVersion', 'v1.5.3-bazel'),
+                languageServerVersion: this.config.get('languageServerVersion', 'v1.6.0-bazel'),
                 javaHome: this.config.get('javaHome', ''),
                 languageServerLocalPath: this.config.get('path', null),
                 debugAttachEnabled: this.config.get('debugAttach.enabled', false),
@@ -55,7 +55,7 @@ export class ConfigurationManager {
                     enabled: this.config.get('debugAdapter.enabled', false),
                     installPath: this.debugAdapterInstallPath,
                     path: this.config.get('debugAdapter.path', undefined),
-                    version: this.config.get('debugAdapter.version', 'v1.5.3-bazel'),
+                    version: this.config.get('debugAdapter.version', 'v1.6.0-bazel'),
                 },
                 lazyCompilation: this.config.get('lazyCompilation', false),
         };
