@@ -83,6 +83,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(clearCaches);
 
+  let currentBazelProcess: cp.ChildProcess | undefined;
+  let isBuildRunning = false;
   // Command to bazel "sync" the current package
   // Works on directories with build files
   const bazelSync = vscode.commands.registerCommand(
@@ -188,6 +190,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
         // Use a buffer of 10 MB since a ton of log output may crash the process
         const bazelProcess = cp.exec(buildCmd, { cwd: currentDir, maxBuffer: 1024 * 1024 * 10 });
+        currentBazelProcess = bazelProcess;
+        isBuildRunning = true;
+        stopBuildButton.show();
 
         const disposable = {
           dispose: () => {
@@ -219,6 +224,9 @@ export async function activate(context: vscode.ExtensionContext) {
           bazelProcess.on("error", reject);
         });
 
+        isBuildRunning = false;
+        stopBuildButton.hide();
+
         if (exitCode === 0) {
           // if build was successful, notify LSP of change in classpath
           if (config.enabled) {
@@ -228,7 +236,7 @@ export async function activate(context: vscode.ExtensionContext) {
               {
                 location: vscode.ProgressLocation.Window,
                 title: "Refreshing Kotlin classpath",
-                cancellable: false,
+                cancellable: true,
               },
               async (progress) => {
                 for (const editor of vscode.window.visibleTextEditors) {
@@ -273,13 +281,51 @@ export async function activate(context: vscode.ExtensionContext) {
       } catch (error) {
         outputChannel.appendLine(`Error: ${error}`);
         vscode.window.showErrorMessage(`Bazel sync failed: ${error}`);
+        isBuildRunning = false;
+        stopBuildButton.hide();
       }
     }
   );
 
   context.subscriptions.push(bazelSync);
 
-  // Don't forget to stop the client when deactivating
+  const stopBuildButton = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Left,
+    100
+  );
+
+  stopBuildButton.text = "$(stop) Stop Bazel KLS Sync";
+  stopBuildButton.command = "bazel-kotlin-vscode-extension.stopBuild";
+  stopBuildButton.tooltip = "Stop the current Bazel build";
+  context.subscriptions.push(stopBuildButton);
+
+  // Register stop build command
+  const stopBuildCommand = vscode.commands.registerCommand(
+    "bazel-kotlin-vscode-extension.stopBuild",
+    async () => {
+      if (currentBazelProcess && isBuildRunning) {
+        outputChannel.appendLine("Stopping Bazel build process...");
+        try {
+          // Kill the process
+          currentBazelProcess.kill('SIGTERM');
+          outputChannel.appendLine("Bazel build process terminated by user");
+          vscode.window.showInformationMessage("Bazel build stopped");
+        } catch (error) {
+          outputChannel.appendLine(`Error stopping Bazel process: ${error}`);
+          vscode.window.showErrorMessage(`Failed to stop Bazel build: ${error}`);
+        } finally {
+          currentBazelProcess = undefined;
+          isBuildRunning = false;
+          stopBuildButton.hide();
+        }
+      } else {
+        vscode.window.showInformationMessage("No Bazel build is currently running");
+      }
+    }
+  );
+
+  context.subscriptions.push(stopBuildCommand);
+
   context.subscriptions.push({
     dispose: async () => {
       await kotlinClient.stop();
