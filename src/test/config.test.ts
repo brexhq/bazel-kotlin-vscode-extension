@@ -37,7 +37,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
         assert.strictEqual(config.debugAttachEnabled, false);
         assert.strictEqual(config.debugAttachPort, 5009);
         assert.strictEqual(config.buildFlags.length, 0);
-        assert.strictEqual(config.lazyCompilation, false);
+        assert.strictEqual(config.lazyCompilation, true);
         
         // Verify storage paths
         assert.strictEqual(
