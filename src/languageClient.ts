@@ -86,6 +86,9 @@ export class KotlinLanguageClient {
     // kill any existing language server processes
     const processes = await findProcessesByName("kotlin-language-server");
     if (processes.length > 0) {
+      options.outputChannel.appendLine(
+        `Kotlin Language Server is already running with PID ${processes[0].pid}. Killing it.`
+      );
       await killProcess(processes[0].pid);
     }
 
