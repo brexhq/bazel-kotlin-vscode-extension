@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.3.0 (2025-04-12)
+
+* Fix bazel process termination (#51)
+* Fixes for global symbol indexing (#50)
+* Add requirements (#49)
+* Make lazy compilation the default (#48)
+* Fix incorrect error message for JDK (#47)
+* Add stop button for build (#46)
+* Add MODULE.bazel (#41)
+* Release: v0.2.0 (#40)
+
+# Changelog
+
 ## v0.2.0 (2025-04-06)
 
 * Fix sha of lsp (#39)
