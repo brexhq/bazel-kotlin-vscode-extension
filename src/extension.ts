@@ -10,7 +10,10 @@ import { KotlinLanguageClient, configureLanguage } from "./languageClient";
 import { KotestTestController } from "./kotest";
 import { getBazelAspectArgs } from "./bazelUtils";
 import { ASPECT_RELEASE_VERSION } from "./constants";
-import { KotlinBazelDebugConfigurationProvider, KotlinBazelDebugAdapterFactory } from "./debugAdapter";
+import {
+  KotlinBazelDebugConfigurationProvider,
+  KotlinBazelDebugAdapterFactory,
+} from "./debugAdapter";
 
 let kotlinClient: KotlinLanguageClient;
 let kotestController: KotestTestController;
@@ -180,16 +183,24 @@ export async function activate(context: vscode.ExtensionContext) {
         // Then build those targets with the aspect
         let aspectSourcesPath = config.aspectSourcesPath;
 
-        const bazelAspectArgs = await getBazelAspectArgs(
-          aspectSourcesPath,
-        );
-        const buildCmd = `bazel build ${config.buildFlags.join(" ")} ${targets.join(
-          " "
-        )} ${bazelAspectArgs.join(" ")}`;
-        outputChannel.appendLine(`Building targets: ${buildCmd}`);
+        const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath);
+        const bazelExecutable = "bazel";
+        const bazelArgs = [
+          "build",
+          ...config.buildFlags,
+          ...targets,
+          ...bazelAspectArgs,
+        ];
 
-        // Use a buffer of 10 MB since a ton of log output may crash the process
-        const bazelProcess = cp.exec(buildCmd, { cwd: currentDir, maxBuffer: 1024 * 1024 * 10 });
+        outputChannel.appendLine(
+          `Building targets: bazel ${bazelArgs.join(" ")}`
+        );
+
+        // Use spawn with properly separated arguments and detached option
+        const bazelProcess = cp.spawn(bazelExecutable, bazelArgs, {
+          cwd: currentDir,
+          detached: true,
+        });
         currentBazelProcess = bazelProcess;
         isBuildRunning = true;
         stopBuildButton.show();
@@ -197,14 +208,18 @@ export async function activate(context: vscode.ExtensionContext) {
         const disposable = {
           dispose: () => {
             if (bazelProcess) {
-              outputChannel.appendLine('VS Code shutting down, terminating bazel process');
+              outputChannel.appendLine(
+                "VS Code shutting down, terminating bazel process"
+              );
               try {
-                bazelProcess.kill('SIGTERM');
+                bazelProcess.kill("SIGTERM");
               } catch (error) {
-                outputChannel.appendLine(`Error terminating bazel process: ${error}`);
+                outputChannel.appendLine(
+                  `Error terminating bazel process: ${error}`
+                );
               }
             }
-          }
+          },
         };
 
         context.subscriptions.push(disposable);
@@ -303,23 +318,27 @@ export async function activate(context: vscode.ExtensionContext) {
   const stopBuildCommand = vscode.commands.registerCommand(
     "bazel-kotlin-vscode-extension.stopBuild",
     async () => {
-      if (currentBazelProcess && isBuildRunning) {
+      if (currentBazelProcess && isBuildRunning && currentBazelProcess.pid) {
         outputChannel.appendLine("Stopping Bazel build process...");
         try {
-          // Kill the process
-          currentBazelProcess.kill('SIGTERM');
+          // We need to kill the entire process group to kill the bazel process and its children gracefully
+          process.kill(-currentBazelProcess.pid, "SIGTERM");
           outputChannel.appendLine("Bazel build process terminated by user");
           vscode.window.showInformationMessage("Bazel build stopped");
         } catch (error) {
           outputChannel.appendLine(`Error stopping Bazel process: ${error}`);
-          vscode.window.showErrorMessage(`Failed to stop Bazel build: ${error}`);
+          vscode.window.showErrorMessage(
+            `Failed to stop Bazel build: ${error}`
+          );
         } finally {
           currentBazelProcess = undefined;
           isBuildRunning = false;
           stopBuildButton.hide();
         }
       } else {
-        vscode.window.showInformationMessage("No Bazel build is currently running");
+        vscode.window.showInformationMessage(
+          "No Bazel build is currently running"
+        );
       }
     }
   );
@@ -333,28 +352,39 @@ export async function activate(context: vscode.ExtensionContext) {
   });
 
   // regardless of whether we did bazel sync or not, show any kotest tests for test files
-  const kotestDocumentLister = vscode.workspace.onDidOpenTextDocument(async (document) => {
-    if(document.fileName.endsWith(".kt") && document.uri.fsPath.includes("Test")) {
-      await kotestController.refreshTests(document);
+  const kotestDocumentLister = vscode.workspace.onDidOpenTextDocument(
+    async (document) => {
+      if (
+        document.fileName.endsWith(".kt") &&
+        document.uri.fsPath.includes("Test")
+      ) {
+        await kotestController.refreshTests(document);
+      }
     }
-  });
+  );
 
   context.subscriptions.push(kotestDocumentLister);
 
   if (config.debugAdapter.enabled) {
-    const outputChannel = vscode.window.createOutputChannel('Kotlin Bazel Debug');
-    const factory = new KotlinBazelDebugAdapterFactory(outputChannel, config.debugAdapter);
-  
-    context.subscriptions.push(
-      vscode.debug.registerDebugAdapterDescriptorFactory('kotlin', factory)
+    const outputChannel =
+      vscode.window.createOutputChannel("Kotlin Bazel Debug");
+    const factory = new KotlinBazelDebugAdapterFactory(
+      outputChannel,
+      config.debugAdapter
     );
-    const configProvider = new KotlinBazelDebugConfigurationProvider(config.aspectSourcesPath);
+
     context.subscriptions.push(
-      vscode.debug.registerDebugConfigurationProvider('kotlin', configProvider)
+      vscode.debug.registerDebugAdapterDescriptorFactory("kotlin", factory)
+    );
+    const configProvider = new KotlinBazelDebugConfigurationProvider(
+      config.aspectSourcesPath
+    );
+    context.subscriptions.push(
+      vscode.debug.registerDebugConfigurationProvider("kotlin", configProvider)
     );
 
     context.subscriptions.push(outputChannel);
-    outputChannel.appendLine('Kotlin Bazel Debug extension activated');
+    outputChannel.appendLine("Kotlin Bazel Debug extension activated");
   }
 }
 
@@ -366,22 +396,22 @@ async function downloadAspectRelease(
   context: vscode.ExtensionContext
 ) {
   const sourcesPath = config.aspectSourcesPath;
-  if(!fs.existsSync(sourcesPath)) {
+  if (!fs.existsSync(sourcesPath)) {
     await fs.mkdirSync(sourcesPath, { recursive: true });
   }
   await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Window,
-        title: "Downloading kls aspect archive",
-        cancellable: false,
-      },
-      async (progress) => {
-        await downloadAspectReleaseArchive(
-          "bazel-kotlin-vscode-extension",
-          ASPECT_RELEASE_VERSION,
-          sourcesPath,
-          progress
-        );
-      }
-    );
+    {
+      location: vscode.ProgressLocation.Window,
+      title: "Downloading kls aspect archive",
+      cancellable: false,
+    },
+    async (progress) => {
+      await downloadAspectReleaseArchive(
+        "bazel-kotlin-vscode-extension",
+        ASPECT_RELEASE_VERSION,
+        sourcesPath,
+        progress
+      );
+    }
+  );
 }
