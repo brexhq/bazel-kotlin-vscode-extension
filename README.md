@@ -32,6 +32,7 @@ Additionally it also relies on a fork of [Kotlin Debug Adapter](https://github.c
 ![Bazel Sync](resources/usage.png)
 - You can follow the output in a `Bazel KLS Sync` output channel.
 - Once the build completes, the classpath in the LSP gets updated and the files are analyzed for syntax highlighting and other features.
+- Note: You can stop the sync at any time by running `Bazel KLS Sync: Stop Running Build` command from the command palette or clicking the stop button in the status bar.
 
 ![Completions](resources/completions.png)
 
