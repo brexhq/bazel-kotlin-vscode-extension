@@ -17,11 +17,13 @@ Additionally it also relies on a fork of [Kotlin Debug Adapter](https://github.c
 - Automatically download the language server and keep it up to date.
 - Partially sync Bazel packages on demand, build and notify the language server with updated bazel classpath.
 - Completions
+- Quick fixes/Auto imports
 - Support for Goto-Definition for most usecases.
 - Hover support to show docstrings in some cases.
 - VSCode test explorer integration for kotest based `DescribeSpec` tests.
 - Experimental Debugging support with launch configuration
-- Support for lazy compilation to improve performance
+- Indexing optimized for bazel through pre-computing source/jar metadata during build.
+- Support for lazy compilation to improve performance.
 
 ## Usage
 
@@ -30,6 +32,7 @@ Additionally it also relies on a fork of [Kotlin Debug Adapter](https://github.c
 ![Bazel Sync](resources/usage.png)
 - You can follow the output in a `Bazel KLS Sync` output channel.
 - Once the build completes, the classpath in the LSP gets updated and the files are analyzed for syntax highlighting and other features.
+- Note: You can stop the sync at any time by running `Bazel KLS Sync: Stop Running Build` command from the command palette or clicking the stop button in the status bar.
 
 ![Completions](resources/completions.png)
 
@@ -41,12 +44,12 @@ Note that your test runner needs to support `--test_filter` to run single tests 
 
 ### Lazy Compilation
 
-By default, once you sync a Bazel package, the LSP will try to compile all the source files in the workspace that are in the transitive closure of the targets that were built to compute the module descriptors and the PSI represenation of the source files. In a large repo involving thousands of source files, this may lead to very high resource usage and the initial sync could be significantly slow. To better support this usecase, a lazy/on-demand compilation mode is available by default. It can be disabled with the following configuration option:
+In the original implementation, the LSP would try to compile all the source files in the workspace to compute the module descriptors and the PSI represenation of the source files. In a large repo involving thousands of source files, this may lead to very high resource usage and the initial sync could be significantly slow. With our bazel sync implementation, we pre-compute a lot of things in the `bazel build` through an aspect, so it becomes redundant to do so again in the LSP for all files. So we can opt to just do "lazy" compliation but still get the full symbol index through the classpath from the build. THe a lazy/on-demand compilation mode is available by default. It can be disabled with the following configuration option:
 ```
 bazelKLS.lazyCompilation: false
 ```
 
-When lazy compilation is enabled, the LSP will only compile the files that are open initially. When symbols in other files are referenced through `Go-to-definition`, compilation of those files is triggered so as to support navigation. The LSP will still index all the symbols globally after the first Bazel sync, so you still get the benefits of completions and quick fixes even though we don't compile everything. This is because we pre-compute a lot of things in the `bazel build` through an aspect, so it becomes redundant to do so again in the LSP for all files.
+When lazy compilation is enabled, the LSP will only compile the files that are open initially. When symbols in other files are referenced through `Go-to-definition`, compilation of those files is triggered so as to support navigation. The LSP will still index all the symbols globally after the first Bazel sync, so you still get the benefits of completions and quick fixes even though we don't compile everything. 
 
 ### Debugging
 You can now debug using a customized implementation of [Kotlin Debug Adapter](https://github.com/fwcd/kotlin-debug-adapter) using a launch configuration. This is currently experimental.

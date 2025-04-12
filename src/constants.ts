@@ -24,4 +24,6 @@ export const KLS_RELEASE_ARCHIVE_SHA256: Record<string, string> = {
     "2d6f765febecb5a9db1c0b412a3292fdea5f4457779892bb049af7fda617dfae",
   "v1.6.0-bazel":
     "7617d38bc08ea2a4c92df5626e1b89ffaabedccc9276fc2e6f6ee0507f8fb730",
+  "v1.6.1-bazel":
+    "91f4a08d0f76209c3e314d995c80be360bde0e2489e18de2c329cba6a5e58efd",
 };

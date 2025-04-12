@@ -2,7 +2,7 @@
   "name": "bazel-kotlin-vscode-extension",
   "displayName": "bazel-kotlin-vscode-extension",
   "description": "Extension to support Bazel with Kotlin Language Server and Kotlin Debug Adapter",
-  "version": "0.3.0-rc.1",
+  "version": "0.3.0-rc.2",
   "publisher": "SridharMocherla",
   "icon": "resources/kotlin-bazel-logo.png",
   "repository": {
@@ -147,7 +147,7 @@
         },
         "bazelKLS.languageServerVersion": {
           "type": "string",
-          "default": "v1.6.0-bazel"
+          "default": "v1.6.1-bazel"
         },
         "bazelKLS.jvmOpts": {
           "type": "array",
@@ -272,7 +272,7 @@
         },
         "bazelKLS.debugAdapter.version": {
           "type": "string",
-          "default": "v1.6.0-bazel",
+          "default": "v1.6.1-bazel",
           "description": "The debug adapter version from Github releases"
         },
         "bazelKLS.debugAdapter.path": {
