@@ -80,6 +80,7 @@ And then you can use the Debug console to launch and debug the bazel target.
 - Bazel 6/7 tested, bzlmod support is not yet tested.
 - Java 11/17 tested/supported.
 - Tested with Kotlin 1.9, rules_kotlin 1.9.0 (newer/older versions may work but are not tested).
+- For source jars and external dependencies, require using `rules_jvm_external` with `fetch_sources` set to `True`.
 
 
 ## Example
