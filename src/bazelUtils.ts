@@ -5,7 +5,7 @@ import * as path from "path";
 
 export async function getBazelAspectArgs(
   aspectSourcesPath: string,
-  quotePath: boolean = true
+  quotePath: boolean = false
 ): Promise<string[]> {
   let aspectWorkspacePath = path.join(aspectSourcesPath, "bazel", "aspect");
   if (!checkDirectoryExists(aspectWorkspacePath)) {
