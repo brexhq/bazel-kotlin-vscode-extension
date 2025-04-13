@@ -1,12 +1,9 @@
 # bazel-kotlin-vscode-extension README
-[![Bazel][bazel-img]][bazel-url] [![Kotlin][kotlin-img]][kotlin-url] [![VSCode][vscode-img]][vscode-url]
+<!-- VS Code Marketplace -->
+[![VS Code Marketplace Version](https://img.shields.io/badge/VS%20Code%20Marketplace-v1.0.0-blue?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=SridharMocherla.bazel-kotlin-vscode-extension)
 
-[bazel-img]: https://img.shields.io/badge/build%20with-Bazel-43A047.svg
-[bazel-url]: https://bazel.build
-[kotlin-img]: https://img.shields.io/badge/kotlin-%237F52FF.svg?style=flat&logo=kotlin&logoColor=white
-[kotlin-url]: https://kotlinlang.org
-[vscode-img]: https://img.shields.io/badge/VSCode-0078D4?style=flat&logo=visual%20studio%20code&logoColor=white
-[vscode-url]: https://code.visualstudio.com
+<!-- Open VSX Registry -->
+[![Open VSX Version](https://img.shields.io/open-vsx/v/SridharMocherla/bazel-kotlin-vscode-extension)](https://open-vsx.org/extension/SridharMocherla/bazel-kotlin-vscode-extension)
 
 This lightweight extension is used to "sync" the Bazel project with the Kotlin language server. This takes inspiration from the [Kotlin](https://github.com/fwcd/vscode-kotlin) extension but is focused on the [fork](https://github.com/smocherla-brex/kotlin-language-server-bazel-support) of the language server with bazel support. A lot of the implementation is based on the [Kotlin extension](https://github.com/fwcd/vscode-kotlin) but customized to support Bazel.
 
@@ -34,7 +31,7 @@ Additionally it also relies on a fork of [Kotlin Debug Adapter](https://github.c
 - Once the build completes, the classpath in the LSP gets updated and the files are analyzed for syntax highlighting and other features.
 - Note: You can stop the sync at any time by running `Bazel KLS Sync: Stop Running Build` command from the command palette or clicking the stop button in the status bar.
 
-![Completions](resources/completions.png)
+![Completions](resources/completion.png)
 
 ### VSCode Test Explorer Integration
 If you use the popular Kotlin testing framework [Kotest](https://github.com/kotest/kotest), you can leverage the VS Code test explorer integration to view and run tests. You can see how it looks from below.
@@ -44,7 +41,7 @@ Note that your test runner needs to support `--test_filter` to run single tests 
 
 ### Lazy Compilation
 
-In the original implementation, the LSP would try to compile all the source files in the workspace to compute the module descriptors and the PSI represenation of the source files. In a large repo involving thousands of source files, this may lead to very high resource usage and the initial sync could be significantly slow. With our bazel sync implementation, we pre-compute a lot of things in the `bazel build` through an aspect, so it becomes redundant to do so again in the LSP for all files. So we can opt to just do "lazy" compliation but still get the full symbol index through the classpath from the build. THe a lazy/on-demand compilation mode is available by default. It can be disabled with the following configuration option:
+In the original implementation, the LSP would try to compile all the source files in the workspace to compute the module descriptors and the PSI represenation of the source files. In a large repo involving thousands of source files, this may lead to very high resource usage and the initial sync could be significantly slow. With our bazel sync implementation, we pre-compute a lot of things in the `bazel build` through an aspect, so it becomes redundant to do so again in the LSP for all files. So we can opt to just do "lazy" compliation but still get the full symbol index through the classpath from the build. The lazy/on-demand compilation mode is enabled by default. It can be disabled with the following configuration option:
 ```
 bazelKLS.lazyCompilation: false
 ```
