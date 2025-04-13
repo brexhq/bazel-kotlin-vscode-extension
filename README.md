@@ -34,7 +34,7 @@ Additionally it also relies on a fork of [Kotlin Debug Adapter](https://github.c
 - Once the build completes, the classpath in the LSP gets updated and the files are analyzed for syntax highlighting and other features.
 - Note: You can stop the sync at any time by running `Bazel KLS Sync: Stop Running Build` command from the command palette or clicking the stop button in the status bar.
 
-![Completions](resources/completions.png)
+![Completions](resources/completion.png)
 
 ### VSCode Test Explorer Integration
 If you use the popular Kotlin testing framework [Kotest](https://github.com/kotest/kotest), you can leverage the VS Code test explorer integration to view and run tests. You can see how it looks from below.
@@ -44,7 +44,7 @@ Note that your test runner needs to support `--test_filter` to run single tests 
 
 ### Lazy Compilation
 
-In the original implementation, the LSP would try to compile all the source files in the workspace to compute the module descriptors and the PSI represenation of the source files. In a large repo involving thousands of source files, this may lead to very high resource usage and the initial sync could be significantly slow. With our bazel sync implementation, we pre-compute a lot of things in the `bazel build` through an aspect, so it becomes redundant to do so again in the LSP for all files. So we can opt to just do "lazy" compliation but still get the full symbol index through the classpath from the build. THe a lazy/on-demand compilation mode is available by default. It can be disabled with the following configuration option:
+In the original implementation, the LSP would try to compile all the source files in the workspace to compute the module descriptors and the PSI represenation of the source files. In a large repo involving thousands of source files, this may lead to very high resource usage and the initial sync could be significantly slow. With our bazel sync implementation, we pre-compute a lot of things in the `bazel build` through an aspect, so it becomes redundant to do so again in the LSP for all files. So we can opt to just do "lazy" compliation but still get the full symbol index through the classpath from the build. The lazy/on-demand compilation mode is enabled by default. It can be disabled with the following configuration option:
 ```
 bazelKLS.lazyCompilation: false
 ```
