@@ -1,5 +1,7 @@
 # bazel-kotlin-vscode-extension README
-[![Bazel][bazel-img]][bazel-url] [![Kotlin][kotlin-img]][kotlin-url] [![VSCode][vscode-img]][vscode-url]
+[![VS Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/SridharMocherla.bazel-kotlin-vscode-extension)](https://marketplace.visualstudio.com/items?itemName=SridharMocherla.bazel-kotlin-vscode-extension)
+[![Open VSX Version](https://img.shields.io/open-vsx/v/SridharMocherla/bazel-kotlin-vscode-extension)](https://open-vsx.org/extension/SridharMocherla/bazel-kotlin-vscode-extension)
+
 
 [bazel-img]: https://img.shields.io/badge/build%20with-Bazel-43A047.svg
 [bazel-url]: https://bazel.build
