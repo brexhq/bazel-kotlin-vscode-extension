@@ -1,6 +1,13 @@
 # bazel-kotlin-vscode-extension README
-![VS Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/SridharMocherla.bazel-kotlin-vscode-extension)
-![VS Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/SridharMocherla.bazel-kotlin-vscode-extension)
+<!-- VS Code Marketplace -->
+[![VS Code Marketplace Version](https://img.shields.io/badge/VS%20Code%20Marketplace-v1.0.0-blue?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=SridharMocherla.bazel-kotlin-vscode-extension)
+[![VS Code Marketplace Downloads](https://img.shields.io/badge/Downloads-1k-green?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=SridharMocherla.bazel-kotlin-vscode-extension)
+[![VS Code Marketplace Rating](https://img.shields.io/badge/Rating-5.0%20(3)-yellow?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=SridharMocherla.bazel-kotlin-vscode-extension)
+
+<!-- Open VSX Registry -->
+[![Open VSX Version](https://img.shields.io/open-vsx/v/SridharMocherla/bazel-kotlin-vscode-extension)](https://open-vsx.org/extension/SridharMocherla/bazel-kotlin-vscode-extension)
+[![Open VSX Downloads](https://img.shields.io/open-vsx/dt/SridharMocherla/bazel-kotlin-vscode-extension)](https://open-vsx.org/extension/SridharMocherla/bazel-kotlin-vscode-extension)
+[![Open VSX Rating](https://img.shields.io/open-vsx/rating/SridharMocherla/bazel-kotlin-vscode-extension)](https://open-vsx.org/extension/SridharMocherla/bazel-kotlin-vscode-extension)
 
 This lightweight extension is used to "sync" the Bazel project with the Kotlin language server. This takes inspiration from the [Kotlin](https://github.com/fwcd/vscode-kotlin) extension but is focused on the [fork](https://github.com/smocherla-brex/kotlin-language-server-bazel-support) of the language server with bazel support. A lot of the implementation is based on the [Kotlin extension](https://github.com/fwcd/vscode-kotlin) but customized to support Bazel.
 
