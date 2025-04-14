@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.1 (2025-04-13)
+
+* Index JDK symbols
+* Fix version in badge (#54)
+* Update README (#53)
+* Release: 0.3.0 (#52)
+
+# Changelog
+
 ## v0.3.0 (2025-04-12)
 
 * Fix bazel process termination (#51)
