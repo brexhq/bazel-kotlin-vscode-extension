@@ -147,7 +147,7 @@
         },
         "bazelKLS.languageServerVersion": {
           "type": "string",
-          "default": "v1.6.2-bazel"
+          "default": "v1.6.3-bazel"
         },
         "bazelKLS.jvmOpts": {
           "type": "array",
@@ -272,7 +272,7 @@
         },
         "bazelKLS.debugAdapter.version": {
           "type": "string",
-          "default": "v1.6.2-bazel",
+          "default": "v1.6.3-bazel",
           "description": "The debug adapter version from Github releases"
         },
         "bazelKLS.debugAdapter.path": {
