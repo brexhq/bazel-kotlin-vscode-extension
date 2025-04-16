@@ -27,5 +27,7 @@ export const KLS_RELEASE_ARCHIVE_SHA256: Record<string, string> = {
   "v1.6.1-bazel":
     "91f4a08d0f76209c3e314d995c80be360bde0e2489e18de2c329cba6a5e58efd",
   "v1.6.2-bazel":
-    "83806ddb50b19cbd24ba55a82a74da421ff40593c984036cfbfb7a9d37347051"
+    "83806ddb50b19cbd24ba55a82a74da421ff40593c984036cfbfb7a9d37347051",
+  "v1.6.3-bazel":
+    "972023ba65a9ac321232ba60233b9e88c8b5c7cf18a976b0e102993d9aedcdbb",
 };
