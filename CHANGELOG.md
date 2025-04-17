@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0 (2025-04-17)
+
+* Release: 0.4.0
+* Add bzlmod support to extension (#58)
+* Bump LSP version to include bzlmod support (#56)
+* Index JDK symbols (#55)
+
+# Changelog
+
 ## v0.3.1 (2025-04-13)
 
 * Index JDK symbols
