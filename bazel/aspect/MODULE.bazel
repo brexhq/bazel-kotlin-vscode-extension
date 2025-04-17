@@ -2,4 +2,8 @@ module(
     name = "bazel_kotlin_lsp",
 )
 
-bazel_dep
+bazel_dep(
+    name = "rules_kotlin",
+    version = "1.9.0",
+    repo_name = "io_bazel_rules_kotlin",
+)
