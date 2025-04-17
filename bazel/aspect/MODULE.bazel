@@ -1,3 +1,5 @@
 module(
     name = "bazel_kotlin_lsp",
 )
+
+bazel_dep
