@@ -24,11 +24,15 @@ export class KotlinBazelDebugConfigurationProvider
       return config;
     }
 
+     // Set default workspaceRoot if not provided
+     if (!config.workspaceRoot) {
+      config.workspaceRoot = folder?.uri.fsPath || "${workspaceFolder}";
+    }
     // Inject aspect args so that required outputs are generated when LSP builds stuff on its end
     if (!config.buildFlags) {
       const aspectArgs = await getBazelAspectArgs(
         this.aspectSourcesPath,
-        false
+        config.workspaceRoot,
       );
       config.buildFlags = aspectArgs;
     }
@@ -44,11 +48,6 @@ export class KotlinBazelDebugConfigurationProvider
       return vscode.window
         .showErrorMessage("Main class is required")
         .then((_) => undefined);
-    }
-
-    // Set default workspaceRoot if not provided
-    if (!config.workspaceRoot) {
-      config.workspaceRoot = folder?.uri.fsPath || "${workspaceFolder}";
     }
 
     if(config.javaVersion) {
