@@ -41,3 +41,22 @@ jobs:
         
     - name: Run Tests
       run: npm test
+
+  
+  build-aspect:
+    name: Build Aspect
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - uses: bazel-contrib/setup-bazel@0.14.0
+        with:
+          bazelisk-cache: true
+
+      - name: Build Aspect
+        run: bazel build //lsp_info_extractor:lsp_info_extractor_deploy.jar
+
+      - name: Build Aspect (Bazel 7)
+        run: USE_BAZEL_VERSION=7.4.1 bazel build //lsp_info_extractor:lsp_info_extractor_deploy.jar
