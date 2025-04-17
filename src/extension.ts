@@ -115,7 +115,9 @@ export async function activate(context: vscode.ExtensionContext) {
       while (currentDir !== path.dirname(currentDir)) {
         if (
           fs.existsSync(path.join(currentDir, "WORKSPACE")) ||
-          fs.existsSync(path.join(currentDir, "WORKSPACE.bazel"))
+          fs.existsSync(path.join(currentDir, "WORKSPACE.bazel")) ||
+          fs.existsSync(path.join(currentDir, "MODULE.bazel")) ||
+          fs.existsSync(path.join(currentDir, "WORKSPACE.bzlmod"))
         ) {
           break;
         }
@@ -183,7 +185,7 @@ export async function activate(context: vscode.ExtensionContext) {
         // Then build those targets with the aspect
         let aspectSourcesPath = config.aspectSourcesPath;
 
-        const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath);
+        const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath, currentDir);
         const bazelExecutable = "bazel";
         const bazelArgs = [
           "build",
