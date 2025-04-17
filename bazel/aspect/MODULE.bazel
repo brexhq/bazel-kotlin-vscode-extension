@@ -7,3 +7,25 @@ bazel_dep(
     version = "1.9.0",
     repo_name = "io_bazel_rules_kotlin",
 )
+bazel_dep(name = "rules_jvm_external", version = "6.5")
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    name = "maven",
+    artifacts = [
+        "com.google.code.gson:gson:2.11.0",
+        "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0",
+        "org.ow2.asm:asm:9.6",
+        "com.github.ajalt.clikt:clikt-jvm:4.4.0",
+        "com.google.protobuf:protobuf-java:3.18.2",
+        "com.google.protobuf:protobuf-java-util:3.18.2",
+    ],
+    fetch_sources = True,
+    lock_file = "//:maven_install.json",
+    repositories = [
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+        "https://mvnrepository.com/artifact",
+    ],
+)
+use_repo(maven, "maven")
