@@ -44,7 +44,7 @@ jobs:
 
   
   build-aspect:
-    name: Build Aspect
+    name: Build Kotlin LSP Aspect
     runs-on: ubuntu-latest
 
     steps:
@@ -56,7 +56,7 @@ jobs:
           bazelisk-cache: true
 
       - name: Build Aspect
-        run: bazel build //lsp_info_extractor:lsp_info_extractor_deploy.jar
+        run: cd bazel/aspect && bazel build //lsp_info_extractor:lsp_info_extractor_deploy.jar
 
       - name: Build Aspect (Bazel 7)
-        run: USE_BAZEL_VERSION=7.4.1 bazel build //lsp_info_extractor:lsp_info_extractor_deploy.jar
+        run: cd bazel/aspect && USE_BAZEL_VERSION=7.4.1 bazel build //lsp_info_extractor:lsp_info_extractor_deploy.jar
