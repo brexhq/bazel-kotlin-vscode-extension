@@ -84,7 +84,7 @@ And then you can use the Debug console to launch and debug the bazel target.
 
 
 ## Example
-You can try the extension out on [this](https://github.com/smocherla-brex/bazel-kls-example) repo to find out how it works.
+You can try the extension out on [this](https://github.com/smocherla-brex/bazel-kls-example) repo to find out how it works. For bzlmod, try out this [example](https://github.com/smocherla-brex/bazel-kls-bzlmod-example).
 
 ## Contributing
 Please check existing [Github issues](https://github.com/smocherla-brex/bazel-kotlin-vscode-extension/issues) if you have a feature request or a bug.
