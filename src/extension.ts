@@ -183,7 +183,7 @@ export async function activate(context: vscode.ExtensionContext) {
         // Then build those targets with the aspect
         let aspectSourcesPath = config.aspectSourcesPath;
 
-        const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath);
+        const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath, currentDir);
         const bazelExecutable = "bazel";
         const bazelArgs = [
           "build",
