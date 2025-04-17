@@ -101,14 +101,60 @@ jobs:
           cp bazel-bin/lsp_info_extractor/lsp_info_extractor_deploy.jar release/bazel/aspect
           
           cp BUILD.release.bazel release/bazel/aspect/BUILD.bazel
-          cp WORKSPACE release/bazel/aspect
+          cp MODULE.bazel release/bazel/aspect
+          cp MODULE.bazel.lock release/bazel/aspect
           cp *.bzl release/bazel/aspect 
           
           # Create a zip archive
           cd release
           zip -r "${{ github.workspace }}/kls-aspect.zip" *
           cd "${{ github.workspace }}"
+
+      - name: Build release archive (Bazel 7)
+        run: |
+          # cd to the aspect workspace and build a binary
+          cd bazel/aspect
+          USE_BAZEL_VERSION=7.4.1 bazel build //lsp_info_extractor:lsp_info_extractor_deploy.jar
         
+          # Create release directory
+          mkdir -p release/bazel/aspect
+          
+          # Copy Bazel build artifacts to release directory
+          # Example: Copy JAR files from bazel-bin
+          cp bazel-bin/lsp_info_extractor/lsp_info_extractor_deploy.jar release/bazel/aspect
+          
+          cp BUILD.release.bazel release/bazel/aspect/BUILD.bazel
+          cp WORKSPACE release/bazel/aspect
+          cp *.bzl release/bazel/aspect 
+          
+          # Create a zip archive
+          cd release
+          zip -r "${{ github.workspace }}/kls-aspect-bazel7.zip" *
+          cd "${{ github.workspace }}"
+
+      - name: Build release archive (Bazel 8)
+        run: |
+          # cd to the aspect workspace and build a binary
+          cd bazel/aspect
+          USE_BAZEL_VERSION=8.2.0 bazel build //lsp_info_extractor:lsp_info_extractor_deploy.jar
+
+          # Create release directory
+          mkdir -p release/bazel/aspect
+          
+          # Copy Bazel build artifacts to release directory
+          # Example: Copy JAR files from bazel-bin
+          cp bazel-bin/lsp_info_extractor/lsp_info_extractor_deploy.jar release/bazel/aspect
+          
+          cp BUILD.release.bazel release/bazel/aspect/BUILD.bazel
+          cp MODULE.bazel release/bazel/aspect
+          cp MODULE.bazel.lock release/bazel/aspect
+          cp *.bzl release/bazel/aspect 
+          
+          # Create a zip archive
+          cd release
+          zip -r "${{ github.workspace }}/kls-aspect-bazel8.zip" *
+          cd "${{ github.workspace }}"
+
       - name: Get VSIX path
         id: get-vsix-path
         run: echo "vsix_path=$(find . -maxdepth 1 -name "*.vsix" | head -n 1)" >> $GITHUB_OUTPUT
@@ -132,4 +178,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             ${{ steps.get-vsix-path.outputs.vsix_path }}
-            kls-aspect.zip
+            kls-aspect-bazel6.zip
+            kls-aspect-bazel7.zip
+            kls-aspect-bazel8.zip

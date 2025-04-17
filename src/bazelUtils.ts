@@ -3,14 +3,21 @@ import * as path from "path";
 import { promisify } from "util";
 import * as cp from "child_process";
 import * as vscode from "vscode";
+import * as fs from "fs";
 
 const execAsync = promisify(cp.exec);
 
 async function isBzlmodEnabled(workspaceRoot: string): Promise<boolean> {
   try {
+
+    let buildFile = path.join(workspaceRoot, "BUILD.bazel");
+    if (!fs.existsSync(buildFile)) {
+      // if BUILD.bazel does not exist, try BUILD
+      buildFile = path.join(workspaceRoot, "BUILD");
+    }
     // run this command to check if bzlmod is enabled
     const command =
-      'bazel cquery //:BUILD.bazel --output=starlark --starlark:expr="target.label"';
+      `bazel cquery ${buildFile} --output=starlark --starlark:expr="target.label"`;
 
     const result = await execAsync(command, { cwd: workspaceRoot });
     const stdout = result.stdout.trim();
@@ -25,6 +32,26 @@ async function isBzlmodEnabled(workspaceRoot: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Check if the Bazel version is 8.x.x
+ * @param workspaceRoot 
+ * @returns 
+ */
+export async function isBazel8(workspaceRoot: string): Promise<Boolean> {
+  const command = "bazel version";
+  const result = await execAsync(command, { cwd: workspaceRoot });
+  const stdout = result.stdout.trim();
+  const lines = stdout.split('\n');
+  const buildLabelLine = lines.find(line => line.trim().startsWith('Build label:'));
+  if (!buildLabelLine) {
+    vscode.window.showWarningMessage("Failed to get Bazel version");
+    return false;
+  }
+  const version = buildLabelLine.split(':')[1].trim();
+  return version.startsWith("8");
+}
+
 
 export async function getBazelAspectArgs(
   aspectSourcesPath: string,
@@ -43,8 +70,16 @@ export async function getBazelAspectArgs(
   if (bzlmodEnabled) {
     repoName = "@@bazel_kotlin_lsp";
   }
+
+  const bazel8 = await isBazel8(workspaceRoot);
+
+  let overrideRepo = `--override_repository=bazel_kotlin_lsp=${aspectWorkspacePath}`;
+  if(bazel8) {
+    overrideRepo = `--inject_repository=bazel_kotlin_lsp=${aspectWorkspacePath}`;
+  }
+  
   return [
-    `--override_repository=bazel_kotlin_lsp=${aspectWorkspacePath}`,
+    overrideRepo,
     `--aspects=${repoName}//:kotlin_lsp_info.bzl%kotlin_lsp_aspect`,
     "--output_groups=+lsp_infos",
   ];
