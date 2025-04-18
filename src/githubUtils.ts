@@ -77,6 +77,11 @@ async function downloadFile(
   return fileBuffer;
 }
 
+function getBazelVersionFromAssetName(assetName: string): string {
+  const version = assetName.split("-")[2].split(".")[0];
+  return version[version.length - 1];
+}
+
 async function extractZip(zipBuffer: Buffer, destPath: string): Promise<void> {
   return new Promise((resolve, reject) => {
     yauzl.fromBuffer(
@@ -254,7 +259,7 @@ export async function downloadAspectReleaseArchive(
   }
 
   for (const asset of assets) {
-    const bazelVersion = asset.name.split("-")[2][1];
+    const bazelVersion = getBazelVersionFromAssetName(asset.name);
     const aspectRelease = ASPECT_RELEASES.find((r: AspectReleaseInfo) => r.bazelVersion === bazelVersion);
     if (!aspectRelease) {
       throw new Error(`Could not find aspect release for bazel version ${bazelVersion}`);
@@ -269,12 +274,10 @@ export async function downloadAspectReleaseArchive(
   
     // Extract archive
     progress.report({ message: "Extracting aspect for Kotlin LSP..." });
-    await extractZip(zipBuffer, path.join(destPath, version));
-  
-    fs.writeFileSync(path.join(destPath, "version"), version);
+    await extractZip(zipBuffer, path.join(destPath, bazelVersion));
   }
 
-  
+  fs.writeFileSync(path.join(destPath, "version"), version);
 }
 
 export async function downloadDebugAdapter(

@@ -33,7 +33,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const config = configManager.getConfig();
 
   if(context.extensionMode !== vscode.ExtensionMode.Development) {
-    await downloadAspectRelease(config, context);
+    await downloadAspectRelease(config);
   }
 
   // First create the language client
@@ -400,8 +400,7 @@ export async function activate(context: vscode.ExtensionContext) {
 export function deactivate() {}
 
 async function downloadAspectRelease(
-  config: BazelKLSConfig,
-  context: vscode.ExtensionContext
+  config: BazelKLSConfig
 ) {
   const sourcesPath = config.aspectSourcesPath;
   if (!fs.existsSync(sourcesPath)) {
