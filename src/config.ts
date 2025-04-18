@@ -49,7 +49,7 @@ export class ConfigurationManager {
                 languageServerLocalPath: this.config.get('path', null),
                 debugAttachEnabled: this.config.get('debugAttach.enabled', false),
                 debugAttachPort: this.config.get('debugAttach.port', 5009),
-                aspectSourcesPath: this.aspectSourcesPath,
+                aspectSourcesPath: this.config.get('aspectPath', this.aspectSourcesPath),
                 buildFlags: this.config.get("buildFlags", []),
                 debugAdapter: {
                     enabled: this.config.get('debugAdapter.enabled', false),
