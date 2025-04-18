@@ -33,12 +33,18 @@ async function isBzlmodEnabled(workspaceRoot: string): Promise<boolean> {
   }
 }
 
+enum BazelMajorVersion {
+  SIX = "6",
+  SEVEN = "7",
+  EIGHT = "8"
+}
+
 /**
- * Check if the Bazel version is 8.x.x
+ * Returns the major version of the Bazel version
  * @param workspaceRoot 
- * @returns 
+ * @returns string
  */
-export async function isBazel8(workspaceRoot: string): Promise<Boolean> {
+export async function getBazelMajorVersion(workspaceRoot: string): Promise<BazelMajorVersion> {
   const command = "bazel version";
   const result = await execAsync(command, { cwd: workspaceRoot });
   const stdout = result.stdout.trim();
@@ -46,19 +52,19 @@ export async function isBazel8(workspaceRoot: string): Promise<Boolean> {
   const buildLabelLine = lines.find(line => line.trim().startsWith('Build label:'));
   if (!buildLabelLine) {
     vscode.window.showWarningMessage("Failed to get Bazel version");
-    return false;
+    return BazelMajorVersion.SEVEN;
   }
   const version = buildLabelLine.split(':')[1].trim();
-  return version.startsWith("8");
+  return version.split(".")[0] as BazelMajorVersion;
 }
 
 
 export async function getBazelAspectArgs(
   aspectSourcesPath: string,
   workspaceRoot: string,
-  quotePath: boolean = false
+  bazelVersion: BazelMajorVersion
 ): Promise<string[]> {
-  let aspectWorkspacePath = path.join(aspectSourcesPath, "bazel", "aspect");
+  let aspectWorkspacePath = path.join(aspectSourcesPath, bazelVersion, "bazel", "aspect");
   if (!checkDirectoryExists(aspectWorkspacePath)) {
     throw new Error(
       `Bazel Aspect workspace not found at ${aspectWorkspacePath}`
@@ -71,10 +77,8 @@ export async function getBazelAspectArgs(
     repoName = "@@bazel_kotlin_lsp";
   }
 
-  const bazel8 = await isBazel8(workspaceRoot);
-
   let overrideRepo = `--override_repository=bazel_kotlin_lsp=${aspectWorkspacePath}`;
-  if(bazel8) {
+  if(bazelVersion === BazelMajorVersion.EIGHT) {
     overrideRepo = `--inject_repository=bazel_kotlin_lsp=${aspectWorkspacePath}`;
   }
   

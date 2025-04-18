@@ -3,7 +3,8 @@ import * as fs from "fs";
 import * as yauzl from "yauzl";
 import { Progress } from "vscode";
 import {
-  ASPECT_RELEASE_ARCHIVE_SHA256,
+  ASPECT_RELEASES,
+  AspectReleaseInfo,
   KLS_RELEASE_ARCHIVE_SHA256,
 } from "./constants";
 import { deleteDirectoryContents } from "./dirUtils";
@@ -247,24 +248,33 @@ export async function downloadAspectReleaseArchive(
     throw new Error(`Release ${version} not found`);
   }
 
-  const asset = release.assets.find((a) => a.name === "kls-aspect.zip");
-  if (!asset) {
+  const assets = release.assets.filter((a) => a.name === "kls-aspect-bazel6.zip" || a.name === "kls-aspect-bazel7.zip" || a.name == "kls-aspect-bazel8.zip");
+  if (!assets) {
     throw new Error("Could not find kls-aspect.zip in release assets");
   }
 
-  const zipBuffer = await downloadFile(
-    asset.url,
-    {
-      Accept: "application/octet-stream",
-    },
-    ASPECT_RELEASE_ARCHIVE_SHA256[version]
-  );
+  for (const asset of assets) {
+    const bazelVersion = asset.name.split("-")[2][1];
+    const aspectRelease = ASPECT_RELEASES.find((r: AspectReleaseInfo) => r.bazelVersion === bazelVersion);
+    if (!aspectRelease) {
+      throw new Error(`Could not find aspect release for bazel version ${bazelVersion}`);
+    }
+    const zipBuffer = await downloadFile(
+      asset.url,
+      {
+        Accept: "application/octet-stream",
+      },
+      aspectRelease.sha256
+    );
+  
+    // Extract archive
+    progress.report({ message: "Extracting aspect for Kotlin LSP..." });
+    await extractZip(zipBuffer, path.join(destPath, version));
+  
+    fs.writeFileSync(path.join(destPath, "version"), version);
+  }
 
-  // Extract archive
-  progress.report({ message: "Extracting aspect..." });
-  await extractZip(zipBuffer, destPath);
-
-  fs.writeFileSync(path.join(destPath, "version"), version);
+  
 }
 
 export async function downloadDebugAdapter(
@@ -321,7 +331,6 @@ export async function downloadDebugAdapter(
     {
       Accept: "application/octet-stream",
     },
-    ASPECT_RELEASE_ARCHIVE_SHA256[version]
   );
 
   // Extract archive

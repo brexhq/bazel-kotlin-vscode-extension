@@ -8,7 +8,7 @@ import { downloadAspectReleaseArchive } from "./githubUtils";
 import { ConfigurationManager, BazelKLSConfig } from "./config";
 import { KotlinLanguageClient, configureLanguage } from "./languageClient";
 import { KotestTestController } from "./kotest";
-import { getBazelAspectArgs } from "./bazelUtils";
+import { getBazelAspectArgs, getBazelMajorVersion } from "./bazelUtils";
 import { ASPECT_RELEASE_VERSION } from "./constants";
 import {
   KotlinBazelDebugConfigurationProvider,
@@ -182,10 +182,12 @@ export async function activate(context: vscode.ExtensionContext) {
           return;
         }
 
+
         // Then build those targets with the aspect
+        const bazelMajorVersion = await getBazelMajorVersion(currentDir);
         let aspectSourcesPath = config.aspectSourcesPath;
 
-        const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath, currentDir);
+        const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath, currentDir, bazelMajorVersion);
         const bazelExecutable = "bazel";
         const bazelArgs = [
           "build",
