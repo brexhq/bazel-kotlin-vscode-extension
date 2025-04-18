@@ -86,6 +86,7 @@ export async function getBazelAspectArgs(
 
   let overrideRepo = `--override_repository=bazel_kotlin_lsp=${aspectWorkspacePath}`;
   if(bazelVersion === BazelMajorVersion.EIGHT) {
+    repoName = "@bazel_kotlin_lsp";
     overrideRepo = `--inject_repository=bazel_kotlin_lsp=${aspectWorkspacePath}`;
   }
   
