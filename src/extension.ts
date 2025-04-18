@@ -29,10 +29,12 @@ export async function activate(context: vscode.ExtensionContext) {
     await fs.promises.mkdir(globalStoragePath);
   }
 
-  const configManager = new ConfigurationManager(globalStoragePath);
+  const configManager = new ConfigurationManager(globalStoragePath, context);
   const config = configManager.getConfig();
 
-  await downloadAspectRelease(config, context);
+  if(context.extensionMode !== vscode.ExtensionMode.Development) {
+    await downloadAspectRelease(config, context);
+  }
 
   // First create the language client
   kotlinClient = new KotlinLanguageClient(context);
@@ -187,7 +189,9 @@ export async function activate(context: vscode.ExtensionContext) {
         const bazelMajorVersion = await getBazelMajorVersion(currentDir);
         let aspectSourcesPath = config.aspectSourcesPath;
 
-        const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath, currentDir, bazelMajorVersion);
+        const developmentMode = context.extensionMode === vscode.ExtensionMode.Development;
+
+        const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath, currentDir, bazelMajorVersion, developmentMode);
         const bazelExecutable = "bazel";
         const bazelArgs = [
           "build",

@@ -158,7 +158,6 @@
         },
         "bazelKLS.aspectPath": {
           "type": "string",
-          "default": "",
           "description": "Optionally a custom path to the aspect workspace used by the LSP. If not provided, the extension will download the latest aspect release from Github. Typically used for iterating on the aspect."
         },
         "bazelKLS.path": {

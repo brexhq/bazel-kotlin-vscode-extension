@@ -28,14 +28,20 @@ export class ConfigurationManager {
     private static readonly SECTION = 'bazelKLS';
     private languageServerInstallPath: string;
     private config: vscode.WorkspaceConfiguration;
-    private aspectSourcesPath: string;
+    private aspectSourcesPath: string | undefined;
     private debugAdapterInstallPath: string;
+    private context: vscode.ExtensionContext;
 
-    constructor(storagePath: string) {
+    constructor(storagePath: string, context: vscode.ExtensionContext) {
         this.languageServerInstallPath = path.join(storagePath, 'languageServer');
-        this.aspectSourcesPath = path.join(storagePath, 'aspectSources');
         this.config = vscode.workspace.getConfiguration(ConfigurationManager.SECTION);
+        if(this.config.get('aspectPath') == "") {
+            this.aspectSourcesPath = path.join(storagePath, 'aspectSources');
+        } else if(this.config.get('aspectPath')) {
+            this.aspectSourcesPath = this.config.get('aspectPath');
+        }
         this.debugAdapterInstallPath = path.join(storagePath, 'debugAdapter');
+        this.context = context;
     }
 
     getConfig(): BazelKLSConfig {
@@ -49,7 +55,7 @@ export class ConfigurationManager {
                 languageServerLocalPath: this.config.get('path', null),
                 debugAttachEnabled: this.config.get('debugAttach.enabled', false),
                 debugAttachPort: this.config.get('debugAttach.port', 5009),
-                aspectSourcesPath: this.config.get('aspectPath', this.aspectSourcesPath),
+                aspectSourcesPath: this.aspectSourcesPath,
                 buildFlags: this.config.get("buildFlags", []),
                 debugAdapter: {
                     enabled: this.config.get('debugAdapter.enabled', false),

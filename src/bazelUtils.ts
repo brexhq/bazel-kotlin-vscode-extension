@@ -15,9 +15,11 @@ async function isBzlmodEnabled(workspaceRoot: string): Promise<boolean> {
       // if BUILD.bazel does not exist, try BUILD
       buildFile = path.join(workspaceRoot, "BUILD");
     }
+
+    buildFile = path.basename(buildFile);
     // run this command to check if bzlmod is enabled
     const command =
-      `bazel cquery ${buildFile} --output=starlark --starlark:expr="target.label"`;
+      `bazel cquery //:${buildFile} --output=starlark --starlark:expr="target.label"`;
 
     const result = await execAsync(command, { cwd: workspaceRoot });
     const stdout = result.stdout.trim();
@@ -62,9 +64,14 @@ export async function getBazelMajorVersion(workspaceRoot: string): Promise<Bazel
 export async function getBazelAspectArgs(
   aspectSourcesPath: string,
   workspaceRoot: string,
-  bazelVersion: BazelMajorVersion
+  bazelVersion: BazelMajorVersion,
+  developmentMode: boolean = false
 ): Promise<string[]> {
   let aspectWorkspacePath = path.join(aspectSourcesPath, bazelVersion, "bazel", "aspect");
+  if (developmentMode) {
+    // if using development mode in vscode, use the aspect sources path directly
+    aspectWorkspacePath = aspectSourcesPath;
+  }
   if (!checkDirectoryExists(aspectWorkspacePath)) {
     throw new Error(
       `Bazel Aspect workspace not found at ${aspectWorkspacePath}`
