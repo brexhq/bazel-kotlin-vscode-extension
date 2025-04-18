@@ -3,8 +3,10 @@ import * as fs from "fs";
 import * as yauzl from "yauzl";
 import { Progress } from "vscode";
 import {
-  ASPECT_RELEASE_ARCHIVE_SHA256,
+  ASPECT_RELEASES,
+  AspectReleaseInfo,
   KLS_RELEASE_ARCHIVE_SHA256,
+  ASPECT_ASSET_NAMES,
 } from "./constants";
 import { deleteDirectoryContents } from "./dirUtils";
 
@@ -74,6 +76,11 @@ async function downloadFile(
   }
 
   return fileBuffer;
+}
+
+function getBazelVersionFromAssetName(assetName: string): string {
+  const version = assetName.split("-")[2].split(".")[0];
+  return version[version.length - 1];
 }
 
 async function extractZip(zipBuffer: Buffer, destPath: string): Promise<void> {
@@ -247,22 +254,29 @@ export async function downloadAspectReleaseArchive(
     throw new Error(`Release ${version} not found`);
   }
 
-  const asset = release.assets.find((a) => a.name === "kls-aspect.zip");
-  if (!asset) {
+  const assets = release.assets.filter((a) => ASPECT_ASSET_NAMES.includes(a.name));
+  if (!assets) {
     throw new Error("Could not find kls-aspect.zip in release assets");
   }
 
-  const zipBuffer = await downloadFile(
-    asset.url,
-    {
-      Accept: "application/octet-stream",
-    },
-    ASPECT_RELEASE_ARCHIVE_SHA256[version]
-  );
-
-  // Extract archive
-  progress.report({ message: "Extracting aspect..." });
-  await extractZip(zipBuffer, destPath);
+  for (const asset of assets) {
+    const bazelVersion = getBazelVersionFromAssetName(asset.name);
+    const aspectRelease = ASPECT_RELEASES.find((r: AspectReleaseInfo) => r.bazelVersion === bazelVersion);
+    if (!aspectRelease) {
+      throw new Error(`Could not find aspect release for bazel version ${bazelVersion}`);
+    }
+    const zipBuffer = await downloadFile(
+      asset.url,
+      {
+        Accept: "application/octet-stream",
+      },
+      aspectRelease.sha256
+    );
+  
+    // Extract archive
+    progress.report({ message: "Extracting aspect for Kotlin LSP..." });
+    await extractZip(zipBuffer, path.join(destPath, bazelVersion));
+  }
 
   fs.writeFileSync(path.join(destPath, "version"), version);
 }
@@ -321,7 +335,6 @@ export async function downloadDebugAdapter(
     {
       Accept: "application/octet-stream",
     },
-    ASPECT_RELEASE_ARCHIVE_SHA256[version]
   );
 
   // Extract archive

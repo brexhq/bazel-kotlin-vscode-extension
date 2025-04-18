@@ -8,7 +8,7 @@ import { downloadAspectReleaseArchive } from "./githubUtils";
 import { ConfigurationManager, BazelKLSConfig } from "./config";
 import { KotlinLanguageClient, configureLanguage } from "./languageClient";
 import { KotestTestController } from "./kotest";
-import { getBazelAspectArgs } from "./bazelUtils";
+import { getBazelAspectArgs, getBazelMajorVersion } from "./bazelUtils";
 import { ASPECT_RELEASE_VERSION } from "./constants";
 import {
   KotlinBazelDebugConfigurationProvider,
@@ -32,7 +32,9 @@ export async function activate(context: vscode.ExtensionContext) {
   const configManager = new ConfigurationManager(globalStoragePath);
   const config = configManager.getConfig();
 
-  await downloadAspectRelease(config, context);
+  if(context.extensionMode !== vscode.ExtensionMode.Development) {
+    await downloadAspectRelease(config);
+  }
 
   // First create the language client
   kotlinClient = new KotlinLanguageClient(context);
@@ -182,10 +184,15 @@ export async function activate(context: vscode.ExtensionContext) {
           return;
         }
 
+
         // Then build those targets with the aspect
+        const bazelMajorVersion = await getBazelMajorVersion(currentDir);
+        outputChannel.appendLine(`Bazel major version: ${bazelMajorVersion}`);
         let aspectSourcesPath = config.aspectSourcesPath;
 
-        const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath, currentDir);
+        const developmentMode = context.extensionMode === vscode.ExtensionMode.Development;
+
+        const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath, currentDir, bazelMajorVersion, developmentMode);
         const bazelExecutable = "bazel";
         const bazelArgs = [
           "build",
@@ -394,8 +401,7 @@ export async function activate(context: vscode.ExtensionContext) {
 export function deactivate() {}
 
 async function downloadAspectRelease(
-  config: BazelKLSConfig,
-  context: vscode.ExtensionContext
+  config: BazelKLSConfig
 ) {
   const sourcesPath = config.aspectSourcesPath;
   if (!fs.existsSync(sourcesPath)) {

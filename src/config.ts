@@ -33,8 +33,12 @@ export class ConfigurationManager {
 
     constructor(storagePath: string) {
         this.languageServerInstallPath = path.join(storagePath, 'languageServer');
-        this.aspectSourcesPath = path.join(storagePath, 'aspectSources');
         this.config = vscode.workspace.getConfiguration(ConfigurationManager.SECTION);
+        if(this.config.get('aspectPath') == "") {
+            this.aspectSourcesPath = path.join(storagePath, 'aspectSources');
+        } else{
+            this.aspectSourcesPath = this.config.get('aspectPath') || "";
+        }
         this.debugAdapterInstallPath = path.join(storagePath, 'debugAdapter');
     }
 
