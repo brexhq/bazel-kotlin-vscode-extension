@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { getBazelAspectArgs } from "./bazelUtils";
+import { getBazelAspectArgs, getBazelMajorVersion } from "./bazelUtils";
 import * as path from "path";
 import { BazelKotlinDebugAdapterConfig } from "./config";
 import { downloadDebugAdapter } from "./githubUtils";
@@ -28,11 +28,14 @@ export class KotlinBazelDebugConfigurationProvider
      if (!config.workspaceRoot) {
       config.workspaceRoot = folder?.uri.fsPath || "${workspaceFolder}";
     }
+
+    const bazelMajorVersion = await getBazelMajorVersion(config.workspaceRoot);
     // Inject aspect args so that required outputs are generated when LSP builds stuff on its end
     if (!config.buildFlags) {
       const aspectArgs = await getBazelAspectArgs(
         this.aspectSourcesPath,
         config.workspaceRoot,
+        bazelMajorVersion
       );
       config.buildFlags = aspectArgs;
     }
