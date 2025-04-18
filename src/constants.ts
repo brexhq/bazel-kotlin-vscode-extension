@@ -4,6 +4,12 @@ export interface AspectReleaseInfo {
   sha256: string;
 }
 
+export const ASPECT_ASSET_NAMES = [
+  "kls-aspect-bazel7.zip",
+  "kls-aspect-bazel8.zip",
+  "kls-aspect-bazel9.zip",
+]
+
 export const ASPECT_RELEASE_VERSION = "v0.4.1-rc.1";
 
 export const ASPECT_RELEASES: AspectReleaseInfo[] = [

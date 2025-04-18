@@ -6,6 +6,7 @@ import {
   ASPECT_RELEASES,
   AspectReleaseInfo,
   KLS_RELEASE_ARCHIVE_SHA256,
+  ASPECT_ASSET_NAMES,
 } from "./constants";
 import { deleteDirectoryContents } from "./dirUtils";
 
@@ -253,7 +254,7 @@ export async function downloadAspectReleaseArchive(
     throw new Error(`Release ${version} not found`);
   }
 
-  const assets = release.assets.filter((a) => a.name === "kls-aspect-bazel6.zip" || a.name === "kls-aspect-bazel7.zip" || a.name == "kls-aspect-bazel8.zip");
+  const assets = release.assets.filter((a) => ASPECT_ASSET_NAMES.includes(a.name));
   if (!assets) {
     throw new Error("Could not find kls-aspect.zip in release assets");
   }
