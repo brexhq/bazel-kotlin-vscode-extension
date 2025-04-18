@@ -7,7 +7,7 @@ import * as fs from "fs";
 
 const execAsync = promisify(cp.exec);
 
-async function isBzlmodEnabled(workspaceRoot: string): Promise<boolean> {
+export async function isBzlmodEnabled(workspaceRoot: string): Promise<boolean> {
   try {
 
     let buildFile = path.join(workspaceRoot, "BUILD.bazel");
