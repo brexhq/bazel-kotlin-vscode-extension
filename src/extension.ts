@@ -29,7 +29,7 @@ export async function activate(context: vscode.ExtensionContext) {
     await fs.promises.mkdir(globalStoragePath);
   }
 
-  const configManager = new ConfigurationManager(globalStoragePath, context);
+  const configManager = new ConfigurationManager(globalStoragePath);
   const config = configManager.getConfig();
 
   if(context.extensionMode !== vscode.ExtensionMode.Development) {

@@ -28,20 +28,18 @@ export class ConfigurationManager {
     private static readonly SECTION = 'bazelKLS';
     private languageServerInstallPath: string;
     private config: vscode.WorkspaceConfiguration;
-    private aspectSourcesPath: string | undefined;
+    private aspectSourcesPath: string;
     private debugAdapterInstallPath: string;
-    private context: vscode.ExtensionContext;
 
-    constructor(storagePath: string, context: vscode.ExtensionContext) {
+    constructor(storagePath: string) {
         this.languageServerInstallPath = path.join(storagePath, 'languageServer');
         this.config = vscode.workspace.getConfiguration(ConfigurationManager.SECTION);
         if(this.config.get('aspectPath') == "") {
             this.aspectSourcesPath = path.join(storagePath, 'aspectSources');
-        } else if(this.config.get('aspectPath')) {
-            this.aspectSourcesPath = this.config.get('aspectPath');
+        } else{
+            this.aspectSourcesPath = this.config.get('aspectPath') || "";
         }
         this.debugAdapterInstallPath = path.join(storagePath, 'debugAdapter');
-        this.context = context;
     }
 
     getConfig(): BazelKLSConfig {

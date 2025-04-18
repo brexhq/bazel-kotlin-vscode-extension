@@ -1,18 +1,82 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
+import * as sinon from 'sinon';
 import * as path from 'path';
 import { ConfigurationManager } from '../config';
 
 suite('ConfigurationManager Integration Test Suite', () => {
     let configManager: ConfigurationManager;
-    const testContext = {
+    const testContext: vscode.ExtensionContext = {
         // Create a simulated extension context with a storage path
-        storagePath: path.join(__dirname, '../../../.vscode-test/storage')
+        storagePath: path.join(__dirname, '../../../.vscode-test/storage'),
+        storageUri: vscode.Uri.parse('vscode-test-uri'),
+        globalStoragePath: '/path/to/global/storage',
+        extension: {
+            id: 'bazelKLS',
+            extensionUri: vscode.Uri.parse('vscode-test-uri'),
+            extensionPath: '/path/to/extension',
+            isActive: true,
+            extensionKind: vscode.ExtensionKind.Workspace,
+            exports: {},
+            activate: sinon.stub(),
+            packageJSON: {
+                name: 'bazelKLS',
+                version: '1.0.0',
+                engines: {
+                    vscode: '1.0.0'
+                }
+            }
+        },
+        workspaceState: {
+            get: sinon.stub().returns({}),
+            update: sinon.stub().resolves(),
+            keys: () => []
+        },
+        languageModelAccessInformation: {
+            canSendRequest: sinon.stub(),
+            onDidChange: sinon.stub(),
+        },
+        environmentVariableCollection: {
+            get: sinon.stub(),
+            getScoped: sinon.stub(),
+            persistent: true,
+            description: "",
+            replace: sinon.stub(),
+            append: sinon.stub(),
+            prepend: sinon.stub(),
+            forEach: sinon.stub(),
+            delete: sinon.stub(),
+            clear: sinon.stub(),
+            [Symbol.iterator]: sinon.stub(),
+        },
+        logPath: '/path/to/log',
+        logUri: vscode.Uri.parse('vscode-test-uri'),
+        extensionMode: vscode.ExtensionMode.Development,
+        
+        globalStorageUri: vscode.Uri.parse('vscode-test-uri'),
+        subscriptions: [],
+        asAbsolutePath: (relativePath: string) => path.join(__dirname, '../../../.vscode-test', relativePath),
+        secrets: {
+            get: sinon.stub(),
+            store: sinon.stub(),
+            delete: sinon.stub(),
+            onDidChange: sinon.stub(),
+        },
+        extensionUri: vscode.Uri.parse('vscode-test-uri'),
+       
+      globalState: {
+        get: sinon.stub().returns({}),
+        update: sinon.stub().resolves(),
+        setKeysForSync: sinon.stub(),
+        keys: () => []
+      },
+      extensionPath: '/path/to/extension',
     };
 
     // Setup: create a fresh ConfigurationManager before each test
     setup(() => {
-        configManager = new ConfigurationManager(testContext.storagePath);
+        configManager = new ConfigurationManager("storagePath");
+
     });
 
     // Teardown: clean up any test-specific configurations
@@ -42,11 +106,11 @@ suite('ConfigurationManager Integration Test Suite', () => {
         // Verify storage paths
         assert.strictEqual(
             config.languageServerInstallPath, 
-            path.join(testContext.storagePath, 'languageServer')
+            path.join("storagePath", 'languageServer')
         );
         assert.strictEqual(
             config.aspectSourcesPath, 
-            path.join(testContext.storagePath, 'aspectSources')
+            path.join("storagePath", 'aspectSources')
         );
     });
 
@@ -62,7 +126,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
         );
         
         // Create a fresh instance to read the updated config
-        const updatedManager = new ConfigurationManager(testContext.storagePath);
+        const updatedManager = new ConfigurationManager("storagePath");
         const updatedConfig = updatedManager.getConfig();
         
         // Verify settings were updated
