@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.4.1 (2025-04-18)
+
+* Final rc for 0.4.1 (#66)
+* Fix bazel 8 support (#65)
+* Support multiple bazel versions for aspect (#63)
+* Fix release (#62)
+* Update lockfile (#61)
+* Support bazel 8 (#60)
+* Release: 0.4.0 (#59)
+
+# Changelog
+
 ## v0.4.0 (2025-04-17)
 
 * Release: 0.4.0
