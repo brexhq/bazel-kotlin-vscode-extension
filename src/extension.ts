@@ -187,6 +187,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         // Then build those targets with the aspect
         const bazelMajorVersion = await getBazelMajorVersion(currentDir);
+        outputChannel.appendLine(`Bazel major version: ${bazelMajorVersion}`);
         let aspectSourcesPath = config.aspectSourcesPath;
 
         const developmentMode = context.extensionMode === vscode.ExtensionMode.Development;
