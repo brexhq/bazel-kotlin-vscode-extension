@@ -83,5 +83,60 @@ Build timestamp as int: 1731360456
 
         const result = await bazelUtils.getBazelMajorVersion(workspaceRoot);
         assert.strictEqual(result, '7');
-    })
+    });
+    
+    test('getBazelAspectArgs works with bazel 7 with bzlmod enabled', async () => {
+        const workspaceRoot = "/fake/workspace";
+        const aspectSourcesPath = "/fake/aspect/sources";
+        const bazelVersion = '7';
+        const developmentMode = false;
+
+        existsSyncStub.returns(true);
+        execAsyncStub.resolves({
+            stdout: '@@//:BUILD.bazel',
+            stderr: ''
+        });
+
+        const result = await bazelUtils.getBazelAspectArgs(aspectSourcesPath, workspaceRoot, bazelVersion, developmentMode);
+        assert.strictEqual(result.length, 3);
+        assert.strictEqual(result[0], '--override_repository=bazel_kotlin_lsp=/fake/aspect/sources/7/bazel/aspect');
+        assert.strictEqual(result[1], '--aspects=@@bazel_kotlin_lsp//:kotlin_lsp_info.bzl%kotlin_lsp_aspect');
+    });
+
+    test('getBazelAspectArgs works with bazel 7 with bzlmod disabled', async () => {
+        const workspaceRoot = "/fake/workspace";
+        const aspectSourcesPath = "/fake/aspect/sources";
+        const bazelVersion = '7';
+        const developmentMode = false;
+
+        existsSyncStub.returns(true);
+        execAsyncStub.resolves({
+            stdout: '@//:BUILD.bazel',
+            stderr: ''
+        });
+
+        const result = await bazelUtils.getBazelAspectArgs(aspectSourcesPath, workspaceRoot, bazelVersion, developmentMode);
+        assert.strictEqual(result.length, 3);
+        assert.strictEqual(result[0], '--override_repository=bazel_kotlin_lsp=/fake/aspect/sources/7/bazel/aspect');
+        assert.strictEqual(result[1], '--aspects=@bazel_kotlin_lsp//:kotlin_lsp_info.bzl%kotlin_lsp_aspect');
+    });
+
+    test('getBazelAspectArgs works with bazel 8', async () => {
+        const workspaceRoot = "/fake/workspace";
+        const aspectSourcesPath = "/fake/aspect/sources";
+        const bazelVersion = '8';
+        const developmentMode = false;  
+
+        existsSyncStub.returns(true);
+        execAsyncStub.resolves({
+            stdout: '@@//:BUILD.bazel',
+            stderr: ''
+        });
+
+        const result = await bazelUtils.getBazelAspectArgs(aspectSourcesPath, workspaceRoot, bazelVersion, developmentMode);
+        assert.strictEqual(result.length, 3);
+        assert.strictEqual(result[0], '--inject_repository=bazel_kotlin_lsp=/fake/aspect/sources/8/bazel/aspect');
+        assert.strictEqual(result[1], '--aspects=@@bazel_kotlin_lsp//:kotlin_lsp_info.bzl%kotlin_lsp_aspect');
+    });
+    
 });
