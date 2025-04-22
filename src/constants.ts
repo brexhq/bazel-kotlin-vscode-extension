@@ -5,9 +5,9 @@ export interface AspectReleaseInfo {
 }
 
 export const ASPECT_ASSET_NAMES = [
+  "kls-aspect-bazel6.zip",
   "kls-aspect-bazel7.zip",
   "kls-aspect-bazel8.zip",
-  "kls-aspect-bazel9.zip",
 ]
 
 export const ASPECT_RELEASE_VERSION = "v0.4.1-rc.2";
