@@ -68,10 +68,6 @@ export async function getBazelAspectArgs(
   developmentMode: boolean = false
 ): Promise<string[]> {
   let aspectWorkspacePath = path.join(aspectSourcesPath, bazelVersion, "bazel", "aspect");
-  if (developmentMode) {
-    // if using development mode in vscode, use the aspect sources path directly
-    aspectWorkspacePath = aspectSourcesPath;
-  }
   if (!checkDirectoryExists(aspectWorkspacePath)) {
     throw new Error(
       `Bazel Aspect workspace not found at ${aspectWorkspacePath}`
@@ -95,4 +91,21 @@ export async function getBazelAspectArgs(
     `--aspects=${repoName}//:kotlin_lsp_info.bzl%kotlin_lsp_aspect`,
     "--output_groups=+lsp_infos",
   ];
+}
+
+/**
+ * Provides the tool tag for the current editor, useful in attaching to a bazel build invocation
+ * @returns string
+ */
+
+export function getToolTag(): string {
+  const appName = vscode.env.appName;
+  switch (appName) {
+    case "Cursor":
+      return "bazelkls:cursor";
+    case "Visual Studio Code":
+      return "bazelkls:vscode";
+    default:
+      return "bazelkls:unknown";
+  }
 }
