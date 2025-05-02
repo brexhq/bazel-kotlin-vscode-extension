@@ -106,6 +106,6 @@ export function getToolTag(): string {
     case "VS Code":
       return "bazelkls:vscode";
     default:
-      return "bazelKLS:Unknown";
+      return "bazelkls:unknown";
   }
 }
