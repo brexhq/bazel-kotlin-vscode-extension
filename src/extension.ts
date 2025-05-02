@@ -194,7 +194,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
         const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath, currentDir, bazelMajorVersion, developmentMode);
 
-        const appName = vscode.env.appName;
         const bazelExecutable = "bazel";
         const bazelArgs = [
           "build",
