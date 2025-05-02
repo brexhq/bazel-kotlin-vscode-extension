@@ -8,7 +8,7 @@ import { downloadAspectReleaseArchive } from "./githubUtils";
 import { ConfigurationManager, BazelKLSConfig } from "./config";
 import { KotlinLanguageClient, configureLanguage } from "./languageClient";
 import { KotestTestController } from "./kotest";
-import { getBazelAspectArgs, getBazelMajorVersion } from "./bazelUtils";
+import { getBazelAspectArgs, getBazelMajorVersion, getToolTag } from "./bazelUtils";
 import { ASPECT_RELEASE_VERSION } from "./constants";
 import {
   KotlinBazelDebugConfigurationProvider,
@@ -193,12 +193,15 @@ export async function activate(context: vscode.ExtensionContext) {
         const developmentMode = context.extensionMode === vscode.ExtensionMode.Development;
 
         const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath, currentDir, bazelMajorVersion, developmentMode);
+
+        const appName = vscode.env.appName;
         const bazelExecutable = "bazel";
         const bazelArgs = [
           "build",
           ...config.buildFlags,
           ...targets,
           ...bazelAspectArgs,
+          `--tool_tag=${getToolTag()}`,
         ];
 
         outputChannel.appendLine(
