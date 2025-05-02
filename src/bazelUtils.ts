@@ -103,7 +103,7 @@ export function getToolTag(): string {
   switch (appName) {
     case "Cursor":
       return "bazelkls:cursor";
-    case "VS Code":
+    case "Visual Studio Code":
       return "bazelkls:vscode";
     default:
       return "bazelkls:unknown";
