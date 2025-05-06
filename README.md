@@ -1,6 +1,6 @@
 # bazel-kotlin-vscode-extension README
 <!-- VS Code Marketplace -->
-[![VS Code Marketplace Version](https://img.shields.io/badge/VS%20Code%20Marketplace-v0.3.0-blue?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=SridharMocherla.bazel-kotlin-vscode-extension)
+[![VS Code Marketplace Version](https://img.shields.io/badge/VS%20Code%20Marketplace-v0.4.2-blue?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=SridharMocherla.bazel-kotlin-vscode-extension)
 
 <!-- Open VSX Registry -->
 [![Open VSX Version](https://img.shields.io/open-vsx/v/SridharMocherla/bazel-kotlin-vscode-extension)](https://open-vsx.org/extension/SridharMocherla/bazel-kotlin-vscode-extension)
