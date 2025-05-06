@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.2 (2025-05-05)
+
+* Attach `--tool_tag` to build invocations (#70)
+* Fix Bazel 6 support (#69)
+* Release: 0.4.1 (#67)
+
+# Changelog
+
 ## v0.4.1 (2025-04-18)
 
 * Final rc for 0.4.1 (#66)
