@@ -15,6 +15,18 @@ export interface BazelKLSConfig {
     buildFlags: string[];
     debugAdapter: BazelKotlinDebugAdapterConfig,
     lazyCompilation: boolean
+    formatterConfig: BazelKotlinFormatterConfig,
+}
+
+export interface BazelKotlinFormatterConfig {
+    formatter: "ktlint" | "ktfmt" | "off";
+    ktlint?: KtlintConfig;
+}
+
+export interface KtlintConfig {
+    enabled: boolean;
+    ktlintPath: string;
+    editorConfigPath: string;
 }
 
 export interface BazelKotlinDebugAdapterConfig {
@@ -45,7 +57,7 @@ export class ConfigurationManager {
     getConfig(): BazelKLSConfig {
         return {
                 enabled: this.config.get('enabled', true),
-                jvmTarget: this.config.get('jvmTarget', '11'),
+                jvmTarget: this.config.get('jvmTarget', '17'),
                 jvmOpts: this.config.get('jvmOpts', []),
                 languageServerInstallPath: this.languageServerInstallPath,
                 languageServerVersion: this.config.get('languageServerVersion', 'v1.6.3-bazel'),
@@ -62,6 +74,14 @@ export class ConfigurationManager {
                     version: this.config.get('debugAdapter.version', 'v1.6.3-bazel'),
                 },
                 lazyCompilation: this.config.get('lazyCompilation', false),
+                formatterConfig: {
+                    formatter: this.config.get('formatter', 'off'),
+                    ktlint: {
+                        enabled: this.config.get('ktlint.ktlintPath') !== undefined,
+                        ktlintPath: this.config.get('ktlint.ktlintPath', 'ktlint'),
+                        editorConfigPath: this.config.get('ktlint.editorConfigPath', '.editorconfig')
+                    }
+                }
         };
     }
 

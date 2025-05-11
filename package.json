@@ -224,7 +224,7 @@
         },
         "bazelKLS.jvmTarget": {
           "type": "string",
-          "default": "11",
+          "default": "17",
           "description": "Specifies the JVM target, e.g. '11' or '17'."
         },
         "bazelKLS.diagnostics.enabled": {
@@ -324,6 +324,22 @@
           "type": "array",
           "default": [],
           "description": "A list of build flags to be passed to the bazel build command during a sync."
+        },
+        "bazelKLS.formatter": {
+          "type": "string",
+          "enum": ["ktlint", "ktfmt", "off"],
+          "default": "off",
+          "description": "Formatter to use for Kotlin files."
+        },
+        "bazelKLS.ktlint.ktlintPath": {
+          "type": "string",
+          "default": "ktlint",
+          "description": "Path to the ktlint binary. Only used when formatter is set to 'ktlint'."
+        },
+        "bazelKLS.ktlint.editorConfigPath": {
+          "type": "string",
+          "default": ".editorconfig",
+          "description": "Path to the .editorconfig file used by ktlint. Only used when formatter is set to 'ktlint'."
         }
       }
     },
