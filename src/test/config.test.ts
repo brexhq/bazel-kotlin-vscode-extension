@@ -12,7 +12,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
         storageUri: vscode.Uri.parse('vscode-test-uri'),
         globalStoragePath: '/path/to/global/storage',
         extension: {
-            id: 'bazelKLS',
+            id: 'bazelKotlin',
             extensionUri: vscode.Uri.parse('vscode-test-uri'),
             extensionPath: '/path/to/extension',
             isActive: true,
@@ -20,7 +20,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
             exports: {},
             activate: sinon.stub(),
             packageJSON: {
-                name: 'bazelKLS',
+                name: 'bazelKotlin',
                 version: '1.0.0',
                 engines: {
                     vscode: '1.0.0'
@@ -82,7 +82,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
     // Teardown: clean up any test-specific configurations
     teardown(async () => {
         // Reset any settings changed during testing
-        await vscode.workspace.getConfiguration('bazelKLS').update('enabled', undefined, vscode.ConfigurationTarget.Global);
+        await vscode.workspace.getConfiguration('bazelKotlin').update('enabled', undefined, vscode.ConfigurationTarget.Global);
         await vscode.workspace.getConfiguration('bazelKLS').update('jvmTarget', undefined, vscode.ConfigurationTarget.Global);
         await vscode.workspace.getConfiguration('bazelKLS').update('jvmOpts', undefined, vscode.ConfigurationTarget.Global);
         await vscode.workspace.getConfiguration('bazelKLS').update('buildFlags', undefined, vscode.ConfigurationTarget.Global);
