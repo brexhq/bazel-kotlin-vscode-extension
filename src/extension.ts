@@ -417,7 +417,7 @@ async function downloadAspectRelease(
     },
     async (progress) => {
       await downloadAspectReleaseArchive(
-        "bazel-kotlin",
+        "bazel-kotlin-vscode-extension",
         ASPECT_RELEASE_VERSION,
         sourcesPath,
         progress
