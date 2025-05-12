@@ -2,9 +2,10 @@
   "name": "bazel-kotlin-vscode-extension",
   "displayName": "bazel-kotlin-vscode-extension",
   "description": "Extension to support Bazel with Kotlin Language Server and Kotlin Debug Adapter",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "publisher": "SridharMocherla",
   "icon": "resources/kotlin-bazel-logo.png",
+  "deprecated": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/smocherla-brex/bazel-kotlin-vscode-extension.git"

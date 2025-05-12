@@ -22,6 +22,18 @@ let kotestController: KotestTestController;
 export async function activate(context: vscode.ExtensionContext) {
   const outputChannel = vscode.window.createOutputChannel("Bazel KLS Sync");
   configureLanguage();
+  
+  vscode.window.showWarningMessage(
+    "⚠️ This extension is deprecated in favor of 'Bazel Kotlin' which has the same functionality but will have new features and updates going forward. Please uninstall this extension and install the new one.",
+    "Switch to New Extension"
+  ).then(selection => {
+    if (selection === "Switch to New Extension") {
+      vscode.env.openExternal(
+        vscode.Uri.parse("https://marketplace.visualstudio.com/items?itemName=Brex.bazel-kotlin")
+      );
+    }
+  });
+  
   context.subscriptions.push(outputChannel);
 
   const globalStoragePath = context.globalStorageUri.fsPath;
