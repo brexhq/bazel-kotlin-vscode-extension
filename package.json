@@ -330,7 +330,7 @@
     "views": {
       "test": [
         {
-          "id": "kotestTests",
+          "id": "bazelKotlin.kotestTests",
           "name": "Kotest Tests"
         }
       ]

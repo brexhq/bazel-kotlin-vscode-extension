@@ -25,7 +25,7 @@ export class KotestTestController {
     private kotlinClient: any;
 
     constructor() {
-        this.testController = vscode.tests.createTestController('kotestTests', 'Kotest Tests');
+        this.testController = vscode.tests.createTestController('bazelKotlin.kotestTests', 'Kotest Tests');
         this.testController.createRunProfile('Run', vscode.TestRunProfileKind.Run, this.runTests.bind(this));
     }
 
