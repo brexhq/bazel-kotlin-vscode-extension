@@ -1,8 +1,8 @@
 {
-  "name": "bazel-kotlin-vscode-extension",
-  "displayName": "bazel-kotlin-vscode-extension",
+  "name": "bazel-kotlin",
+  "displayName": "Bazel Kotlin",
   "description": "Extension to support Bazel with Kotlin Language Server and Kotlin Debug Adapter",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "publisher": "Brex",
   "icon": "resources/kotlin-bazel-logo.png",
   "repository": {
@@ -51,16 +51,16 @@
     ],
     "commands": [
       {
-        "command": "bazel-kotlin-vscode-extension.bazelSync",
+        "command": "bazel-kotlin.bazelSync",
         "title": "Bazel KLS sync"
       },
       {
-        "command": "bazel-kotlin-vscode-extension.clearCaches",
+        "command": "bazel-kotlin.clearCaches",
         "title": "Kotlin: Clear Language Server Caches",
         "category": "Kotlin"
       },
       {
-        "command": "bazel-kotlin-vscode-extension.stopBuild",
+        "command": "bazel-kotlin.stopBuild",
         "title": "Bazel KLS Sync: Stop Running Build",
         "icon": "$(stop)"
       }
@@ -132,7 +132,7 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "bazel-kotlin-vscode-extension.bazelSync",
+          "command": "bazel-kotlin.bazelSync",
           "group": "inline",
           "when": "true"
         }

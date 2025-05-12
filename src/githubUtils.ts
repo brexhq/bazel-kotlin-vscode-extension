@@ -38,7 +38,7 @@ async function downloadFile(
 ): Promise<Buffer> {
   const options = {
     headers: {
-      "User-Agent": "bazel-kotlin-vscode-extension",
+      "User-Agent": "bazel-kotlin",
       ...additionalHeaders,
     },
   };
