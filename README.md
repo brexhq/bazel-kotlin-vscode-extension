@@ -1,9 +1,9 @@
 # bazel-kotlin README
 <!-- VS Code Marketplace -->
-[![VS Code Marketplace Version](https://img.shields.io/badge/VS%20Code%20Marketplace-v0.4.2-blue?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=SridharMocherla.bazel-kotlin)
+[![VS Code Marketplace Version](https://img.shields.io/badge/VS%20Code%20Marketplace-v0.5.1-blue?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=Brex.bazel-kotlin)
 
 <!-- Open VSX Registry -->
-[![Open VSX Version](https://img.shields.io/open-vsx/v/SridharMocherla/bazel-kotlin)](https://open-vsx.org/extension/SridharMocherla/bazel-kotlin)
+[![Open VSX Version](https://img.shields.io/open-vsx/v/Brex/bazel-kotlin)](https://open-vsx.org/extension/Brex/bazel-kotlin)
 
 This lightweight extension is used to "sync" the Bazel project with the Kotlin language server. This takes inspiration from the [Kotlin](https://github.com/fwcd/vscode-kotlin) extension but is focused on the [fork](https://github.com/brexhq/kotlin-language-server-bazel-support) of the language server with bazel support. A lot of the implementation is based on the [Kotlin extension](https://github.com/fwcd/vscode-kotlin) but customized to support Bazel.
 
