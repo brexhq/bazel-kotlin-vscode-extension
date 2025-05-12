@@ -169,7 +169,7 @@ export async function downloadLanguageServer(
   };
 
   const response = await fetch(
-    "https://api.github.com/repos/smocherla-brex/kotlin-language-server-bazel-support/releases",
+    "https://api.github.com/repos/brexhq/kotlin-language-server-bazel-support/releases",
     options
   );
   if (!response.ok) {
@@ -241,7 +241,7 @@ export async function downloadAspectReleaseArchive(
 
   // Get release info
   const response = await fetch(
-    `https://api.github.com/repos/smocherla-brex/${repo}/releases`,
+    `https://api.github.com/repos/brexhq/${repo}/releases`,
     options
   );
   if (!response.ok) {
@@ -312,7 +312,7 @@ export async function downloadDebugAdapter(
 
   // Get release info
   const response = await fetch(
-    `https://api.github.com/repos/smocherla-brex/${repo}/releases`,
+    `https://api.github.com/repos/brexhq/${repo}/releases`,
     options
   );
   if (!response.ok) {
