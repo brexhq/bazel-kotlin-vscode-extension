@@ -1,9 +1,9 @@
-# bazel-kotlin-vscode-extension README
+# bazel-kotlin README
 <!-- VS Code Marketplace -->
-[![VS Code Marketplace Version](https://img.shields.io/badge/VS%20Code%20Marketplace-v0.4.2-blue?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=SridharMocherla.bazel-kotlin-vscode-extension)
+[![VS Code Marketplace Version](https://img.shields.io/badge/VS%20Code%20Marketplace-v0.4.2-blue?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=SridharMocherla.bazel-kotlin)
 
 <!-- Open VSX Registry -->
-[![Open VSX Version](https://img.shields.io/open-vsx/v/SridharMocherla/bazel-kotlin-vscode-extension)](https://open-vsx.org/extension/SridharMocherla/bazel-kotlin-vscode-extension)
+[![Open VSX Version](https://img.shields.io/open-vsx/v/SridharMocherla/bazel-kotlin)](https://open-vsx.org/extension/SridharMocherla/bazel-kotlin)
 
 This lightweight extension is used to "sync" the Bazel project with the Kotlin language server. This takes inspiration from the [Kotlin](https://github.com/fwcd/vscode-kotlin) extension but is focused on the [fork](https://github.com/brexhq/kotlin-language-server-bazel-support) of the language server with bazel support. A lot of the implementation is based on the [Kotlin extension](https://github.com/fwcd/vscode-kotlin) but customized to support Bazel.
 
@@ -87,7 +87,7 @@ And then you can use the Debug console to launch and debug the bazel target.
 You can try the extension out on [this](https://github.com/brexhq/bazel-kls-example) repo to find out how it works. For bzlmod, try out this [example](https://github.com/smocherla-brex/bazel-kls-bzlmod-example).
 
 ## Contributing
-Please check existing [Github issues](https://github.com/brexhq/bazel-kotlin-vscode-extension/issues) if you have a feature request or a bug.
+Please check existing [Github issues](https://github.com/brexhq/bazel-kotlin/issues) if you have a feature request or a bug.
 
 ### Development
 Working on changes scoped to just the extension should be fairly straightforward following the VSCode [guides](https://code.visualstudio.com/api/extension-guides/overview).

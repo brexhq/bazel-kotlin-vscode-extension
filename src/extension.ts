@@ -50,7 +50,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Command for clearing caches
   const clearCaches = vscode.commands.registerCommand(
-    "bazel-kotlin-vscode-extension.clearCaches",
+    "bazel-kotlin.clearCaches",
     async () => {
       if (!context.storageUri) {
         return;
@@ -93,7 +93,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // Command to bazel "sync" the current package
   // Works on directories with build files
   const bazelSync = vscode.commands.registerCommand(
-    "bazel-kotlin-vscode-extension.bazelSync",
+    "bazel-kotlin.bazelSync",
     async (uri: vscode.Uri) => {
       // If no uri provided (command palette), use active editor
       if (!uri) {
@@ -321,13 +321,13 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   stopBuildButton.text = "$(stop) Stop Bazel KLS Sync";
-  stopBuildButton.command = "bazel-kotlin-vscode-extension.stopBuild";
+  stopBuildButton.command = "bazel-kotlin.stopBuild";
   stopBuildButton.tooltip = "Stop the current Bazel build";
   context.subscriptions.push(stopBuildButton);
 
   // Register stop build command
   const stopBuildCommand = vscode.commands.registerCommand(
-    "bazel-kotlin-vscode-extension.stopBuild",
+    "bazel-kotlin.stopBuild",
     async () => {
       if (currentBazelProcess && isBuildRunning && currentBazelProcess.pid) {
         outputChannel.appendLine("Stopping Bazel build process...");
@@ -417,7 +417,7 @@ async function downloadAspectRelease(
     },
     async (progress) => {
       await downloadAspectReleaseArchive(
-        "bazel-kotlin-vscode-extension",
+        "bazel-kotlin",
         ASPECT_RELEASE_VERSION,
         sourcesPath,
         progress
