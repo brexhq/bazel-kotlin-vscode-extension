@@ -43,7 +43,7 @@ Note that your test runner needs to support `--test_filter` to run single tests 
 
 In the original implementation, the LSP would try to compile all the source files in the workspace to compute the module descriptors and the PSI represenation of the source files. In a large repo involving thousands of source files, this may lead to very high resource usage and the initial sync could be significantly slow. With our bazel sync implementation, we pre-compute a lot of things in the `bazel build` through an aspect, so it becomes redundant to do so again in the LSP for all files. So we can opt to just do "lazy" compliation but still get the full symbol index through the classpath from the build. The lazy/on-demand compilation mode is enabled by default. It can be disabled with the following configuration option:
 ```
-bazelKLS.lazyCompilation: false
+bazelKotlin.lazyCompilation: false
 ```
 
 When lazy compilation is enabled, the LSP will only compile the files that are open initially. When symbols in other files are referenced through `Go-to-definition`, compilation of those files is triggered so as to support navigation. The LSP will still index all the symbols globally after the first Bazel sync, so you still get the benefits of completions and quick fixes even though we don't compile everything. 
@@ -53,7 +53,7 @@ You can now debug using a customized implementation of [Kotlin Debug Adapter](ht
 
 First enable the debug adapter with
 ```
-bazelKLS.debugAdapter.enabled: true
+bazelKotlin.debugAdapter.enabled: true
 ```
 
 and reload VSCode. It should download the debug adapter and activate it. Then you can create a launch configuration which will be something like
@@ -97,9 +97,9 @@ If you're trying to integrate changes to the language server into the extension 
 
 ## Relevant Configuration options
 
-- `bazelKLS.enabled`: Whether to enable the language server.
-- `bazelKLS.jvmOpts`: The JVM options to use when starting the language server.
-- `bazelKLS.buildFlags`: The bazel flags to be passed to the `bazel build` command during a sync.
-- `bazelKLS.debugAdapter.enabled`: Whether to enable the debug adapter or not.
-- `bazelKLS.lazyCompilation`: Whether to enable lazy/on-demand compilation.
+- `bazelKotlin.enabled`: Whether to enable the language server.
+- `bazelKotlin.jvmOpts`: The JVM options to use when starting the language server.
+- `bazelKotlin.buildFlags`: The bazel flags to be passed to the `bazel build` command during a sync.
+- `bazelKotlin.debugAdapter.enabled`: Whether to enable the debug adapter or not.
+- `bazelKotlin.lazyCompilation`: Whether to enable lazy/on-demand compilation.
 

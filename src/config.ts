@@ -37,7 +37,7 @@ export interface BazelKotlinDebugAdapterConfig {
 }
 
 export class ConfigurationManager {
-    private static readonly SECTION = 'bazelKLS';
+    private static readonly SECTION = 'bazelKotlin';
     private languageServerInstallPath: string;
     private config: vscode.WorkspaceConfiguration;
     private aspectSourcesPath: string;

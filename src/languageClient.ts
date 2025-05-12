@@ -150,7 +150,7 @@ export class KotlinLanguageClient {
 
     // Create and start the language client
     this.client = new LanguageClient(
-      "bazelKLS",
+      "bazelKotlin",
       "Bazel KLS",
       serverOptions,
       clientOptions
