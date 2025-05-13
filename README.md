@@ -108,3 +108,4 @@ If you're trying to integrate changes to the language server into the extension 
 - `bazelKotlin.lazyCompilation`: Whether to enable lazy/on-demand compilation.
 - `bazelKotlin.formatting.formatter`: Whether to use `ktfmt`, `ktlint` or disable formatting (`none`). Defaults to `ktlint`.
 - `bazelKotlin.formatting.ktlint.ktlintPath`: The path to the `ktlint` binary on the machine (defaults to `ktlint` in `$PATH`).
+- `bazelKotlin.jvmTarget`: The Java target for the Kotlin compiler. Can be either `11` or `17`, defaults to `17`.
