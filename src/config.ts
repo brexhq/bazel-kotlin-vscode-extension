@@ -24,7 +24,6 @@ export interface BazelKotlinFormatterConfig {
 }
 
 export interface KtlintConfig {
-    enabled: boolean;
     ktlintPath: string;
     editorConfigPath: string;
 }
@@ -75,11 +74,10 @@ export class ConfigurationManager {
                 },
                 lazyCompilation: this.config.get('lazyCompilation', false),
                 formatterConfig: {
-                    formatter: this.config.get('formatter', 'off'),
+                    formatter: this.config.get('formatting.formatter', 'off'),
                     ktlint: {
-                        enabled: this.config.get('ktlint.ktlintPath') !== undefined,
-                        ktlintPath: this.config.get('ktlint.ktlintPath', 'ktlint'),
-                        editorConfigPath: this.config.get('ktlint.editorConfigPath', '.editorconfig')
+                        ktlintPath: this.config.get('formatting.ktlint.ktlintPath', 'ktlint'),
+                        editorConfigPath: this.config.get('formatting.ktlint.editorConfigPath', '.editorconfig')
                     }
                 }
         };
