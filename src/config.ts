@@ -19,7 +19,7 @@ export interface BazelKLSConfig {
 }
 
 export interface BazelKotlinFormatterConfig {
-    formatter: "ktlint" | "ktfmt" | "off";
+    formatter: "ktlint" | "ktfmt" | "none";
     ktlint?: KtlintConfig;
 }
 
