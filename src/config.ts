@@ -11,6 +11,7 @@ export interface BazelKLSConfig {
     languageServerLocalPath: string | null;
     debugAttachEnabled: boolean;
     debugAttachPort: number;
+    debugAttachSuspend: boolean;
     aspectSourcesPath: string;
     buildFlags: string[];
     debugAdapter: BazelKotlinDebugAdapterConfig,
@@ -63,7 +64,8 @@ export class ConfigurationManager {
                 javaHome: this.config.get('javaHome', ''),
                 languageServerLocalPath: this.config.get('path', null),
                 debugAttachEnabled: this.config.get('debugAttach.enabled', false),
-                debugAttachPort: this.config.get('debugAttach.port', 5009),
+                debugAttachPort: this.config.get('debugAttach.port', 5009), 
+                debugAttachSuspend: this.config.get('debugAttach.autoSuspend', false),
                 aspectSourcesPath: this.aspectSourcesPath,
                 buildFlags: this.config.get("buildFlags", []),
                 debugAdapter: {

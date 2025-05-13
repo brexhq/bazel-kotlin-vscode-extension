@@ -3,7 +3,6 @@ import {
   LanguageClientOptions,
   ServerOptions,
   RevealOutputChannelOn,
-  ProgressType,
 } from "vscode-languageclient/node";
 import * as path from "path";
 import * as vscode from "vscode";
@@ -108,7 +107,7 @@ export class KotlinLanguageClient {
       options.outputChannel.appendLine(
         `Attaching debugger to language server on port ${config.debugAttachPort}`
       );
-      env.KOTLIN_LANGUAGE_SERVER_OPTS = `-Xdebug -agentlib:jdwp=transport=dt_socket,address=${config.debugAttachPort},server=y,quiet=y,suspend=y`;
+      env.KOTLIN_LANGUAGE_SERVER_OPTS = `-Xdebug -agentlib:jdwp=transport=dt_socket,address=${config.debugAttachPort},server=y,quiet=y,suspend=${config.debugAttachSuspend ? "y" : "n"}`;
     }
 
     // Server options - configure the Kotlin Language Server executable
