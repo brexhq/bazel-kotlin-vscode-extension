@@ -24,6 +24,7 @@ This extension was previously published at [bazel-kotlin-vscode-extension](https
 - Experimental Debugging support with launch configuration
 - Indexing optimized for bazel through pre-computing source/jar metadata during build.
 - Support for lazy compilation to improve performance.
+- Support for formatting with `ktlint` (In addition to `ktfmt` that the LSP already supported)
 
 ## Usage
 
@@ -105,4 +106,6 @@ If you're trying to integrate changes to the language server into the extension 
 - `bazelKotlin.buildFlags`: The bazel flags to be passed to the `bazel build` command during a sync.
 - `bazelKotlin.debugAdapter.enabled`: Whether to enable the debug adapter or not.
 - `bazelKotlin.lazyCompilation`: Whether to enable lazy/on-demand compilation.
-
+- `bazelKotlin.formatting.formatter`: Whether to use `ktfmt`, `ktlint` or disable formatting (`none`). Defaults to `ktlint`.
+- `bazelKotlin.formatting.ktlint.ktlintPath`: The path to the `ktlint` binary on the machine (defaults to `ktlint` in `$PATH`).
+- `bazelKotlin.jvmTarget`: The Java target for the Kotlin compiler. Can be either `11` or `17`, defaults to `17`.

@@ -11,10 +11,22 @@ export interface BazelKLSConfig {
     languageServerLocalPath: string | null;
     debugAttachEnabled: boolean;
     debugAttachPort: number;
+    debugAttachSuspend: boolean;
     aspectSourcesPath: string;
     buildFlags: string[];
     debugAdapter: BazelKotlinDebugAdapterConfig,
     lazyCompilation: boolean
+    formatterConfig: BazelKotlinFormatterConfig,
+}
+
+export interface BazelKotlinFormatterConfig {
+    formatter: "ktlint" | "ktfmt" | "none";
+    ktlint?: KtlintConfig;
+}
+
+export interface KtlintConfig {
+    ktlintPath: string;
+    editorConfigPath: string;
 }
 
 export interface BazelKotlinDebugAdapterConfig {
@@ -45,14 +57,15 @@ export class ConfigurationManager {
     getConfig(): BazelKLSConfig {
         return {
                 enabled: this.config.get('enabled', true),
-                jvmTarget: this.config.get('jvmTarget', '11'),
+                jvmTarget: this.config.get('jvmTarget', '17'),
                 jvmOpts: this.config.get('jvmOpts', []),
                 languageServerInstallPath: this.languageServerInstallPath,
-                languageServerVersion: this.config.get('languageServerVersion', 'v1.6.3-bazel'),
+                languageServerVersion: this.config.get('languageServerVersion', 'v1.6.5-bazel'),
                 javaHome: this.config.get('javaHome', ''),
                 languageServerLocalPath: this.config.get('path', null),
                 debugAttachEnabled: this.config.get('debugAttach.enabled', false),
-                debugAttachPort: this.config.get('debugAttach.port', 5009),
+                debugAttachPort: this.config.get('debugAttach.port', 5009), 
+                debugAttachSuspend: this.config.get('debugAttach.autoSuspend', false),
                 aspectSourcesPath: this.aspectSourcesPath,
                 buildFlags: this.config.get("buildFlags", []),
                 debugAdapter: {
@@ -62,6 +75,13 @@ export class ConfigurationManager {
                     version: this.config.get('debugAdapter.version', 'v1.6.3-bazel'),
                 },
                 lazyCompilation: this.config.get('lazyCompilation', false),
+                formatterConfig: {
+                    formatter: this.config.get('formatting.formatter', 'ktlint'),
+                    ktlint: {
+                        ktlintPath: this.config.get('formatting.ktlint.ktlintPath', 'ktlint'),
+                        editorConfigPath: this.config.get('formatting.ktlint.editorConfigPath', '.editorconfig')
+                    }
+                }
         };
     }
 

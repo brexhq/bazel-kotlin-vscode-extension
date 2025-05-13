@@ -2,7 +2,7 @@
   "name": "bazel-kotlin",
   "displayName": "Bazel Kotlin",
   "description": "Extension to support Bazel with Kotlin Language Server and Kotlin Debug Adapter",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "publisher": "Brex",
   "icon": "resources/kotlin-bazel-logo.png",
   "repository": {
@@ -147,7 +147,7 @@
         },
         "bazelKotlin.languageServerVersion": {
           "type": "string",
-          "default": "v1.6.3-bazel"
+          "default": "v1.6.5-bazel"
         },
         "bazelKotlin.jvmOpts": {
           "type": "array",
@@ -224,7 +224,7 @@
         },
         "bazelKotlin.jvmTarget": {
           "type": "string",
-          "default": "11",
+          "default": "17",
           "description": "Specifies the JVM target, e.g. '11' or '17'."
         },
         "bazelKotlin.diagnostics.enabled": {
@@ -324,6 +324,22 @@
           "type": "array",
           "default": [],
           "description": "A list of build flags to be passed to the bazel build command during a sync."
+        },
+        "bazelKotlin.formatting.formatter": {
+          "type": "string",
+          "enum": ["ktlint", "ktfmt", "none"],
+          "default": "ktlint",
+          "description": "Formatter to use for Kotlin files."
+        },
+        "bazelKotlin.formatting.ktlint.ktlintPath": {
+          "type": "string",
+          "default": "ktlint",
+          "description": "Path to the ktlint binary. Only used when formatter is set to 'ktlint'."
+        },
+        "bazelKotlin.formatting.ktlint.editorConfigPath": {
+          "type": "string",
+          "default": ".editorconfig",
+          "description": "Path to the .editorconfig file used by ktlint. Only used when formatter is set to 'ktlint'."
         }
       }
     },

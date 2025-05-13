@@ -83,9 +83,9 @@ suite('ConfigurationManager Integration Test Suite', () => {
     teardown(async () => {
         // Reset any settings changed during testing
         await vscode.workspace.getConfiguration('bazelKotlin').update('enabled', undefined, vscode.ConfigurationTarget.Global);
-        await vscode.workspace.getConfiguration('bazelKLS').update('jvmTarget', undefined, vscode.ConfigurationTarget.Global);
-        await vscode.workspace.getConfiguration('bazelKLS').update('jvmOpts', undefined, vscode.ConfigurationTarget.Global);
-        await vscode.workspace.getConfiguration('bazelKLS').update('buildFlags', undefined, vscode.ConfigurationTarget.Global);
+        await vscode.workspace.getConfiguration('bazeKotlin').update('jvmTarget', undefined, vscode.ConfigurationTarget.Global);
+        await vscode.workspace.getConfiguration('bazelKotlin').update('jvmOpts', undefined, vscode.ConfigurationTarget.Global);
+        await vscode.workspace.getConfiguration('bazelKotlin').update('buildFlags', undefined, vscode.ConfigurationTarget.Global);
     });
 
     test('getConfig should return default configuration', () => {
@@ -93,9 +93,9 @@ suite('ConfigurationManager Integration Test Suite', () => {
         console.log(config);
         
         assert.strictEqual(config.enabled, true);
-        assert.strictEqual(config.jvmTarget, '11');
+        assert.strictEqual(config.jvmTarget, '17');
         assert.deepStrictEqual(config.jvmOpts, []);
-        assert.strictEqual(config.languageServerVersion, 'v1.6.3-bazel');
+        assert.strictEqual(config.languageServerVersion, 'v1.6.5-bazel');
         assert.strictEqual(config.javaHome, '');
         assert.strictEqual(config.languageServerLocalPath, '');
         assert.strictEqual(config.debugAttachEnabled, false);
@@ -118,7 +118,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
         // Update settings
         await configManager.update({
                 enabled: false,
-                jvmTarget: '17',
+                jvmTarget: '11',
                 jvmOpts: ['-Xmx2g'],
                 buildFlags: ["--config=remote"],
                 lazyCompilation: true,
@@ -131,7 +131,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
         
         // Verify settings were updated
         assert.strictEqual(updatedConfig.enabled, false);
-        assert.strictEqual(updatedConfig.jvmTarget, '17');
+        assert.strictEqual(updatedConfig.jvmTarget, '11');
         assert.deepStrictEqual(updatedConfig.jvmOpts, ['-Xmx2g']);
         assert.strictEqual(updatedConfig.buildFlags.length, 1);
         assert.deepEqual(updatedConfig.buildFlags, ["--config=remote"]);
