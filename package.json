@@ -147,7 +147,7 @@
         },
         "bazelKotlin.languageServerVersion": {
           "type": "string",
-          "default": "v1.6.3-bazel"
+          "default": "v1.6.5-bazel"
         },
         "bazelKotlin.jvmOpts": {
           "type": "array",

@@ -83,9 +83,9 @@ suite('ConfigurationManager Integration Test Suite', () => {
     teardown(async () => {
         // Reset any settings changed during testing
         await vscode.workspace.getConfiguration('bazelKotlin').update('enabled', undefined, vscode.ConfigurationTarget.Global);
-        await vscode.workspace.getConfiguration('bazelKLS').update('jvmTarget', undefined, vscode.ConfigurationTarget.Global);
-        await vscode.workspace.getConfiguration('bazelKLS').update('jvmOpts', undefined, vscode.ConfigurationTarget.Global);
-        await vscode.workspace.getConfiguration('bazelKLS').update('buildFlags', undefined, vscode.ConfigurationTarget.Global);
+        await vscode.workspace.getConfiguration('bazeKotlin').update('jvmTarget', undefined, vscode.ConfigurationTarget.Global);
+        await vscode.workspace.getConfiguration('bazelKotlin').update('jvmOpts', undefined, vscode.ConfigurationTarget.Global);
+        await vscode.workspace.getConfiguration('bazelKotlin').update('buildFlags', undefined, vscode.ConfigurationTarget.Global);
     });
 
     test('getConfig should return default configuration', () => {
@@ -95,7 +95,7 @@ suite('ConfigurationManager Integration Test Suite', () => {
         assert.strictEqual(config.enabled, true);
         assert.strictEqual(config.jvmTarget, '17');
         assert.deepStrictEqual(config.jvmOpts, []);
-        assert.strictEqual(config.languageServerVersion, 'v1.6.3-bazel');
+        assert.strictEqual(config.languageServerVersion, 'v1.6.5-bazel');
         assert.strictEqual(config.javaHome, '');
         assert.strictEqual(config.languageServerLocalPath, '');
         assert.strictEqual(config.debugAttachEnabled, false);
