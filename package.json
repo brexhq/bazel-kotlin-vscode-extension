@@ -2,11 +2,7 @@
   "name": "bazel-kotlin",
   "displayName": "Bazel Kotlin",
   "description": "Extension to support Bazel with Kotlin Language Server and Kotlin Debug Adapter",
-<<<<<<< HEAD
   "version": "0.5.3",
-=======
-  "version": "0.5.2",
->>>>>>> 86d9ddc (Rename config namespace to avoid conflict (#74))
   "publisher": "Brex",
   "icon": "resources/kotlin-bazel-logo.png",
   "repository": {
