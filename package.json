@@ -328,7 +328,7 @@
         "bazelKotlin.formatting.formatter": {
           "type": "string",
           "enum": ["ktlint", "ktfmt", "none"],
-          "default": "off",
+          "default": "ktlint",
           "description": "Formatter to use for Kotlin files."
         },
         "bazelKotlin.formatting.ktlint.ktlintPath": {

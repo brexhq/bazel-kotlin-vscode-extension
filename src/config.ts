@@ -76,7 +76,7 @@ export class ConfigurationManager {
                 },
                 lazyCompilation: this.config.get('lazyCompilation', false),
                 formatterConfig: {
-                    formatter: this.config.get('formatting.formatter', 'off'),
+                    formatter: this.config.get('formatting.formatter', 'ktlint'),
                     ktlint: {
                         ktlintPath: this.config.get('formatting.ktlint.ktlintPath', 'ktlint'),
                         editorConfigPath: this.config.get('formatting.ktlint.editorConfigPath', '.editorconfig')
