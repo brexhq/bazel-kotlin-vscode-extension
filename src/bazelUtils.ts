@@ -9,7 +9,6 @@ const execAsync = promisify(cp.exec);
 
 export async function isBzlmodEnabled(workspaceRoot: string): Promise<boolean> {
   try {
-
     let buildFile = path.join(workspaceRoot, "BUILD.bazel");
     if (!fs.existsSync(buildFile)) {
       // if BUILD.bazel does not exist, try BUILD
@@ -18,8 +17,7 @@ export async function isBzlmodEnabled(workspaceRoot: string): Promise<boolean> {
 
     buildFile = path.basename(buildFile);
     // run this command to check if bzlmod is enabled
-    const command =
-      `bazel cquery //:${buildFile} --output=starlark --starlark:expr="target.label"`;
+    const command = `bazel cquery //:${buildFile} --output=starlark --starlark:expr="target.label"`;
 
     const result = await execAsync(command, { cwd: workspaceRoot });
     const stdout = result.stdout.trim();
@@ -35,31 +33,34 @@ export async function isBzlmodEnabled(workspaceRoot: string): Promise<boolean> {
   }
 }
 
-enum BazelMajorVersion {
+export enum BazelMajorVersion {
   SIX = "6",
   SEVEN = "7",
-  EIGHT = "8"
+  EIGHT = "8",
 }
 
 /**
  * Returns the major version of the Bazel version
- * @param workspaceRoot 
+ * @param workspaceRoot
  * @returns string
  */
-export async function getBazelMajorVersion(workspaceRoot: string): Promise<BazelMajorVersion> {
+export async function getBazelMajorVersion(
+  workspaceRoot: string
+): Promise<BazelMajorVersion> {
   const command = "bazel version";
   const result = await execAsync(command, { cwd: workspaceRoot });
   const stdout = result.stdout.trim();
-  const lines = stdout.split('\n');
-  const buildLabelLine = lines.find(line => line.trim().startsWith('Build label:'));
+  const lines = stdout.split("\n");
+  const buildLabelLine = lines.find((line) =>
+    line.trim().startsWith("Build label:")
+  );
   if (!buildLabelLine) {
     vscode.window.showWarningMessage("Failed to get Bazel version");
     return BazelMajorVersion.SEVEN;
   }
-  const version = buildLabelLine.split(':')[1].trim();
+  const version = buildLabelLine.split(":")[1].trim();
   return version.split(".")[0] as BazelMajorVersion;
 }
-
 
 export async function getBazelAspectArgs(
   aspectSourcesPath: string,
@@ -67,7 +68,12 @@ export async function getBazelAspectArgs(
   bazelVersion: BazelMajorVersion,
   developmentMode: boolean = false
 ): Promise<string[]> {
-  let aspectWorkspacePath = path.join(aspectSourcesPath, bazelVersion, "bazel", "aspect");
+  let aspectWorkspacePath = path.join(
+    aspectSourcesPath,
+    bazelVersion,
+    "bazel",
+    "aspect"
+  );
   if (!checkDirectoryExists(aspectWorkspacePath)) {
     throw new Error(
       `Bazel Aspect workspace not found at ${aspectWorkspacePath}`
@@ -81,11 +87,11 @@ export async function getBazelAspectArgs(
   }
 
   let overrideRepo = `--override_repository=bazel_kotlin_lsp=${aspectWorkspacePath}`;
-  if(bazelVersion === BazelMajorVersion.EIGHT) {
+  if (bazelVersion === BazelMajorVersion.EIGHT) {
     repoName = "@bazel_kotlin_lsp";
     overrideRepo = `--inject_repository=bazel_kotlin_lsp=${aspectWorkspacePath}`;
   }
-  
+
   return [
     overrideRepo,
     `--aspects=${repoName}//:kotlin_lsp_info.bzl%kotlin_lsp_aspect`,
