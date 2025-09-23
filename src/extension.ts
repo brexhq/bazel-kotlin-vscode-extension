@@ -8,7 +8,12 @@ import { downloadAspectReleaseArchive } from "./githubUtils";
 import { ConfigurationManager, BazelKLSConfig } from "./config";
 import { KotlinLanguageClient, configureLanguage } from "./languageClient";
 import { KotestTestController } from "./kotest";
-import { getBazelAspectArgs, getBazelMajorVersion, getToolTag } from "./bazelUtils";
+import {
+  getBazelAspectArgs,
+  getBazelMajorVersion,
+  getToolTag,
+  BazelMajorVersion,
+} from "./bazelUtils";
 import { ASPECT_RELEASE_VERSION } from "./constants";
 import {
   KotlinBazelDebugConfigurationProvider,
@@ -32,7 +37,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const configManager = new ConfigurationManager(globalStoragePath);
   const config = configManager.getConfig();
 
-  if(context.extensionMode !== vscode.ExtensionMode.Development) {
+  if (context.extensionMode !== vscode.ExtensionMode.Development) {
     await downloadAspectRelease(config);
   }
 
@@ -184,15 +189,27 @@ export async function activate(context: vscode.ExtensionContext) {
           return;
         }
 
-
-        // Then build those targets with the aspect
+        // Check bazel version support
         const bazelMajorVersion = await getBazelMajorVersion(currentDir);
+        if (bazelMajorVersion == BazelMajorVersion.SIX) {
+          vscode.window.showErrorMessage(
+            `Unsupported bazel version - please upgrade to Bazel 7/8`
+          );
+          return;
+        }
+        // build targets with aspect
         outputChannel.appendLine(`Bazel major version: ${bazelMajorVersion}`);
         let aspectSourcesPath = config.aspectSourcesPath;
 
-        const developmentMode = context.extensionMode === vscode.ExtensionMode.Development;
+        const developmentMode =
+          context.extensionMode === vscode.ExtensionMode.Development;
 
-        const bazelAspectArgs = await getBazelAspectArgs(aspectSourcesPath, currentDir, bazelMajorVersion, developmentMode);
+        const bazelAspectArgs = await getBazelAspectArgs(
+          aspectSourcesPath,
+          currentDir,
+          bazelMajorVersion,
+          developmentMode
+        );
 
         const bazelExecutable = "bazel";
         const bazelArgs = [
@@ -402,9 +419,7 @@ export async function activate(context: vscode.ExtensionContext) {
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
-async function downloadAspectRelease(
-  config: BazelKLSConfig
-) {
+async function downloadAspectRelease(config: BazelKLSConfig) {
   const sourcesPath = config.aspectSourcesPath;
   if (!fs.existsSync(sourcesPath)) {
     await fs.mkdirSync(sourcesPath, { recursive: true });
