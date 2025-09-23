@@ -81,7 +81,7 @@ and reload VSCode. It should download the debug adapter and activate it. Then yo
 And then you can use the Debug console to launch and debug the bazel target.
 
 ## Requirements
-- Bazel 6/7/8 tested, WORKSPACE and bzlmod should be supported. However, the debug adapter is currently not supported for bzlmod. It will be supported in the next release.
+- Bazel 7/8 tested, WORKSPACE and bzlmod should be supported. However, the debug adapter is currently not supported for bzlmod. It will be supported in the next release.
 - Java 11/17 tested/supported.
 - Tested with Kotlin 1.9, rules_kotlin 1.9.0 (newer/older versions may work but are not tested).
 - For source jars and external dependencies, require using `rules_jvm_external` with `fetch_sources` set to `True`.
