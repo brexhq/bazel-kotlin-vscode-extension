@@ -48,7 +48,7 @@ export async function detectKotlinRulesRepoName(workspaceRoot: string, bzlmodEna
   }
 
   // For bzlmod setups, check the repository mapping
-  const command = "bazel mod dump_repo_mapping workspace";
+  const command = 'bazel mod dump_repo_mapping ""';
   const result = await execAsync(command, { cwd: workspaceRoot });
   const stdout = result.stdout.trim();
 
