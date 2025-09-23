@@ -4,6 +4,7 @@ import { promisify } from "util";
 import * as cp from "child_process";
 import * as vscode from "vscode";
 import * as fs from "fs";
+import { replaceKotlinRulesReferences } from "./githubUtils";
 
 const execAsync = promisify(cp.exec);
 
@@ -31,6 +32,41 @@ export async function isBzlmodEnabled(workspaceRoot: string): Promise<boolean> {
     );
     return false;
   }
+}
+
+/**
+ * Detects which Kotlin rules repository name is used in the workspace.
+ * Returns either "rules_kotlin" or "io_bazel_rules_kotlin" based on the setup.
+ * @param workspaceRoot
+ * @param bzlmodEnabled Whether bzlmod is enabled in the workspace
+ * @returns The repository name used for Kotlin rules
+ */
+export async function detectKotlinRulesRepoName(workspaceRoot: string, bzlmodEnabled: boolean): Promise<string> {
+  if (!bzlmodEnabled) {
+    // For WORKSPACE setups, assume io_bazel_rules_kotlin
+    return "io_bazel_rules_kotlin";
+  }
+
+  // For bzlmod setups, check the repository mapping
+  const command = "bazel mod dump_repo_mapping workspace";
+  const result = await execAsync(command, { cwd: workspaceRoot });
+  const stdout = result.stdout.trim();
+
+  // Parse the JSON output
+  const repoMapping = JSON.parse(stdout);
+
+  // Check if io_bazel_rules_kotlin exists in the mapping
+  if (repoMapping.hasOwnProperty("io_bazel_rules_kotlin")) {
+    return "io_bazel_rules_kotlin";
+  }
+
+  // Check if rules_kotlin exists in the mapping
+  if (repoMapping.hasOwnProperty("rules_kotlin")) {
+    return "rules_kotlin";
+  }
+
+  // If neither exists, throw an error
+  throw new Error("Neither io_bazel_rules_kotlin nor rules_kotlin found in repository mapping");
 }
 
 export enum BazelMajorVersion {
@@ -81,6 +117,18 @@ export async function getBazelAspectArgs(
   }
 
   const bzlmodEnabled = await isBzlmodEnabled(workspaceRoot);
+
+  // Detect which Kotlin rules repository is used and update aspect files accordingly
+  try {
+    const detectedRepoName = await detectKotlinRulesRepoName(workspaceRoot, bzlmodEnabled);
+    replaceKotlinRulesReferences(path.join(aspectSourcesPath, bazelVersion), detectedRepoName);
+  } catch (error) {
+    vscode.window.showWarningMessage(
+      `(Bazel KLS) Could not detect Kotlin rules repository, using default: ${
+        (error as Error).message
+      }`
+    );
+  }
   let repoName = "@bazel_kotlin_lsp";
   if (bzlmodEnabled) {
     repoName = "@@bazel_kotlin_lsp";

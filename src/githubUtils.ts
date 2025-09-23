@@ -281,6 +281,52 @@ export async function downloadAspectReleaseArchive(
   fs.writeFileSync(path.join(destPath, "version"), version);
 }
 
+/**
+ * Replaces repository references in aspect files to match the workspace's Kotlin rules setup.
+ * @param aspectPath Path to the extracted aspect directory
+ * @param detectedRepoName The detected repository name ("rules_kotlin" or "io_bazel_rules_kotlin")
+ */
+export function replaceKotlinRulesReferences(aspectPath: string, detectedRepoName: string): void {
+  const targetRepoName = detectedRepoName === "rules_kotlin" ? "rules_kotlin" : "io_bazel_rules_kotlin";
+
+  // Files to update
+  const filesToUpdate = [
+    path.join(aspectPath, "bazel", "aspect", "kotlin_lsp_info.bzl"),
+    path.join(aspectPath, "bazel", "aspect", "stdlib.bzl"),
+    path.join(aspectPath, "bazel", "aspect", "MODULE.bazel"),
+  ];
+
+  for (const filePath of filesToUpdate) {
+    if (fs.existsSync(filePath)) {
+      let content = fs.readFileSync(filePath, "utf-8");
+
+      if (filePath.endsWith(".bzl")) {
+        // Replace both possible references in .bzl files
+        content = content.replace(
+          /@io_bazel_rules_kotlin\/\/kotlin\/internal:/g,
+          `@${targetRepoName}//kotlin/internal:`
+        );
+        content = content.replace(
+          /@rules_kotlin\/\/kotlin\/internal:/g,
+          `@${targetRepoName}//kotlin/internal:`
+        );
+      } else if (filePath.endsWith("MODULE.bazel")) {
+        // Replace both possible repo_name values in MODULE.bazel
+        content = content.replace(
+          /repo_name = "io_bazel_rules_kotlin"/g,
+          `repo_name = "${targetRepoName}"`
+        );
+        content = content.replace(
+          /repo_name = "rules_kotlin"/g,
+          `repo_name = "${targetRepoName}"`
+        );
+      }
+
+      fs.writeFileSync(filePath, content, "utf-8");
+    }
+  }
+}
+
 export async function downloadDebugAdapter(
   repo: string,
   version: string,
