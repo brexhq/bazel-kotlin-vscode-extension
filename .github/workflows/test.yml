@@ -73,18 +73,4 @@ jobs:
       - name: Build Aspect (Bazel 7)
         run: cd bazel/aspect && USE_BAZEL_VERSION=7.4.1 bazel build //lsp_info_extractor:lsp_info_extractor_deploy.jar
 
-  build-aspect-bazel6:
-    name: Build Kotlin LSP Aspect (Bazel 6)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - uses: bazel-contrib/setup-bazel@0.14.0
-        with:
-          bazelisk-cache: true
-
-      - name: Build Aspect (Bazel 6)
-        run: cd bazel/aspect && USE_BAZEL_VERSION=6.5.0 bazel build //lsp_info_extractor:lsp_info_extractor_deploy.jar
-
       
