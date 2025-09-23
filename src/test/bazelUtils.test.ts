@@ -10,6 +10,9 @@ suite('Bazel Utils Test Suite', () => {
     let execAsyncStub: sinon.SinonStub;
     let existsSyncStub: sinon.SinonStub;
     let showErrorMessageStub: sinon.SinonStub;
+    let showWarningMessageStub: sinon.SinonStub;
+    let replaceKotlinRulesReferencesStub: sinon.SinonStub;
+    let checkDirectoryExistsStub: sinon.SinonStub;
     let bazelUtils: any;
     
     setup(() => {
@@ -17,6 +20,9 @@ suite('Bazel Utils Test Suite', () => {
         execAsyncStub = sinon.stub();
         existsSyncStub = sinon.stub();
         showErrorMessageStub = sinon.stub();
+        showWarningMessageStub = sinon.stub();
+        replaceKotlinRulesReferencesStub = sinon.stub();
+        checkDirectoryExistsStub = sinon.stub().returns(true);
         
         // Mocked promisify that returns our execAsyncStub
         const promisifyMock = (original: any) => execAsyncStub;
@@ -34,15 +40,23 @@ suite('Bazel Utils Test Suite', () => {
         // Configure module mocks
         bazelUtils = proxyquire('../bazelUtils', {
             'fs': { existsSync: existsSyncStub },
-            'vscode': { window: { showErrorMessage: showErrorMessageStub } },
+            'vscode': { window: { showErrorMessage: showErrorMessageStub, showWarningMessage: showWarningMessageStub } },
             'util': utilMock,
             'child_process': cpMock,
-            'path': path // Use actual path module
+            'path': path, // Use actual path module
+            './githubUtils': { replaceKotlinRulesReferences: replaceKotlinRulesReferencesStub },
+            './dirUtils': { checkDirectoryExists: checkDirectoryExistsStub }
         });
     });
     
     teardown(() => {
-        sinon.restore();
+        // Reset stubs for next test
+        execAsyncStub.reset();
+        existsSyncStub.reset();
+        showErrorMessageStub.reset();
+        showWarningMessageStub.reset();
+        replaceKotlinRulesReferencesStub.reset();
+        checkDirectoryExistsStub.reset();
     });
     
     test('isBzlmodEnabled with bzlmod enabled', async () => {
@@ -92,8 +106,16 @@ Build timestamp as int: 1731360456
         const developmentMode = false;
 
         existsSyncStub.returns(true);
-        execAsyncStub.resolves({
-            stdout: '@@//:BUILD.bazel',
+
+        // Set up execAsyncStub to handle multiple calls
+        execAsyncStub.onFirstCall().resolves({
+            stdout: '@@//:BUILD.bazel',  // bzlmod enabled
+            stderr: ''
+        });
+        execAsyncStub.onSecondCall().resolves({
+            stdout: JSON.stringify({
+                "rules_kotlin": "rules_kotlin~1.9.6~kt~kt"
+            }),
             stderr: ''
         });
 
@@ -125,11 +147,19 @@ Build timestamp as int: 1731360456
         const workspaceRoot = "/fake/workspace";
         const aspectSourcesPath = "/fake/aspect/sources";
         const bazelVersion = '8';
-        const developmentMode = false;  
+        const developmentMode = false;
 
         existsSyncStub.returns(true);
-        execAsyncStub.resolves({
-            stdout: '@@//:BUILD.bazel',
+
+        // Set up execAsyncStub to handle multiple calls
+        execAsyncStub.onFirstCall().resolves({
+            stdout: '@@//:BUILD.bazel',  // bzlmod enabled
+            stderr: ''
+        });
+        execAsyncStub.onSecondCall().resolves({
+            stdout: JSON.stringify({
+                "rules_kotlin": "rules_kotlin~1.9.6~kt~kt"
+            }),
             stderr: ''
         });
 
@@ -138,5 +168,67 @@ Build timestamp as int: 1731360456
         assert.strictEqual(result[0], '--inject_repository=bazel_kotlin_lsp=/fake/aspect/sources/8/bazel/aspect');
         assert.strictEqual(result[1], '--aspects=@bazel_kotlin_lsp//:kotlin_lsp_info.bzl%kotlin_lsp_aspect');
     });
-    
+
+    test('detectKotlinRulesRepoName returns io_bazel_rules_kotlin for WORKSPACE setup', async () => {
+        const workspaceRoot = "/fake/workspace";
+        const bzlmodEnabled = false;
+
+        const result = await bazelUtils.detectKotlinRulesRepoName(workspaceRoot, bzlmodEnabled);
+        assert.strictEqual(result, 'io_bazel_rules_kotlin');
+    });
+
+    test('detectKotlinRulesRepoName returns rules_kotlin for bzlmod with rules_kotlin', async () => {
+        const workspaceRoot = "/fake/workspace";
+        const bzlmodEnabled = true;
+
+        // Mock bazel mod dump_repo_mapping output with rules_kotlin
+        execAsyncStub.resolves({
+            stdout: JSON.stringify({
+                "rules_kotlin": "rules_kotlin~1.9.6~kt~kt",
+                "other_repo": "some_other_repo"
+            }),
+            stderr: ''
+        });
+
+        const result = await bazelUtils.detectKotlinRulesRepoName(workspaceRoot, bzlmodEnabled);
+        assert.strictEqual(result, 'rules_kotlin');
+    });
+
+    test('detectKotlinRulesRepoName returns io_bazel_rules_kotlin for bzlmod with io_bazel_rules_kotlin', async () => {
+        const workspaceRoot = "/fake/workspace";
+        const bzlmodEnabled = true;
+
+        // Mock bazel mod dump_repo_mapping output with io_bazel_rules_kotlin
+        execAsyncStub.resolves({
+            stdout: JSON.stringify({
+                "io_bazel_rules_kotlin": "io_bazel_rules_kotlin",
+                "other_repo": "some_other_repo"
+            }),
+            stderr: ''
+        });
+
+        const result = await bazelUtils.detectKotlinRulesRepoName(workspaceRoot, bzlmodEnabled);
+        assert.strictEqual(result, 'io_bazel_rules_kotlin');
+    });
+
+    test('detectKotlinRulesRepoName throws error when neither repository found in bzlmod', async () => {
+        const workspaceRoot = "/fake/workspace";
+        const bzlmodEnabled = true;
+
+        // Mock bazel mod dump_repo_mapping output without Kotlin rules
+        execAsyncStub.resolves({
+            stdout: JSON.stringify({
+                "some_other_repo": "some_other_repo"
+            }),
+            stderr: ''
+        });
+
+        try {
+            await bazelUtils.detectKotlinRulesRepoName(workspaceRoot, bzlmodEnabled);
+            assert.fail('Expected function to throw an error');
+        } catch (error) {
+            assert.strictEqual((error as Error).message, 'Neither io_bazel_rules_kotlin nor rules_kotlin found in repository mapping');
+        }
+    });
+
 });
