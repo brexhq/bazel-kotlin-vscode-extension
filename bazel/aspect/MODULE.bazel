@@ -7,7 +7,7 @@ bazel_dep(
     version = "1.9.0",
     repo_name = "io_bazel_rules_kotlin",
 )
-bazel_dep(name = "rules_jvm_external", version = "6.5")
+bazel_dep(name = "rules_jvm_external", version = "6.8")
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.install(
@@ -27,5 +27,6 @@ maven.install(
         "https://repo1.maven.org/maven2",
         "https://mvnrepository.com/artifact",
     ],
+    resolver = "gradle",
 )
 use_repo(maven, "maven")
