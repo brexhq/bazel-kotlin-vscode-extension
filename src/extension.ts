@@ -136,7 +136,6 @@ export async function activate(context: vscode.ExtensionContext) {
         return;
       }
 
-      outputChannel.show();
       outputChannel.appendLine(`Starting Bazel sync for: ${uri.fsPath}`);
       outputChannel.appendLine(`Using Bazel workspace: ${currentDir}`);
 
