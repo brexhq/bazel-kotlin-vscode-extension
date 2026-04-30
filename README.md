@@ -9,7 +9,13 @@ This lightweight extension is used to "sync" the Bazel project with the Kotlin l
 
 Additionally it also relies on a fork of [Kotlin Debug Adapter](https://github.com/fwcd/kotlin-debug-adapter) customized to support Bazel.
 
-## ⚠️ NOTICE
+## ⚠️ PROJECT ARCHIVED
+This project is no longer maintained and has been archived. The maintainer is unable to dedicate time to addressing issues and ongoing maintenance.
+
+For Kotlin language support, we recommend switching to the official [kotlin-lsp](https://github.com/Kotlin/kotlin-lsp) from JetBrains. Note that Bazel support in `kotlin-lsp` is still TBD at the time of archival.
+
+---
+
 This extension was previously published at [bazel-kotlin-vscode-extension](https://marketplace.visualstudio.com/items?itemName=SridharMocherla.bazel-kotlin-vscode-extension) on the VSCode marketplace, however it has now been migrated to [Bazel Kotlin](https://marketplace.visualstudio.com/items?itemName=Brex.bazel-kotlin). Please uninstall the old extension and install the new extension to receive updates and new features.
 
 ## Features
