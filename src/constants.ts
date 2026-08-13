@@ -9,18 +9,18 @@ export const ASPECT_ASSET_NAMES = [
   "kls-aspect-bazel8.zip",
 ];
 
-export const ASPECT_RELEASE_VERSION = "v0.4.1-rc.2";
+export const ASPECT_RELEASE_VERSION = "v0.6.1";
 
 export const ASPECT_RELEASES: AspectReleaseInfo[] = [
   {
     bazelVersion: "7",
-    version: "v0.4.1-rc.2",
-    sha256: "243d0555938de9c96bef609e1327cb8533e06ee8ac94cde07c3788dab48c3590",
+    version: "v0.6.1",
+    sha256: "7a7f8b793c5ce508efc412e951e6cdb860ee9789e461c7af47be85b2d47b6371",
   },
   {
     bazelVersion: "8",
-    version: "v0.4.1-rc.2",
-    sha256: "59fe3160c7813d16aa401f17616bfe2184736bd1b5e8f133388a295abec81080",
+    version: "v0.6.1",
+    sha256: "8c45fa5cc34abfd74f46413f6fee87ee5a7742f18b31c8e9b73c257f060f51af",
   },
 ];
 
